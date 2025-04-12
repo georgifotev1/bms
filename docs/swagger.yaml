@@ -1,0 +1,34 @@
+basePath: /v1
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://www.example.com/support
+  description: Booking Management System API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: BMS
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      description: Healthcheck endpoint
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: Healthcheck
+      tags:
+      - ops
+securityDefinitions:
+  ApiKeyAuth:
+    in: cookie
+    name: session_cookie
+    type: apiKey
+swagger: "2.0"
