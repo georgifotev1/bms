@@ -8,19 +8,17 @@ package store
 import (
 	"context"
 	"database/sql"
-
-	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name, email, password) VALUES ($1, $2, $3)
-RETURNING id, name, email, password, verified, created_at, updated_at
+RETURNING id, name, email, password, avatar, verified, created_at, updated_at
 `
 
 type CreateUserParams struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
-	Password []byte `json:"password"`
+	Password []byte `json:"-"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -31,6 +29,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.Avatar,
 		&i.Verified,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -38,17 +37,26 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
 const verifyUser = `-- name: VerifyUser :one
 UPDATE users SET
 verified = $1,
 updated_at = NOW()
 WHERE id = $2
-RETURNING id, name, email, password, verified, created_at, updated_at
+RETURNING id, name, email, password, avatar, verified, created_at, updated_at
 `
 
 type VerifyUserParams struct {
 	Verified sql.NullBool `json:"verified"`
-	ID       uuid.UUID    `json:"id"`
+	ID       int64        `json:"id"`
 }
 
 func (q *Queries) VerifyUser(ctx context.Context, arg VerifyUserParams) (User, error) {
@@ -59,6 +67,7 @@ func (q *Queries) VerifyUser(ctx context.Context, arg VerifyUserParams) (User, e
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.Avatar,
 		&i.Verified,
 		&i.CreatedAt,
 		&i.UpdatedAt,

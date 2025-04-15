@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/georgifotev1/bms/docs"
+	"github.com/georgifotev1/bms/internal/auth"
+	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -25,12 +27,15 @@ type application struct {
 	config config
 	store  store.Queries
 	logger *zap.SugaredLogger
+	mailer mailer.Client
+	auth   auth.Authenticator
 }
 
 type config struct {
 	address   string
 	db        dbConfig
 	auth      authConfig
+	mail      mailConfig
 	env       string
 	apiUrl    string
 	clientUrl string
@@ -44,19 +49,29 @@ type dbConfig struct {
 }
 
 type authConfig struct {
-	basic basicCfg
-	token tokenCfg
+	basic basicConfig
+	token tokenConfig
 }
 
-type tokenCfg struct {
+type tokenConfig struct {
 	secret string
 	exp    time.Duration
 	iss    string
 }
 
-type basicCfg struct {
+type basicConfig struct {
 	user string
 	pass string
+}
+
+type mailConfig struct {
+	mailTrap  mailTrapConfig
+	fromEmail string
+	exp       time.Duration
+}
+
+type mailTrapConfig struct {
+	apiKey string
 }
 
 func (app *application) mount() http.Handler {

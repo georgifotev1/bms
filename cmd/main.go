@@ -54,14 +54,21 @@ func main() {
 			maxIdleTime:  "15m",
 		},
 		auth: authConfig{
-			basic: basicCfg{
+			basic: basicConfig{
 				user: env.GetString("AUTH_BASIC_USER", "admin"),
 				pass: env.GetString("AUTH_BASIC_PASS", "admin"),
 			},
-			token: tokenCfg{
+			token: tokenConfig{
 				secret: env.GetString("AUTH_TOKEN_SECRET", "supersecret"),
 				exp:    time.Hour * 24,
 				iss:    "bms",
+			},
+		},
+		mail: mailConfig{
+			exp:       time.Hour * 24,
+			fromEmail: env.GetString("FROM_EMAIL", ""),
+			mailTrap: mailTrapConfig{
+				apiKey: env.GetString("MAILTRAP_API_KEY", ""),
 			},
 		},
 	}

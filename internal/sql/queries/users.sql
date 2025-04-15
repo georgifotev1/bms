@@ -8,3 +8,6 @@ verified = $1,
 updated_at = NOW()
 WHERE id = $2
 RETURNING *;
+
+-- name: DeleteUser :exec
+DELETE FROM users WHERE id = $1;
