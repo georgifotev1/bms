@@ -7,7 +7,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -46,31 +45,14 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	return err
 }
 
-const verifyUser = `-- name: VerifyUser :one
+const verifyUser = `-- name: VerifyUser :exec
 UPDATE users SET
-verified = $1,
+verified = TRUE,
 updated_at = NOW()
-WHERE id = $2
-RETURNING id, name, email, password, avatar, verified, created_at, updated_at
+WHERE id = $1
 `
 
-type VerifyUserParams struct {
-	Verified sql.NullBool `json:"verified"`
-	ID       int64        `json:"id"`
-}
-
-func (q *Queries) VerifyUser(ctx context.Context, arg VerifyUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, verifyUser, arg.Verified, arg.ID)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Email,
-		&i.Password,
-		&i.Avatar,
-		&i.Verified,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+func (q *Queries) VerifyUser(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, verifyUser, id)
+	return err
 }

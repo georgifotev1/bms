@@ -2,12 +2,11 @@
 INSERT INTO users (name, email, password) VALUES ($1, $2, $3)
 RETURNING *;
 
--- name: VerifyUser :one
+-- name: VerifyUser :exec
 UPDATE users SET
-verified = $1,
+verified = TRUE,
 updated_at = NOW()
-WHERE id = $2
-RETURNING *;
+WHERE id = $1;
 
 -- name: DeleteUser :exec
 DELETE FROM users WHERE id = $1;

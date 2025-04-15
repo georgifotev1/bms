@@ -39,16 +39,11 @@ func (q *Queries) DeleteUserInvitation(ctx context.Context, userID int64) error 
 const getUserFromInvitation = `-- name: GetUserFromInvitation :one
 SELECT u.id FROM users u JOIN user_invitations ui
 ON ui.id = ui.user_id
-WHERE ui.token = $1 AND ui.expiry > $2
+WHERE ui.token = $1 AND ui.expiry > NOW()
 `
 
-type GetUserFromInvitationParams struct {
-	Token  string    `json:"token"`
-	Expiry time.Time `json:"expiry"`
-}
-
-func (q *Queries) GetUserFromInvitation(ctx context.Context, arg GetUserFromInvitationParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getUserFromInvitation, arg.Token, arg.Expiry)
+func (q *Queries) GetUserFromInvitation(ctx context.Context, token string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getUserFromInvitation, token)
 	var id int64
 	err := row.Scan(&id)
 	return id, err

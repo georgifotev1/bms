@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 
@@ -35,4 +37,9 @@ func writeJSONError(w http.ResponseWriter, status int, message string) error {
 	}
 
 	return writeJSON(w, status, &response{Error: message})
+}
+
+func (app *application) hashToken(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(hash[:])
 }
