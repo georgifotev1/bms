@@ -5,8 +5,10 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/db"
 	"github.com/georgifotev1/bms/internal/env"
+	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -88,10 +90,23 @@ func main() {
 
 	store := store.New(db)
 
+	mailtrap, err := mailer.NewMailTrapClient(cfg.mail.mailTrap.apiKey, cfg.mail.fromEmail)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	jwtAuthenticator := auth.NewJWTAuthenticator(
+		cfg.auth.token.secret,
+		cfg.auth.token.iss,
+		cfg.auth.token.iss,
+	)
+
 	app := &application{
 		config: cfg,
 		store:  *store,
 		logger: logger,
+		mailer: mailtrap,
+		auth:   jwtAuthenticator,
 	}
 
 	expvar.NewString("version").Set(version)

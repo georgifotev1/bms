@@ -1,4 +1,41 @@
 basePath: /v1
+definitions:
+  main.RegisterUserPayload:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+      username:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  main.UserResponse:
+    properties:
+      avatar:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      token:
+        type: string
+      updatedAt:
+        type: string
+      verified:
+        type: boolean
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -13,6 +50,62 @@ info:
   title: BMS
   version: 1.0.0
 paths:
+  /auth/confirm/{token}:
+    get:
+      consumes:
+      - application/json
+      description: Activates a user account using the token sent in the activation
+        email
+      parameters:
+      - description: Activation token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User activated
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Activate a user account
+      tags:
+      - auth
+  /auth/user:
+    post:
+      consumes:
+      - application/json
+      description: Registers a user
+      parameters:
+      - description: User credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterUserPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered
+          schema:
+            $ref: '#/definitions/main.UserResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Registers a user
+      tags:
+      - auth
   /health:
     get:
       description: Healthcheck endpoint

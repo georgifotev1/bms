@@ -38,7 +38,7 @@ func (q *Queries) DeleteUserInvitation(ctx context.Context, userID int64) error 
 
 const getUserFromInvitation = `-- name: GetUserFromInvitation :one
 SELECT u.id FROM users u JOIN user_invitations ui
-ON ui.id = ui.user_id
+ON u.id = ui.user_id
 WHERE ui.token = $1 AND ui.expiry > NOW()
 `
 

@@ -8,6 +8,6 @@ WHERE user_id = $1;
 
 -- name: GetUserFromInvitation :one
 SELECT u.id FROM users u JOIN user_invitations ui
-ON ui.id = ui.user_id
+ON u.id = ui.user_id
 WHERE ui.token = $1 AND ui.expiry > NOW()
 ;

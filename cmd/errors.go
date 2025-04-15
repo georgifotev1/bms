@@ -1,8 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"errors"
 	"net/http"
 
 	"github.com/lib/pq"
@@ -58,15 +56,4 @@ func (app *application) unauthorizedBasicErrorResponse(w http.ResponseWriter, r 
 func isPgError(err error, code pq.ErrorCode) bool {
 	pgErr, ok := err.(*pq.Error)
 	return ok && pgErr.Code == code
-}
-
-func (app *application) parsePGError(w http.ResponseWriter, r *http.Request, err error) {
-	switch {
-	case errors.Is(err, sql.ErrNoRows):
-		app.notFoundResponse(w, r, err)
-	case isPgError(err, uniqueViolation):
-		app.badRequestResponse(w, r, err)
-	default:
-		app.internalServerError(w, r, err)
-	}
 }

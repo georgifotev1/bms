@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -19,16 +20,29 @@ type RegisterUserPayload struct {
 	Username string `json:"username" validate:"required,min=2,max=100"`
 }
 
-// @Summary Register a new user
-// @Description Register a new user with email, password and username
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param request body RegisterUserPayload true "User registration details"
-// @Success 201 {object} struct{User *store.User "user details"; Token string "activation token"}
-// @Failure 400 {object} ErrorResponse "Invalid request payload"
-// @Failure 500 {object} ErrorResponse "Internal server error"
-// @Router /register [post]
+type UserResponse struct {
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Avatar    string    `json:"avatar"`
+	Verified  bool      `json:"verified"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	Token     string    `json:"token,omitempty"`
+}
+
+// registerUserHandler godoc
+//
+//	@Summary		Registers a user
+//	@Description	Registers a user
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload	body		RegisterUserPayload	true	"User credentials"
+//	@Success		201		{object}	UserResponse		"User registered"
+//	@Failure		400		{object}	error
+//	@Failure		500		{object}	error
+//	@Router			/auth/user [post]
 func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	var payload RegisterUserPayload
 	if err := readJSON(w, r, &payload); err != nil {
@@ -55,7 +69,12 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Password: hashedPass,
 	})
 	if err != nil {
-		app.parsePGError(w, r, err)
+		switch {
+		case isPgError(err, uniqueViolation):
+			app.badRequestResponse(w, r, errors.New("user already exists"))
+		default:
+			app.internalServerError(w, r, err)
+		}
 		return
 	}
 
@@ -69,7 +88,12 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Expiry: time.Now().Add(time.Hour * 24),
 	})
 	if err != nil {
-		app.parsePGError(w, r, err)
+		switch {
+		case isPgError(err, uniqueViolation):
+			app.badRequestResponse(w, r, errors.New("user already exist"))
+		default:
+			app.internalServerError(w, r, err)
+		}
 		return
 	}
 
@@ -87,7 +111,12 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		app.logger.Errorw("error sending welcome email", "error", err)
 
 		if err := app.store.DeleteUser(ctx, user.ID); err != nil {
-			app.parsePGError(w, r, err)
+			switch err {
+			case sql.ErrNoRows:
+				app.notFoundResponse(w, r, errors.New("user does not exist"))
+			default:
+				app.internalServerError(w, r, err)
+			}
 			return
 		}
 
@@ -97,30 +126,31 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.logger.Infow("Email sent", "status code", status)
 
-	userWithToken := struct {
-		User  *store.User
-		Token string `json:"token"`
-	}{
-		User:  &user,
-		Token: plainToken,
+	userWithToken := UserResponse{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Avatar:    user.Avatar.String,
+		Verified:  user.Verified.Bool,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+		Token:     plainToken,
 	}
-
 	if err := writeJSON(w, http.StatusCreated, userWithToken); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
 
-// @Summary Activate a user account
-// @Description Activates a user account using the token sent in the activation email
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param token path string true "Activation token"
-// @Success 200 {object} nil "User successfully activated"
-// @Failure 400 {object} ErrorResponse "Invalid activation token"
-// @Failure 404 {object} ErrorResponse "Token not found"
-// @Failure 500 {object} ErrorResponse "Internal server error"
-// @Router /confirm/{token} [get]
+// @Summary		Activate a user account
+// @Description	Activates a user account using the token sent in the activation email
+// @Tags			auth
+// @Accept			json
+// @Produce		json
+// @Param			token	path		string	true	"Activation token"
+// @Success		204		{string}	string	"User activated"
+// @Failure		404		{object}	error
+// @Failure		500		{object}	error
+// @Router			/auth/confirm/{token} [get]
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	token := chi.URLParam(r, "token")
 	if token == "" {
@@ -133,17 +163,22 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 
 	userId, err := app.store.GetUserFromInvitation(ctx, hashToken)
 	if err != nil {
-		app.parsePGError(w, r, err)
+		switch err {
+		case sql.ErrNoRows:
+			app.notFoundResponse(w, r, errors.New("user does not exist"))
+		default:
+			app.internalServerError(w, r, err)
+		}
 		return
 	}
 
 	if err := app.store.VerifyUser(ctx, userId); err != nil {
-		app.parsePGError(w, r, err)
+		app.internalServerError(w, r, err)
 		return
 	}
 
 	if err := app.store.DeleteUserInvitation(ctx, userId); err != nil {
-		app.parsePGError(w, r, err)
+		app.internalServerError(w, r, err)
 		return
 	}
 
