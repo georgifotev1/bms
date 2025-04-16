@@ -39,3 +39,8 @@ func (m *MockQuerier) GetUserFromInvitation(ctx context.Context, token string) (
 	args := m.Called(ctx, token)
 	return args.Get(0).(int64), args.Error(1)
 }
+
+func (m *MockQuerier) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	args := m.Called(ctx, email)
+	return args.Get(0).(User), args.Error(1)
+}

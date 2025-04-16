@@ -13,6 +13,7 @@ type Querier interface {
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
+	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserFromInvitation(ctx context.Context, token string) (int64, error)
 	VerifyUser(ctx context.Context, id int64) error
 }
