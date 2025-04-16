@@ -11,3 +11,4 @@ sql:
               overrides:
                   - column: "users.password"
                     go_struct_tag: 'json:"-"'
+              emit_interface: true

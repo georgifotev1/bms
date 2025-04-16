@@ -88,7 +88,7 @@ func main() {
 	defer db.Close()
 	logger.Info("database connection pool established")
 
-	store := store.New(db)
+	queries := store.New(db)
 
 	mailtrap, err := mailer.NewMailTrapClient(cfg.mail.mailTrap.apiKey, cfg.mail.fromEmail)
 	if err != nil {
@@ -103,7 +103,7 @@ func main() {
 
 	app := &application{
 		config: cfg,
-		store:  *store,
+		store:  queries,
 		logger: logger,
 		mailer: mailtrap,
 		auth:   jwtAuthenticator,
