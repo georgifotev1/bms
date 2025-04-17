@@ -9,7 +9,6 @@ import (
 
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
-	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -29,7 +28,11 @@ type UserResponse struct {
 	Verified  bool      `json:"verified"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
-	Token     string    `json:"token,omitempty"`
+}
+
+type UserWithToken struct {
+	UserResponse
+	Token string `json:"token,omitempty"`
 }
 
 // registerUserHandler godoc
@@ -127,7 +130,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.logger.Infow("Email sent", "status code", status)
 
-	userWithToken := UserResponse{
+	userResponse := UserResponse{
 		ID:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
@@ -135,55 +138,13 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Verified:  user.Verified.Bool,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
-		Token:     plainToken,
+	}
+
+	userWithToken := UserWithToken{
+		UserResponse: userResponse,
+		Token:        plainToken,
 	}
 	if err := writeJSON(w, http.StatusCreated, userWithToken); err != nil {
-		app.internalServerError(w, r, err)
-	}
-}
-
-// @Summary		Activate a user account
-// @Description	Activates a user account using the token sent in the activation email
-// @Tags			auth
-// @Accept			json
-// @Produce		json
-// @Param			token	path		string	true	"Activation token"
-// @Success		204		{string}	string	"User activated"
-// @Failure		404		{object}	error
-// @Failure		500		{object}	error
-// @Router			/auth/confirm/{token} [get]
-func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
-	token := chi.URLParam(r, "token")
-	if token == "" {
-		app.badRequestResponse(w, r, errors.New("invalid activation link"))
-		return
-	}
-
-	ctx := r.Context()
-	hashToken := app.hashToken(token)
-
-	userId, err := app.store.GetUserFromInvitation(ctx, hashToken)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			app.notFoundResponse(w, r, errors.New("invalid token"))
-		default:
-			app.internalServerError(w, r, err)
-		}
-		return
-	}
-
-	if err := app.store.VerifyUser(ctx, userId); err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	if err := app.store.DeleteUserInvitation(ctx, userId); err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	if err := writeJSON(w, http.StatusNoContent, ""); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }

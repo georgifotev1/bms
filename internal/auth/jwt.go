@@ -17,7 +17,7 @@ func NewJWTAuthenticator(secret, aud, iss string) *JWTAuthenticator {
 }
 
 func (a *JWTAuthenticator) GenerateToken(claims jwt.Claims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString([]byte(a.secret))
 	if err != nil {
@@ -37,7 +37,7 @@ func (a *JWTAuthenticator) ValidateToken(token string) (*jwt.Token, error) {
 	},
 		jwt.WithExpirationRequired(),
 		jwt.WithAudience(a.aud),
-		jwt.WithIssuer(a.aud),
+		jwt.WithIssuer(a.iss),
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}),
 	)
 }

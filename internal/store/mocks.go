@@ -44,3 +44,8 @@ func (m *MockQuerier) GetUserByEmail(ctx context.Context, email string) (User, e
 	args := m.Called(ctx, email)
 	return args.Get(0).(User), args.Error(1)
 }
+
+func (m *MockQuerier) GetUserById(ctx context.Context, id int64) (User, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(User), args.Error(1)
+}

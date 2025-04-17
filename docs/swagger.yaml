@@ -42,55 +42,23 @@ definitions:
         type: integer
       name:
         type: string
-      token:
-        type: string
       updatedAt:
         type: string
       verified:
         type: boolean
     type: object
-host: localhost:8080
 info:
   contact:
-    email: support@example.com
+    email: support@swagger.io
     name: API Support
-    url: http://www.example.com/support
-  description: Booking Management System API
+    url: http://www.swagger.io/support
+  description: API for Booking System
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: BMS
-  version: 1.0.0
+  title: Booking System
 paths:
-  /auth/confirm/{token}:
-    get:
-      consumes:
-      - application/json
-      description: Activates a user account using the token sent in the activation
-        email
-      parameters:
-      - description: Activation token
-        in: path
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: User activated
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: Activate a user account
-      tags:
-      - auth
   /auth/token:
     post:
       consumes:
@@ -163,9 +131,69 @@ paths:
       summary: Healthcheck
       tags:
       - ops
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetches a user profile by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.UserResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Fetches a user profile
+      tags:
+      - users
+  /users/confirm/{token}:
+    get:
+      consumes:
+      - application/json
+      description: Activates a user account using the token sent in the activation
+        email
+      parameters:
+      - description: Activation token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User activated
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Activate a user account
+      tags:
+      - users
 securityDefinitions:
   ApiKeyAuth:
-    in: cookie
-    name: session_cookie
+    in: header
+    name: Authorization
     type: apiKey
 swagger: "2.0"

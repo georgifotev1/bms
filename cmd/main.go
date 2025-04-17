@@ -17,24 +17,23 @@ import (
 
 const version = "1.1.0"
 
-//	@title			BMS
-//	@version		1.0.0
-//	@description	Booking Management System API
+//	@title			Booking System
+//	@description	API for Booking System
 //	@termsOfService	http://swagger.io/terms/
 
 //	@contact.name	API Support
-//	@contact.url	http://www.example.com/support
-//	@contact.email	support@example.com
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
 
 //	@license.name	Apache 2.0
 //	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-//	@host		localhost:8080
-//	@BasePath	/v1
-
+// @BasePath					/v1
+//
 // @securityDefinitions.apikey	ApiKeyAuth
-// @in							cookie
-// @name						session_cookie
+// @in							header
+// @name						Authorization
+// @description
 func main() {
 	logger := zap.Must(zap.NewProduction()).Sugar()
 	defer logger.Sync()

@@ -98,10 +98,19 @@ func (app *application) mount() http.Handler {
 		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.address)
 		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
+		r.Route("/users", func(r chi.Router) {
+			r.Get("/confirm/{token}", app.activateUserHandler)
+
+			r.Route("/{id}", func(r chi.Router) {
+				r.Use(app.AuthTokenMiddleware)
+
+				r.Get("/", app.getUserHandler)
+			})
+		})
+
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/user", app.registerUserHandler)
 			r.Post("/token", app.createTokenHandler)
-			r.Get("/confirm/{token}", app.activateUserHandler)
 		})
 	})
 

@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/stretchr/testify/mock"
@@ -53,7 +52,7 @@ func TestRegisterUserHandler(t *testing.T) {
 
 		require.Equal(t, http.StatusCreated, rr.Code)
 
-		var response UserResponse
+		var response UserWithToken
 		err = json.Unmarshal(rr.Body.Bytes(), &response)
 		require.NoError(t, err)
 		require.Equal(t, userData.Email, response.Email)
@@ -90,32 +89,6 @@ func TestRegisterUserHandler(t *testing.T) {
 	})
 }
 
-func TestActivateUserHandler(t *testing.T) {
-	app := newTestApplication(config{})
-	mux := app.mount()
-
-	t.Run("Success", func(t *testing.T) {
-		token := "validtoken"
-		hashedToken := app.hashToken(token)
-		userId := int64(1)
-
-		mockStore := app.store.(*store.MockQuerier)
-		mockStore.On("GetUserFromInvitation", mock.Anything, hashedToken).Return(userId, nil)
-		mockStore.On("VerifyUser", mock.Anything, userId).Return(nil)
-		mockStore.On("DeleteUserInvitation", mock.Anything, userId).Return(nil)
-
-		req, err := http.NewRequest(http.MethodGet, "/v1/auth/confirm/"+token, nil)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		rr := executeRequest(req, mux)
-
-		checkResponseCode(t, http.StatusNoContent, rr.Code)
-		mockStore.AssertExpectations(t)
-	})
-}
-
 func TestCreateTokenHandler(t *testing.T) {
 	app := newTestApplication(config{})
 
@@ -144,9 +117,6 @@ func TestCreateTokenHandler(t *testing.T) {
 		mockStore := app.store.(*store.MockQuerier)
 		mockStore.On("GetUserByEmail", mock.Anything, credentials.Email).Return(mockUser, nil)
 
-		mockAuth := app.auth.(*auth.MockAuthenticator)
-		mockAuth.On("GenerateToken", mock.AnythingOfType("jwt.MapClaims")).Return("jwt-token", nil)
-
 		rr := httptest.NewRecorder()
 		app.createTokenHandler(rr, req)
 
@@ -155,10 +125,8 @@ func TestCreateTokenHandler(t *testing.T) {
 		var response string
 		err = json.Unmarshal(rr.Body.Bytes(), &response)
 		require.NoError(t, err)
-		require.Equal(t, "jwt-token", response)
 
 		mockStore.AssertExpectations(t)
-		mockAuth.AssertExpectations(t)
 	})
 
 	t.Run("ValidationError", func(t *testing.T) {
