@@ -42,7 +42,7 @@ func writeJSONError(w http.ResponseWriter, status int, message string) error {
 }
 
 // Token helpers
-func (app *application) hashToken(token string) string {
+func hashToken(token string) string {
 	hash := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(hash[:])
 }

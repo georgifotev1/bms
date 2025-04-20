@@ -31,9 +31,8 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	ctx := r.Context()
-	hashToken := app.hashToken(token)
 
-	userId, err := app.store.GetUserFromInvitation(ctx, hashToken)
+	userId, err := app.store.GetUserFromInvitation(ctx, hashToken(token))
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

@@ -83,11 +83,9 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	plainToken := uuid.New().String()
-	// hash the token for storage but keep the plain token for email
-	hashToken := app.hashToken(plainToken)
 
 	err = app.store.CreateUserInvitation(ctx, store.CreateUserInvitationParams{
-		Token:  hashToken,
+		Token:  hashToken(plainToken),
 		UserID: user.ID,
 		Expiry: time.Now().Add(time.Hour * 24),
 	})

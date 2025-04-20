@@ -14,7 +14,7 @@ func TestActivateUserHandler(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		token := "validtoken"
-		hashedToken := app.hashToken(token)
+		hashedToken := hashToken(token)
 		userId := int64(1)
 
 		mockStore := app.store.(*store.MockQuerier)
