@@ -9,6 +9,7 @@ import (
 	"github.com/georgifotev1/bms/internal/db"
 	"github.com/georgifotev1/bms/internal/env"
 	"github.com/georgifotev1/bms/internal/mailer"
+	"github.com/georgifotev1/bms/internal/ratelimiter"
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/georgifotev1/bms/internal/store/cache"
 	"github.com/go-redis/redis/v8"
@@ -80,6 +81,11 @@ func main() {
 			db:      env.GetInt("REDIS_DB", 0),
 			enabled: env.GetBool("REDIS_ENABLED", false),
 		},
+		rateLimiter: ratelimiter.Config{
+			RequestsPerTimeFrame: env.GetInt("RATELIMITER_REQUESTS_COUNT", 10),
+			TimeFrame:            time.Second * 5,
+			Enabled:              env.GetBool("RATE_LIMITER_ENABLED", true),
+		},
 	}
 
 	db, err := db.New(
@@ -117,13 +123,19 @@ func main() {
 		cfg.auth.token.iss,
 	)
 
+	rateLimiter := ratelimiter.NewFixedWindowLimiter(
+		cfg.rateLimiter.RequestsPerTimeFrame,
+		cfg.rateLimiter.TimeFrame,
+	)
+
 	app := &application{
-		config: cfg,
-		store:  queries,
-		logger: logger,
-		mailer: mailtrap,
-		auth:   jwtAuthenticator,
-		cache:  redisCache,
+		config:      cfg,
+		store:       queries,
+		logger:      logger,
+		mailer:      mailtrap,
+		auth:        jwtAuthenticator,
+		cache:       redisCache,
+		rateLimiter: rateLimiter,
 	}
 
 	expvar.NewString("version").Set(version)

@@ -14,6 +14,7 @@ import (
 	"github.com/georgifotev1/bms/docs"
 	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/mailer"
+	"github.com/georgifotev1/bms/internal/ratelimiter"
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/georgifotev1/bms/internal/store/cache"
 	"github.com/go-chi/chi/middleware"
@@ -25,23 +26,25 @@ import (
 )
 
 type application struct {
-	config config
-	store  store.Querier
-	cache  cache.Storage
-	logger *zap.SugaredLogger
-	mailer mailer.Client
-	auth   auth.Authenticator
+	config      config
+	store       store.Querier
+	cache       cache.Storage
+	logger      *zap.SugaredLogger
+	mailer      mailer.Client
+	auth        auth.Authenticator
+	rateLimiter ratelimiter.Limiter
 }
 
 type config struct {
-	address   string
-	db        dbConfig
-	auth      authConfig
-	mail      mailConfig
-	env       string
-	apiUrl    string
-	clientUrl string
-	cache     redisConfig
+	address     string
+	db          dbConfig
+	auth        authConfig
+	mail        mailConfig
+	env         string
+	apiUrl      string
+	clientUrl   string
+	cache       redisConfig
+	rateLimiter ratelimiter.Config
 }
 
 type dbConfig struct {
@@ -98,6 +101,10 @@ func (app *application) mount() http.Handler {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
+
+	if app.config.rateLimiter.Enabled {
+		r.Use(app.RateLimiterMiddleware)
+	}
 
 	r.Use(middleware.Timeout(60 * time.Second))
 
