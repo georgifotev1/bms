@@ -32,7 +32,7 @@ func TestRegisterUserHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		mockUser := store.User{
+		mockUser := &store.User{
 			ID:        1,
 			Name:      userData.Username,
 			Email:     userData.Email,
@@ -107,7 +107,7 @@ func TestCreateTokenHandler(t *testing.T) {
 		hashedPass, err := bcrypt.GenerateFromPassword([]byte(credentials.Password), bcrypt.DefaultCost)
 		require.NoError(t, err)
 
-		mockUser := store.User{
+		mockUser := &store.User{
 			ID:       1,
 			Name:     "testuser",
 			Email:    credentials.Email,
@@ -163,7 +163,7 @@ func TestCreateTokenHandler(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 
 		mockStore := app.store.(*store.MockQuerier)
-		mockStore.On("GetUserByEmail", mock.Anything, credentials.Email).Return(store.User{}, sql.ErrNoRows)
+		mockStore.On("GetUserByEmail", mock.Anything, credentials.Email).Return(&store.User{}, sql.ErrNoRows)
 
 		rr := httptest.NewRecorder()
 		app.createTokenHandler(rr, req)
@@ -187,7 +187,7 @@ func TestCreateTokenHandler(t *testing.T) {
 		hashedPass, err := bcrypt.GenerateFromPassword([]byte("correctpassword"), bcrypt.DefaultCost)
 		require.NoError(t, err)
 
-		mockUser := store.User{
+		mockUser := &store.User{
 			ID:       1,
 			Name:     "testuser",
 			Email:    credentials.Email,

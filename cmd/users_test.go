@@ -45,7 +45,7 @@ func TestGetUserHandler(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 
-		mockUser := store.User{
+		mockUser := &store.User{
 			ID:    1,
 			Name:  "testuser",
 			Email: "test@example.com",

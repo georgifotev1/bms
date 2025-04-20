@@ -15,6 +15,7 @@ import (
 	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
+	"github.com/georgifotev1/bms/internal/store/cache"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
@@ -26,6 +27,7 @@ import (
 type application struct {
 	config config
 	store  store.Querier
+	cache  cache.Storage
 	logger *zap.SugaredLogger
 	mailer mailer.Client
 	auth   auth.Authenticator
@@ -39,6 +41,7 @@ type config struct {
 	env       string
 	apiUrl    string
 	clientUrl string
+	cache     redisConfig
 }
 
 type dbConfig struct {
@@ -46,6 +49,13 @@ type dbConfig struct {
 	maxOpenConns int
 	maxIdleConns int
 	maxIdleTime  string
+}
+
+type redisConfig struct {
+	addr    string
+	pw      string
+	db      int
+	enabled bool
 }
 
 type authConfig struct {

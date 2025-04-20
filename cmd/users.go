@@ -80,7 +80,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := app.store.GetUserById(r.Context(), userID)
+	user, err := app.getUser(r.Context(), userID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -92,7 +92,8 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if err := writeJSON(w, http.StatusOK, user); err != nil {
+	userResponse := userResponseMapper(user)
+	if err := writeJSON(w, http.StatusOK, userResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }

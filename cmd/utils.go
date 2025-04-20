@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/georgifotev1/bms/internal/store"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -15,6 +16,7 @@ func init() {
 	Validate = validator.New(validator.WithRequiredStructEnabled())
 }
 
+// JSON helpers
 func writeJSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -39,7 +41,21 @@ func writeJSONError(w http.ResponseWriter, status int, message string) error {
 	return writeJSON(w, status, &response{Error: message})
 }
 
+// Token helpers
 func (app *application) hashToken(token string) string {
 	hash := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(hash[:])
+}
+
+// User heplers
+func userResponseMapper(user *store.User) UserResponse {
+	return UserResponse{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Avatar:    user.Avatar.String,
+		Verified:  user.Verified.Bool,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
 }

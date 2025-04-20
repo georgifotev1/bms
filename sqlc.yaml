@@ -12,3 +12,4 @@ sql:
                   - column: "users.password"
                     go_struct_tag: 'json:"-"'
               emit_interface: true
+              emit_result_struct_pointers: true

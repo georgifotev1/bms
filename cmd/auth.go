@@ -130,16 +130,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.logger.Infow("Email sent", "status code", status)
 
-	userResponse := UserResponse{
-		ID:        user.ID,
-		Name:      user.Name,
-		Email:     user.Email,
-		Avatar:    user.Avatar.String,
-		Verified:  user.Verified.Bool,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}
-
+	userResponse := userResponseMapper(user)
 	userWithToken := UserWithToken{
 		UserResponse: userResponse,
 		Token:        plainToken,

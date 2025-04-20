@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/georgifotev1/bms/internal/store"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -77,7 +78,37 @@ func (app *application) AuthTokenMiddleware(next http.Handler) http.Handler {
 
 		ctx := r.Context()
 
-		ctx = context.WithValue(ctx, userCtx, userID)
+		user, err := app.getUser(ctx, userID)
+		if err != nil {
+			app.unauthorizedErrorResponse(w, r, err)
+			return
+		}
+
+		ctx = context.WithValue(ctx, userCtx, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (app *application) getUser(ctx context.Context, userID int64) (*store.User, error) {
+	if !app.config.cache.enabled {
+		return app.store.GetUserById(ctx, userID)
+	}
+
+	user, err := app.cache.Users.Get(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		user, err = app.store.GetUserById(ctx, userID)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := app.cache.Users.Set(ctx, user); err != nil {
+			return nil, err
+		}
+	}
+
+	return user, nil
 }

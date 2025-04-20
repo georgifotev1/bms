@@ -10,6 +10,8 @@ import (
 	"github.com/georgifotev1/bms/internal/env"
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
+	"github.com/georgifotev1/bms/internal/store/cache"
+	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
@@ -72,6 +74,12 @@ func main() {
 				apiKey: env.GetString("MAILTRAP_API_KEY", ""),
 			},
 		},
+		cache: redisConfig{
+			addr:    env.GetString("REDIS_ADDR", "localhost:6379"),
+			pw:      env.GetString("REDIS_PW", ""),
+			db:      env.GetInt("REDIS_DB", 0),
+			enabled: env.GetBool("REDIS_ENABLED", false),
+		},
 	}
 
 	db, err := db.New(
@@ -87,7 +95,16 @@ func main() {
 	defer db.Close()
 	logger.Info("database connection pool established")
 
+	var rdb *redis.Client
+	if cfg.cache.enabled {
+		rdb = cache.NewRedisClient(cfg.cache.addr, cfg.cache.pw, cfg.cache.db)
+		logger.Info("redis cache connection established")
+
+		defer rdb.Close()
+	}
+
 	queries := store.New(db)
+	redisCache := cache.NewRedisStorage(rdb)
 
 	mailtrap, err := mailer.NewMailTrapClient(cfg.mail.mailTrap.apiKey, cfg.mail.fromEmail)
 	if err != nil {
@@ -106,6 +123,7 @@ func main() {
 		logger: logger,
 		mailer: mailtrap,
 		auth:   jwtAuthenticator,
+		cache:  redisCache,
 	}
 
 	expvar.NewString("version").Set(version)

@@ -10,9 +10,9 @@ type MockQuerier struct {
 	mock.Mock
 }
 
-func (m *MockQuerier) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+func (m *MockQuerier) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
 	args := m.Called(ctx, arg)
-	return args.Get(0).(User), args.Error(1)
+	return args.Get(0).(*User), args.Error(1)
 }
 
 func (m *MockQuerier) CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error {
@@ -40,12 +40,12 @@ func (m *MockQuerier) GetUserFromInvitation(ctx context.Context, token string) (
 	return args.Get(0).(int64), args.Error(1)
 }
 
-func (m *MockQuerier) GetUserByEmail(ctx context.Context, email string) (User, error) {
+func (m *MockQuerier) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	args := m.Called(ctx, email)
-	return args.Get(0).(User), args.Error(1)
+	return args.Get(0).(*User), args.Error(1)
 }
 
-func (m *MockQuerier) GetUserById(ctx context.Context, id int64) (User, error) {
+func (m *MockQuerier) GetUserById(ctx context.Context, id int64) (*User, error) {
 	args := m.Called(ctx, id)
-	return args.Get(0).(User), args.Error(1)
+	return args.Get(0).(*User), args.Error(1)
 }
