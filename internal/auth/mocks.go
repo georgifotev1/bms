@@ -18,7 +18,11 @@ var testClaims = jwt.MapClaims{
 }
 
 func (a *MockAuthenticator) GenerateToken(claims jwt.Claims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, testClaims)
+	if claims == nil {
+		claims = testClaims
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, _ := token.SignedString([]byte(secret))
 	return tokenString, nil

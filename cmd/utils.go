@@ -5,12 +5,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/go-playground/validator/v10"
 )
 
 var Validate *validator.Validate
+
+const REFRESH_TOKEN string = "refresh_token"
 
 func init() {
 	Validate = validator.New(validator.WithRequiredStructEnabled())
@@ -58,4 +61,19 @@ func userResponseMapper(user *store.User) UserResponse {
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}
+}
+
+func isBrowser(r *http.Request) bool {
+	userAgent := r.Header.Get("User-Agent")
+	// Check for common browser identifiers
+	browserIdentifiers := []string{
+		"Mozilla", "Chrome", "Safari", "Firefox", "Edge", "Opera",
+		"MSIE", "Trident", "Gecko", "WebKit"}
+
+	for _, browser := range browserIdentifiers {
+		if strings.Contains(userAgent, browser) {
+			return true
+		}
+	}
+	return false
 }

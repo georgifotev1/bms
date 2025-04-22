@@ -11,6 +11,7 @@ import (
 
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
@@ -122,9 +123,12 @@ func TestCreateTokenHandler(t *testing.T) {
 
 		require.Equal(t, http.StatusCreated, rr.Code)
 
-		var response string
+		var response struct {
+			Token string `json:"token"`
+		}
 		err = json.Unmarshal(rr.Body.Bytes(), &response)
 		require.NoError(t, err)
+		require.NotEmpty(t, response.Token)
 
 		mockStore.AssertExpectations(t)
 	})
@@ -202,5 +206,155 @@ func TestCreateTokenHandler(t *testing.T) {
 
 		require.Equal(t, http.StatusUnauthorized, rr.Code)
 		mockStore.AssertExpectations(t)
+	})
+}
+
+func TestRefreshTokenHandler(t *testing.T) {
+	app := newTestApplication(config{})
+
+	t.Run("Success", func(t *testing.T) {
+		req, err := http.NewRequest("POST", "/v1/auth/refresh", nil)
+		require.NoError(t, err)
+
+		refreshToken, err := app.auth.GenerateToken(jwt.MapClaims{
+			"sub":  int64(1),
+			"exp":  time.Now().Add(30 * 24 * time.Hour).Unix(),
+			"iat":  time.Now().Unix(),
+			"nbf":  time.Now().Unix(),
+			"iss":  "bms",
+			"aud":  "bms",
+			"type": "refresh",
+		})
+		require.NoError(t, err)
+		req.AddCookie(&http.Cookie{
+			Name:  REFRESH_TOKEN,
+			Value: refreshToken,
+		})
+
+		rr := httptest.NewRecorder()
+		app.refreshTokenHandler(rr, req)
+
+		require.Equal(t, http.StatusOK, rr.Code)
+
+		var response struct {
+			Token string `json:"token"`
+		}
+		err = json.Unmarshal(rr.Body.Bytes(), &response)
+		require.NoError(t, err)
+		require.NotEmpty(t, response.Token)
+
+		cookies := rr.Result().Cookies()
+		var newRefreshTokenFound bool
+		for _, cookie := range cookies {
+			if cookie.Name == REFRESH_TOKEN {
+				require.NotEqual(t, refreshToken, cookie.Value, "New refresh token should be different from the old one")
+				newRefreshTokenFound = true
+				break
+			}
+		}
+		require.True(t, newRefreshTokenFound, "New refresh token cookie should be set")
+	})
+
+	t.Run("MissingCookie", func(t *testing.T) {
+		req, err := http.NewRequest("POST", "/v1/auth/refresh", nil)
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+		app.refreshTokenHandler(rr, req)
+
+		require.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+
+	t.Run("InvalidToken", func(t *testing.T) {
+		req, err := http.NewRequest("POST", "/v1/auth/refresh", nil)
+		require.NoError(t, err)
+
+		req.AddCookie(&http.Cookie{
+			Name:  REFRESH_TOKEN,
+			Value: "invalid.token.string",
+		})
+
+		rr := httptest.NewRecorder()
+		app.refreshTokenHandler(rr, req)
+
+		require.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+
+	t.Run("ExpiredToken", func(t *testing.T) {
+		req, err := http.NewRequest("POST", "/v1/auth/refresh", nil)
+		require.NoError(t, err)
+
+		refreshToken, err := app.auth.GenerateToken(jwt.MapClaims{
+			"sub":  int64(1),
+			"exp":  time.Now().Add(-1 * time.Hour).Unix(), // Expired 1 hour ago
+			"iat":  time.Now().Add(-2 * time.Hour).Unix(),
+			"nbf":  time.Now().Add(-2 * time.Hour).Unix(),
+			"iss":  "bms",
+			"aud":  "bms",
+			"type": "refresh",
+		})
+		require.NoError(t, err)
+
+		req.AddCookie(&http.Cookie{
+			Name:  REFRESH_TOKEN,
+			Value: refreshToken,
+		})
+
+		rr := httptest.NewRecorder()
+		app.refreshTokenHandler(rr, req)
+
+		require.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+
+	t.Run("WrongTokenType", func(t *testing.T) {
+		req, err := http.NewRequest("POST", "/v1/auth/refresh", nil)
+		require.NoError(t, err)
+
+		wrongTypeToken, err := app.auth.GenerateToken(jwt.MapClaims{
+			"sub":  int64(1),
+			"exp":  time.Now().Add(30 * 24 * time.Hour).Unix(),
+			"iat":  time.Now().Unix(),
+			"nbf":  time.Now().Unix(),
+			"iss":  "bms",
+			"aud":  "bms",
+			"type": "access", // Wrong type
+		})
+		require.NoError(t, err)
+
+		req.AddCookie(&http.Cookie{
+			Name:  REFRESH_TOKEN,
+			Value: wrongTypeToken,
+		})
+
+		rr := httptest.NewRecorder()
+		app.refreshTokenHandler(rr, req)
+
+		require.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+
+	t.Run("MissingTokenType", func(t *testing.T) {
+		req, err := http.NewRequest("POST", "/v1/auth/refresh", nil)
+		require.NoError(t, err)
+
+		missingTypeToken, err := app.auth.GenerateToken(jwt.MapClaims{
+			"sub": int64(1),
+			"exp": time.Now().Add(30 * 24 * time.Hour).Unix(),
+			"iat": time.Now().Unix(),
+			"nbf": time.Now().Unix(),
+			"iss": "bms",
+			"aud": "bms",
+			// No type claim
+		})
+		require.NoError(t, err)
+
+		req.AddCookie(&http.Cookie{
+			Name:  REFRESH_TOKEN,
+			Value: missingTypeToken,
+		})
+
+		rr := httptest.NewRecorder()
+		app.refreshTokenHandler(rr, req)
+
+		require.Equal(t, http.StatusUnauthorized, rr.Code)
 	})
 }
