@@ -11,7 +11,7 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name, email, password) VALUES ($1, $2, $3)
-RETURNING id, name, email, password, avatar, verified, created_at, updated_at
+RETURNING id, name, email, password, avatar, verified, created_at, updated_at, brand_id
 `
 
 type CreateUserParams struct {
@@ -32,6 +32,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, 
 		&i.Verified,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.BrandID,
 	)
 	return &i, err
 }
@@ -46,7 +47,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, email, password, avatar, verified, created_at, updated_at FROM users WHERE email = $1
+SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, error) {
@@ -61,12 +62,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, erro
 		&i.Verified,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.BrandID,
 	)
 	return &i, err
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, name, email, password, avatar, verified, created_at, updated_at FROM users WHERE id = $1
+SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int64) (*User, error) {
@@ -81,6 +83,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (*User, error) {
 		&i.Verified,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.BrandID,
 	)
 	return &i, err
 }

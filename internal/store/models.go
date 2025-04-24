@@ -9,6 +9,46 @@ import (
 	"time"
 )
 
+type Brand struct {
+	ID          int32          `json:"id"`
+	Name        string         `json:"name"`
+	PageUrl     string         `json:"pageUrl"`
+	Description sql.NullString `json:"description"`
+	Email       sql.NullString `json:"email"`
+	Phone       sql.NullString `json:"phone"`
+	Country     sql.NullString `json:"country"`
+	State       sql.NullString `json:"state"`
+	ZipCode     sql.NullString `json:"zipCode"`
+	City        sql.NullString `json:"city"`
+	Address     sql.NullString `json:"address"`
+	LogoUrl     sql.NullString `json:"logoUrl"`
+	BannerUrl   sql.NullString `json:"bannerUrl"`
+	Currency    sql.NullString `json:"currency"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+}
+
+type BrandSocialLink struct {
+	ID          int32          `json:"id"`
+	BrandID     int32          `json:"brandId"`
+	Platform    string         `json:"platform"`
+	Url         string         `json:"url"`
+	DisplayName sql.NullString `json:"displayName"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+}
+
+type BrandWorkingHour struct {
+	ID        int32        `json:"id"`
+	BrandID   int32        `json:"brandId"`
+	DayOfWeek int32        `json:"dayOfWeek"`
+	OpenTime  sql.NullTime `json:"openTime"`
+	CloseTime sql.NullTime `json:"closeTime"`
+	IsClosed  sql.NullBool `json:"isClosed"`
+	CreatedAt time.Time    `json:"createdAt"`
+	UpdatedAt time.Time    `json:"updatedAt"`
+}
+
 type User struct {
 	ID        int64          `json:"id"`
 	Name      string         `json:"name"`
@@ -18,6 +58,7 @@ type User struct {
 	Verified  sql.NullBool   `json:"verified"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
+	BrandID   sql.NullInt32  `json:"brandId"`
 }
 
 type UserInvitation struct {

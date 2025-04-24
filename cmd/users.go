@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -12,6 +13,17 @@ import (
 type userKey string
 
 const userCtx userKey = "user"
+
+type UserResponse struct {
+	ID        int64     `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Avatar    string    `json:"avatar"`
+	Verified  bool      `json:"verified"`
+	BrandId   int32     `json:"brandId"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
 
 // @Summary		Activate a user account
 // @Description	Activates a user account using the token sent in the activation email

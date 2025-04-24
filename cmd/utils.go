@@ -58,6 +58,7 @@ func userResponseMapper(user *store.User) UserResponse {
 		Email:     user.Email,
 		Avatar:    user.Avatar.String,
 		Verified:  user.Verified.Bool,
+		BrandId:   user.BrandID.Int32,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}

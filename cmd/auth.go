@@ -21,16 +21,6 @@ type RegisterUserPayload struct {
 	Username string `json:"username" validate:"required,min=2,max=100"`
 }
 
-type UserResponse struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Avatar    string    `json:"avatar"`
-	Verified  bool      `json:"verified"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-}
-
 type UserWithToken struct {
 	UserResponse
 	Token string `json:"token,omitempty"`
