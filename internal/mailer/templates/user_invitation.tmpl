@@ -1,4 +1,4 @@
-{{define "subject"}} Complete your registration with BMS {{end}}
+{{define "subject"}}Complete your registration with BMS{{end}}
 
 {{define "body"}}
 <!doctype html>
@@ -6,17 +6,80 @@
   <head>
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Complete Your Registration</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        background-color: #f9f9f9;
+        color: #333;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        background: #ffffff;
+        padding: 30px;
+        margin: 0 auto;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      }
+      a {
+        color: #1a73e8;
+        text-decoration: none;
+      }
+      .button {
+        display: inline-block;
+        background-color: #1a73e8;
+        color: #ffffff;
+        padding: 10px 20px;
+        margin-top: 15px;
+        border-radius: 5px;
+        text-decoration: none;
+      }
+      footer {
+        margin-top: 30px;
+        font-size: 14px;
+        color: #888;
+      }
+    </style>
   </head>
-  <body> <p>Hi {{.Username}},</p>
-    <p>Thanks for signing up for BMS. We're excited to have you on board!</p></p>
-    <p>Before you can start using BMS, you need to confirm your email address. Click the link below to confirm your email address:</p>
-    <p><a href="{{.ActivationURL}}">{{.ActivationURL}}</a></p>
-    <p>If you want to activate your account manually copy and paste the code from the link above</p>
-    <p>If you didn't sign up for BMS, you can safely ignore this email.</p>
+  <body>
+    <div class="container">
+      <header>
+        <h2>Welcome to BMS!</h2>
+      </header>
 
-    <p>Thanks,</p>
-    <p>The BMS Team</p>
+      <section>
+        <p>Hi {{.Username}},</p>
+
+        <p>You have been invited to join <strong>BMS</strong>. We're excited to have you on board!</p>
+
+        <p>Before you can start using BMS, please confirm your email address by clicking the button below:</p>
+
+        <p>
+          <a href="{{.ActivationUrl}}" class="button">Confirm Your Email</a>
+        </p>
+
+        <p>If the button doesn’t work, copy and paste this URL into your browser:</p>
+        <p><a href="{{.ActivationUrl}}">{{.ActivationUrl}}</a></p>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;" />
+
+        <p>Here are your credentials:</p>
+        <ul>
+          <li><strong>Email:</strong> {{.Email}}</li>
+          <li><strong>Password:</strong> {{.Password}}</li>
+        </ul>
+
+        <p>If you'd rather activate your account manually, copy and paste the code from the link above.</p>
+      </section>
+
+      <footer>
+        <p>Thanks,</p>
+        <p>The BMS Team</p>
+      </footer>
+    </div>
   </body>
 </html>
-
 {{end}}

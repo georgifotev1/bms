@@ -1,0 +1,33 @@
+{{define "subject"}} Welcome to BMS {{end}}
+
+{{define "body"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to BMS</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
+    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+      <tr>
+        <td style="padding: 30px; text-align: center;">
+          <h1 style="color: #333;">🎉 Welcome to BMS!</h1>
+          <p style="font-size: 16px; color: #555;">
+            Hi <strong>{{.Username}}</strong>,
+          </p>
+          <p style="font-size: 16px; color: #555;">
+            We’re thrilled to have you on board! Your account is ready.
+          </p>
+          <p style="font-size: 16px; color: #555;">
+            Whether you're managing appointments, or growing your business – we've got your back.
+          </p>
+
+          <p style="font-size: 16px; color: #555;">Cheers,<br />The BMS Team</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+
+{{end}}

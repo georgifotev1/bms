@@ -29,7 +29,7 @@ func TestActivateUserHandler(t *testing.T) {
 
 		rr := executeRequest(req, mux)
 
-		checkResponseCode(t, http.StatusNoContent, rr.Code)
+		checkResponseCode(t, http.StatusOK, rr.Code)
 		mockStore.AssertExpectations(t)
 	})
 }

@@ -47,7 +47,7 @@ func (q *Queries) AddBrandSocialLink(ctx context.Context, arg AddBrandSocialLink
 }
 
 const associateUserWithBrand = `-- name: AssociateUserWithBrand :one
-UPDATE users SET brand_id = $1 WHERE id = $2 RETURNING id, name, email, password, avatar, verified, created_at, updated_at, brand_id
+UPDATE users SET brand_id = $1 WHERE id = $2 RETURNING id, name, email, password, avatar, verified, created_at, updated_at, brand_id, role
 `
 
 type AssociateUserWithBrandParams struct {
@@ -68,6 +68,7 @@ func (q *Queries) AssociateUserWithBrand(ctx context.Context, arg AssociateUserW
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.BrandID,
+		&i.Role,
 	)
 	return &i, err
 }
@@ -183,7 +184,7 @@ func (q *Queries) GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfi
 }
 
 const getBrandUsers = `-- name: GetBrandUsers :many
-SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id FROM users WHERE brand_id = $1
+SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id, role FROM users WHERE brand_id = $1
 `
 
 func (q *Queries) GetBrandUsers(ctx context.Context, brandID sql.NullInt32) ([]*User, error) {
@@ -205,6 +206,7 @@ func (q *Queries) GetBrandUsers(ctx context.Context, brandID sql.NullInt32) ([]*
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.BrandID,
+			&i.Role,
 		); err != nil {
 			return nil, err
 		}

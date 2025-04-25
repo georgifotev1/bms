@@ -49,16 +49,23 @@ type BrandWorkingHour struct {
 	UpdatedAt time.Time    `json:"updatedAt"`
 }
 
+type Role struct {
+	ID    int32  `json:"id"`
+	Name  string `json:"name"`
+	Level int32  `json:"level"`
+}
+
 type User struct {
 	ID        int64          `json:"id"`
 	Name      string         `json:"name"`
 	Email     string         `json:"email"`
 	Password  []byte         `json:"-"`
 	Avatar    sql.NullString `json:"avatar"`
-	Verified  sql.NullBool   `json:"verified"`
+	Verified  bool           `json:"verified"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	BrandID   sql.NullInt32  `json:"brandId"`
+	Role      string         `json:"role"`
 }
 
 type UserInvitation struct {

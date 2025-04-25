@@ -1,9 +1,11 @@
 package main
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"math/big"
 	"net/http"
 	"strings"
 
@@ -13,7 +15,15 @@ import (
 
 var Validate *validator.Validate
 
-const REFRESH_TOKEN string = "refresh_token"
+const (
+	REFRESH_TOKEN string = "refresh_token"
+
+	ownerRole      string = "owner"
+	adminRole      string = "admin"
+	userRole       string = "user"
+	charset        string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+	passwordLength int    = 8
+)
 
 func init() {
 	Validate = validator.New(validator.WithRequiredStructEnabled())
@@ -57,7 +67,7 @@ func userResponseMapper(user *store.User) UserResponse {
 		Name:      user.Name,
 		Email:     user.Email,
 		Avatar:    user.Avatar.String,
-		Verified:  user.Verified.Bool,
+		Verified:  user.Verified,
 		BrandId:   user.BrandID.Int32,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
@@ -77,4 +87,16 @@ func isBrowser(r *http.Request) bool {
 		}
 	}
 	return false
+}
+
+func generateRandomPassword() (string, error) {
+	password := make([]byte, passwordLength)
+	for i := range password {
+		randomIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		if err != nil {
+			return "", err
+		}
+		password[i] = charset[randomIndex.Int64()]
+	}
+	return string(password), nil
 }

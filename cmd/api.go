@@ -118,10 +118,10 @@ func (app *application) mount() http.Handler {
 		r.Route("/users", func(r chi.Router) {
 			r.Get("/confirm/{token}", app.activateUserHandler)
 
-			r.Route("/{id}", func(r chi.Router) {
+			r.Route("/", func(r chi.Router) {
 				r.Use(app.AuthTokenMiddleware)
-
-				r.Get("/", app.getUserHandler)
+				r.Post("/invite", app.inviteUserHandler)
+				r.Get("/{id}", app.getUserHandler)
 			})
 		})
 

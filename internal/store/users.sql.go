@@ -10,18 +10,26 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (name, email, password) VALUES ($1, $2, $3)
-RETURNING id, name, email, password, avatar, verified, created_at, updated_at, brand_id
+INSERT INTO users (name, email, password, role, verified) VALUES ($1, $2, $3, $4, $5)
+RETURNING id, name, email, password, avatar, verified, created_at, updated_at, brand_id, role
 `
 
 type CreateUserParams struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password []byte `json:"-"`
+	Role     string `json:"role"`
+	Verified bool   `json:"verified"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Email, arg.Password)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Name,
+		arg.Email,
+		arg.Password,
+		arg.Role,
+		arg.Verified,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -33,6 +41,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.BrandID,
+		&i.Role,
 	)
 	return &i, err
 }
@@ -47,7 +56,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id FROM users WHERE email = $1
+SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id, role FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, error) {
@@ -63,12 +72,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.BrandID,
+		&i.Role,
 	)
 	return &i, err
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id FROM users WHERE id = $1
+SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id, role FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserById(ctx context.Context, id int64) (*User, error) {
@@ -84,6 +94,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (*User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.BrandID,
+		&i.Role,
 	)
 	return &i, err
 }

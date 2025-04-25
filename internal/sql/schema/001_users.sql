@@ -5,7 +5,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password BYTEA NOT NULL,
     avatar VARCHAR(255),
-    verified BOOLEAN DEFAULT FALSE,
+    verified BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP(0) NOT NULL DEFAULT NOW (),
     updated_at TIMESTAMP(0) NOT NULL DEFAULT NOW ()
 );

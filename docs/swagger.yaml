@@ -13,6 +13,18 @@ definitions:
     - email
     - password
     type: object
+  main.InviteUserPayload:
+    properties:
+      email:
+        type: string
+      username:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - email
+    - username
+    type: object
   main.RegisterUserPayload:
     properties:
       email:
@@ -34,6 +46,8 @@ definitions:
     properties:
       avatar:
         type: string
+      brandId:
+        type: integer
       createdAt:
         type: string
       email:
@@ -41,6 +55,31 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+      roleId:
+        type: integer
+      updatedAt:
+        type: string
+      verified:
+        type: boolean
+    type: object
+  main.UserWithToken:
+    properties:
+      avatar:
+        type: string
+      brandId:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      roleId:
+        type: integer
+      token:
         type: string
       updatedAt:
         type: string
@@ -59,6 +98,25 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Booking System
 paths:
+  /auth/refresh:
+    get:
+      description: Uses a refresh token to generate a new access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New access token
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Refreshes an access token
+      tags:
+      - auth
   /auth/token:
     post:
       consumes:
@@ -189,6 +247,40 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: Activate a user account
+      tags:
+      - users
+  /users/invite:
+    post:
+      consumes:
+      - application/json
+      description: Invites a new user by creating an account and sending an activation
+        email
+      parameters:
+      - description: User invitation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.InviteUserPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully with invitation token
+          schema:
+            $ref: '#/definitions/main.UserWithToken'
+        "400":
+          description: Bad request - validation error or user already exists
+          schema: {}
+        "403":
+          description: Forbidden - only owner role can invite users
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Invite a new user
       tags:
       - users
 securityDefinitions:

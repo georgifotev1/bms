@@ -11,7 +11,6 @@ import (
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,11 +18,6 @@ type RegisterUserPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=3,max=72"`
 	Username string `json:"username" validate:"required,min=2,max=100"`
-}
-
-type UserWithToken struct {
-	UserResponse
-	Token string `json:"token,omitempty"`
 }
 
 // registerUserHandler godoc
@@ -62,6 +56,8 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Name:     payload.Username,
 		Email:    payload.Email,
 		Password: hashedPass,
+		Role:     "owner",
+		Verified: true,
 	})
 	if err != nil {
 		switch {
@@ -73,33 +69,13 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	plainToken := uuid.New().String()
-
-	err = app.store.CreateUserInvitation(ctx, store.CreateUserInvitationParams{
-		Token:  hashToken(plainToken),
-		UserID: user.ID,
-		Expiry: time.Now().Add(time.Hour * 24),
-	})
-	if err != nil {
-		switch {
-		case isPgError(err, uniqueViolation):
-			app.badRequestResponse(w, r, errors.New("user already exist"))
-		default:
-			app.internalServerError(w, r, err)
-		}
-		return
-	}
-
-	activationURL := fmt.Sprintf("%s/confirm/%s", app.config.clientUrl, plainToken)
 	vars := struct {
-		Username      string
-		ActivationURL string
+		Username string
 	}{
-		Username:      user.Name,
-		ActivationURL: activationURL,
+		Username: user.Name,
 	}
 
-	status, err := app.mailer.Send(mailer.UserWelcomeTemplate, user.Name, user.Email, vars)
+	status, err := app.mailer.Send(mailer.WelcomeTemplate, user.Name, user.Email, vars)
 	if err != nil {
 		app.logger.Errorw("error sending welcome email", "error", err)
 
@@ -120,11 +96,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	app.logger.Infow("Email sent", "status code", status)
 
 	userResponse := userResponseMapper(user)
-	userWithToken := UserWithToken{
-		UserResponse: userResponse,
-		Token:        plainToken,
-	}
-	if err := writeJSON(w, http.StatusCreated, userWithToken); err != nil {
+	if err := writeJSON(w, http.StatusCreated, userResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
@@ -238,7 +210,7 @@ func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Reques
 //	@Success		200	{string}	string	"New access token"
 //	@Failure		401	{object}	error
 //	@Failure		500	{object}	error
-//	@Router			/auth/refresh [post]
+//	@Router			/auth/refresh [get]
 func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(REFRESH_TOKEN)
 	if err != nil {
@@ -250,7 +222,6 @@ func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Reque
 
 	jwtToken, err := app.auth.ValidateToken(refreshToken)
 	if err != nil {
-		fmt.Println("EEROR FROM VALIDATION => ", err)
 		app.unauthorizedErrorResponse(w, r, err)
 		return
 	}

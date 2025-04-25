@@ -44,7 +44,6 @@ func TestRegisterUserHandler(t *testing.T) {
 		mockStore := app.store.(*store.MockQuerier)
 		mockMailer := app.mailer.(*mailer.MockClient)
 		mockStore.On("CreateUser", mock.Anything, mock.AnythingOfType("store.CreateUserParams")).Return(mockUser, nil)
-		mockStore.On("CreateUserInvitation", mock.Anything, mock.AnythingOfType("store.CreateUserInvitationParams")).Return(nil)
 		mockMailer.On("Send", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(200, nil)
 
 		rr := httptest.NewRecorder()
@@ -53,12 +52,11 @@ func TestRegisterUserHandler(t *testing.T) {
 
 		require.Equal(t, http.StatusCreated, rr.Code)
 
-		var response UserWithToken
+		var response UserResponse
 		err = json.Unmarshal(rr.Body.Bytes(), &response)
 		require.NoError(t, err)
 		require.Equal(t, userData.Email, response.Email)
 		require.Equal(t, userData.Username, response.Name)
-		require.NotEmpty(t, response.Token)
 
 		mockStore.AssertExpectations(t)
 		mockMailer.AssertExpectations(t)
@@ -98,10 +96,9 @@ func TestCreateTokenHandler(t *testing.T) {
 			Email:    "test@example.com",
 			Password: "password",
 		}
-		credentialsJSON, err := json.Marshal(credentials)
-		require.NoError(t, err)
+		credentialsJSON := createJSONReader(t, credentials)
 
-		req, err := http.NewRequest("POST", "/v1/auth/token", bytes.NewBuffer(credentialsJSON))
+		req, err := http.NewRequest("POST", "/v1/auth/token", credentialsJSON)
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
