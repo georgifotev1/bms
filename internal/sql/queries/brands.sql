@@ -86,5 +86,8 @@ RETURNING *;
 -- name: GetBrandUsers :many
 SELECT * FROM users WHERE brand_id = $1;
 
--- name: AssociateUserWithBrand :one
+-- name: AssociateUserWithBrand :exec
 UPDATE users SET brand_id = $1 WHERE id = $2 RETURNING *;
+
+-- name: GetBrandByUrl :one
+SELECT page_url FROM brand WHERE page_url = $1;

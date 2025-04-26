@@ -22,6 +22,7 @@ const (
 	adminRole      string = "admin"
 	userRole       string = "user"
 	charset        string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+	urlcharset     string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	passwordLength int    = 8
 )
 
@@ -60,7 +61,7 @@ func hashToken(token string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-// User heplers
+// Mappers
 func userResponseMapper(user *store.User) UserResponse {
 	return UserResponse{
 		ID:        user.ID,
@@ -69,8 +70,30 @@ func userResponseMapper(user *store.User) UserResponse {
 		Avatar:    user.Avatar.String,
 		Verified:  user.Verified,
 		BrandId:   user.BrandID.Int32,
+		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
+	}
+}
+
+func brandResponseMapper(brand *store.Brand) BrandResponse {
+	return BrandResponse{
+		ID:          brand.ID,
+		Name:        brand.Name,
+		PageUrl:     brand.PageUrl,
+		Description: brand.Description.String,
+		Email:       brand.Email.String,
+		Phone:       brand.Phone.String,
+		Country:     brand.Country.String,
+		State:       brand.State.String,
+		ZipCode:     brand.ZipCode.String,
+		City:        brand.City.String,
+		Address:     brand.Address.String,
+		LogoUrl:     brand.LogoUrl.String,
+		BannerUrl:   brand.BannerUrl.String,
+		Currency:    brand.Currency.String,
+		CreatedAt:   brand.CreatedAt,
+		UpdatedAt:   brand.UpdatedAt,
 	}
 }
 
@@ -99,4 +122,18 @@ func generateRandomPassword() (string, error) {
 		password[i] = charset[randomIndex.Int64()]
 	}
 	return string(password), nil
+}
+
+func generateSubstring(length int) string {
+	result := make([]byte, length)
+
+	for i := range result {
+		randomIndex, err := rand.Int(rand.Reader, big.NewInt(int64(len(urlcharset))))
+		if err != nil {
+			result[i] = 'x'
+		}
+		result[i] = urlcharset[randomIndex.Int64()]
+	}
+
+	return string(result)
 }

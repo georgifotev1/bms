@@ -11,13 +11,14 @@ import (
 
 type Querier interface {
 	AddBrandSocialLink(ctx context.Context, arg AddBrandSocialLinkParams) (*BrandSocialLink, error)
-	AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) (*User, error)
+	AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) error
 	CreateBrand(ctx context.Context, arg CreateBrandParams) (*Brand, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
 	DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
+	GetBrandByUrl(ctx context.Context, pageUrl string) (string, error)
 	GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error)
 	GetBrandUsers(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
 	GetBrandWorkingHours(ctx context.Context, brandID int32) ([]*BrandWorkingHour, error)

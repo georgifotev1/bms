@@ -56,9 +56,9 @@ func (m *MockQuerier) AddBrandSocialLink(ctx context.Context, arg AddBrandSocial
 	return args.Get(0).(*BrandSocialLink), args.Error(1)
 }
 
-func (m *MockQuerier) AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) (*User, error) {
+func (m *MockQuerier) AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) error {
 	args := m.Called(ctx, arg)
-	return args.Get(0).(*User), args.Error(1)
+	return args.Error(0)
 }
 
 func (m *MockQuerier) CreateBrand(ctx context.Context, arg CreateBrandParams) (*Brand, error) {
@@ -99,4 +99,9 @@ func (m *MockQuerier) UpdateBrandPartial(ctx context.Context, arg UpdateBrandPar
 func (m *MockQuerier) UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error) {
 	args := m.Called(ctx, arg)
 	return args.Get(0).(*BrandWorkingHour), args.Error(1)
+}
+
+func (m *MockQuerier) GetBrandByUrl(ctx context.Context, pageUrl string) (string, error) {
+	args := m.Called(ctx, pageUrl)
+	return args.Get(0).(string), args.Error(1)
 }

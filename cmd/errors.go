@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/lib/pq"
@@ -9,6 +10,8 @@ import (
 const (
 	uniqueViolation = "23505"
 )
+
+var accessDeniedError = errors.New("access denied")
 
 func (app *application) internalServerError(w http.ResponseWriter, r *http.Request, err error) {
 	app.logger.Errorw("internal server error", "method", r.Method, "path", r.URL.Path, "error", err.Error())

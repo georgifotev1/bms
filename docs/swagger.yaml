@@ -1,5 +1,49 @@
 basePath: /v1
 definitions:
+  main.BrandResponse:
+    properties:
+      address:
+        type: string
+      bannerUrl:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      createdAt:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      logoUrl:
+        type: string
+      name:
+        type: string
+      pageUrl:
+        type: string
+      phone:
+        type: string
+      state:
+        type: string
+      updatedAt:
+        type: string
+      zipCode:
+        type: string
+    type: object
+  main.CreateBrandPayload:
+    properties:
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+    required:
+    - name
+    type: object
   main.CreateUserTokenPayload:
     properties:
       email:
@@ -176,6 +220,45 @@ paths:
       summary: Registers a user
       tags:
       - auth
+  /brand:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new brand and associates it with the owner user
+      parameters:
+      - description: Brand creation data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateBrandPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created brand
+          schema:
+            $ref: '#/definitions/main.BrandResponse'
+        "400":
+          description: Bad request - Invalid input
+          schema: {}
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema: {}
+        "403":
+          description: Forbidden - User is not an owner
+          schema: {}
+        "409":
+          description: Conflict - Brand already exists
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new brand
+      tags:
+      - brand
   /health:
     get:
       description: Healthcheck endpoint

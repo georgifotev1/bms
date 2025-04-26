@@ -26,7 +26,7 @@ type UserResponse struct {
 	Avatar    string    `json:"avatar"`
 	Verified  bool      `json:"verified"`
 	BrandId   int32     `json:"brandId"`
-	RoleID    int32     `json:"roleId"`
+	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -41,24 +41,24 @@ type UserWithToken struct {
 	Token string `json:"token,omitempty"`
 }
 
-//	@Summary		Invite a new user
-//	@Description	Invites a new user by creating an account and sending an activation email
-//	@Tags			users
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		InviteUserPayload	true	"User invitation details"
-//	@Success		201		{object}	UserWithToken		"User created successfully with invitation token"
-//	@Failure		400		{object}	error				"Bad request - validation error or user already exists"
-//	@Failure		403		{object}	error				"Forbidden - only owner role can invite users"
-//	@Failure		500		{object}	error				"Internal server error"
-//	@Security		ApiKeyAuth
-//	@Router			/users/invite [post]
+// @Summary		Invite a new user
+// @Description	Invites a new user by creating an account and sending an activation email
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			request	body		InviteUserPayload	true	"User invitation details"
+// @Success		201		{object}	UserWithToken		"User created successfully with invitation token"
+// @Failure		400		{object}	error				"Bad request - validation error or user already exists"
+// @Failure		403		{object}	error				"Forbidden - only owner role can invite users"
+// @Failure		500		{object}	error				"Internal server error"
+// @Security		ApiKeyAuth
+// @Router			/users/invite [post]
 func (app *application) inviteUserHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	ctxUser := ctx.Value(userCtx)
-	ctxUserRole := ctxUser.(*store.User).Role
-	if ctxUserRole != ownerRole {
+	ctxUser := ctx.Value(userCtx).(*store.User)
+	if ctxUser.Role != ownerRole || ctxUser.BrandID.Int32 == 0 || !ctxUser.BrandID.Valid {
 		app.forbiddenResponse(w, r, errors.New("access denied"))
+		return
 	}
 
 	var payload InviteUserPayload
@@ -88,7 +88,11 @@ func (app *application) inviteUserHandler(w http.ResponseWriter, r *http.Request
 		Name:     payload.Username,
 		Email:    payload.Email,
 		Password: hashedPass,
-		Role:     userRole,
+		Role:     adminRole,
+		BrandID: sql.NullInt32{
+			Valid: true,
+			Int32: ctxUser.BrandID.Int32,
+		},
 	})
 	if err != nil {
 		switch {
@@ -166,16 +170,16 @@ type ActivationResponse struct {
 	RedirectURL string `json:"redirectUrl"`
 }
 
-//	@Summary		Activate a user account
-//	@Description	Activates a user account using the token sent in the activation email
-//	@Tags			users
-//	@Accept			json
-//	@Produce		json
-//	@Param			token	path		string	true	"Activation token"
-//	@Success		204		{string}	string	"User activated"
-//	@Failure		404		{object}	error
-//	@Failure		500		{object}	error
-//	@Router			/users/confirm/{token} [get]
+// @Summary		Activate a user account
+// @Description	Activates a user account using the token sent in the activation email
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			token	path		string	true	"Activation token"
+// @Success		204		{string}	string	"User activated"
+// @Failure		404		{object}	error
+// @Failure		500		{object}	error
+// @Router			/users/confirm/{token} [get]
 func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 	token := chi.URLParam(r, "token")
 	if token == "" {

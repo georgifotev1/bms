@@ -7,19 +7,21 @@ package store
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (name, email, password, role, verified) VALUES ($1, $2, $3, $4, $5)
+INSERT INTO users (name, email, password, role, verified, brand_id) VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id, name, email, password, avatar, verified, created_at, updated_at, brand_id, role
 `
 
 type CreateUserParams struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password []byte `json:"-"`
-	Role     string `json:"role"`
-	Verified bool   `json:"verified"`
+	Name     string        `json:"name"`
+	Email    string        `json:"email"`
+	Password []byte        `json:"-"`
+	Role     string        `json:"role"`
+	Verified bool          `json:"verified"`
+	BrandID  sql.NullInt32 `json:"brandId"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
@@ -29,6 +31,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, 
 		arg.Password,
 		arg.Role,
 		arg.Verified,
+		arg.BrandID,
 	)
 	var i User
 	err := row.Scan(

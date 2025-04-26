@@ -46,7 +46,7 @@ func (q *Queries) AddBrandSocialLink(ctx context.Context, arg AddBrandSocialLink
 	return &i, err
 }
 
-const associateUserWithBrand = `-- name: AssociateUserWithBrand :one
+const associateUserWithBrand = `-- name: AssociateUserWithBrand :exec
 UPDATE users SET brand_id = $1 WHERE id = $2 RETURNING id, name, email, password, avatar, verified, created_at, updated_at, brand_id, role
 `
 
@@ -55,22 +55,9 @@ type AssociateUserWithBrandParams struct {
 	ID      int64         `json:"id"`
 }
 
-func (q *Queries) AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) (*User, error) {
-	row := q.db.QueryRowContext(ctx, associateUserWithBrand, arg.BrandID, arg.ID)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Email,
-		&i.Password,
-		&i.Avatar,
-		&i.Verified,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.BrandID,
-		&i.Role,
-	)
-	return &i, err
+func (q *Queries) AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) error {
+	_, err := q.db.ExecContext(ctx, associateUserWithBrand, arg.BrandID, arg.ID)
+	return err
 }
 
 const createBrand = `-- name: CreateBrand :one
@@ -119,6 +106,17 @@ type DeleteBrandSocialLinkParams struct {
 func (q *Queries) DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error {
 	_, err := q.db.ExecContext(ctx, deleteBrandSocialLink, arg.ID, arg.BrandID)
 	return err
+}
+
+const getBrandByUrl = `-- name: GetBrandByUrl :one
+SELECT page_url FROM brand WHERE page_url = $1
+`
+
+func (q *Queries) GetBrandByUrl(ctx context.Context, pageUrl string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getBrandByUrl, pageUrl)
+	var page_url string
+	err := row.Scan(&page_url)
+	return page_url, err
 }
 
 const getBrandProfile = `-- name: GetBrandProfile :one
