@@ -103,5 +103,8 @@ func (m *MockQuerier) UpdateBrandWorkingHours(ctx context.Context, arg UpdateBra
 
 func (m *MockQuerier) GetBrandByUrl(ctx context.Context, pageUrl string) (string, error) {
 	args := m.Called(ctx, pageUrl)
+	if args.Get(0) == nil {
+		return "", args.Error(1)
+	}
 	return args.Get(0).(string), args.Error(1)
 }

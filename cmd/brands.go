@@ -74,8 +74,9 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	var pageUrl = strings.ToLower(strings.ReplaceAll(payload.Name, " ", ""))
-	_, err := app.store.GetBrandByUrl(ctx, payload.Name)
+	pageUrl := strings.ToLower(strings.ReplaceAll(payload.Name, " ", ""))
+
+	_, err := app.store.GetBrandByUrl(ctx, pageUrl)
 	if err != nil {
 		switch {
 		case isPgError(err, uniqueViolation):
