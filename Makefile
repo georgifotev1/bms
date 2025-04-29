@@ -14,3 +14,6 @@ create_db:
 
 gen-docs:
 	@swag init -g /main.go -d cmd && swag fmt
+
+queries:
+	sqlc generate && mockery

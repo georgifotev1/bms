@@ -7,6 +7,8 @@ package store
 import (
 	"database/sql"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Brand struct {
@@ -55,6 +57,20 @@ type Role struct {
 	Level int32  `json:"level"`
 }
 
+type Service struct {
+	ID          uuid.UUID      `json:"id"`
+	Title       string         `json:"title"`
+	Description sql.NullString `json:"description"`
+	Duration    int64          `json:"duration"`
+	BufferTime  sql.NullInt64  `json:"bufferTime"`
+	Cost        sql.NullString `json:"cost"`
+	IsVisible   sql.NullBool   `json:"isVisible"`
+	ImageUrl    sql.NullString `json:"imageUrl"`
+	BrandID     int32          `json:"brandId"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+}
+
 type User struct {
 	ID        int64          `json:"id"`
 	Name      string         `json:"name"`
@@ -72,4 +88,11 @@ type UserInvitation struct {
 	Token  string    `json:"token"`
 	UserID int64     `json:"userId"`
 	Expiry time.Time `json:"expiry"`
+}
+
+type UserService struct {
+	UserID    int64     `json:"userId"`
+	ServiceID uuid.UUID `json:"serviceId"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }

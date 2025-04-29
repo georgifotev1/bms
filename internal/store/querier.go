@@ -7,27 +7,38 @@ package store
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
 	AddBrandSocialLink(ctx context.Context, arg AddBrandSocialLinkParams) (*BrandSocialLink, error)
+	AssignServiceToUser(ctx context.Context, arg AssignServiceToUserParams) error
 	AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) error
 	CreateBrand(ctx context.Context, arg CreateBrandParams) (*Brand, error)
+	CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
 	DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error
+	DeleteService(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
 	GetBrandByUrl(ctx context.Context, pageUrl string) (string, error)
 	GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error)
 	GetBrandUsers(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
 	GetBrandWorkingHours(ctx context.Context, brandID int32) ([]*BrandWorkingHour, error)
+	GetService(ctx context.Context, id uuid.UUID) (*Service, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)
 	GetUserFromInvitation(ctx context.Context, token string) (int64, error)
+	ListServices(ctx context.Context, brandID int32) ([]*Service, error)
+	ListUserServices(ctx context.Context, userID int64) ([]*Service, error)
+	ListVisibleServices(ctx context.Context, brandID int32) ([]*Service, error)
+	RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) (*Brand, error)
 	UpdateBrandPartial(ctx context.Context, arg UpdateBrandPartialParams) (*Brand, error)
 	UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error)
+	UpdateService(ctx context.Context, arg UpdateServiceParams) (*Service, error)
 	VerifyUser(ctx context.Context, id int64) error
 }
 

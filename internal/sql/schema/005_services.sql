@@ -2,9 +2,9 @@
 CREATE TABLE services (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     title VARCHAR(100) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    duration INTERVAL NOT NULL,
-    buffer_time INTERVAL,
+    description VARCHAR(255),
+    duration BIGINT NOT NULL,
+    buffer_time BIGINT,
     cost DECIMAL(10, 2),
     is_visible BOOLEAN DEFAULT true,
     image_url VARCHAR(255),
@@ -22,4 +22,6 @@ CREATE TABLE user_services (
 );
 
 -- +goose Down
+DROP TABLE user_services;
+
 DROP TABLE services;

@@ -8,6 +8,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -368,6 +369,52 @@ func (_c *MockQuerier_AddBrandSocialLink_Call) RunAndReturn(run func(ctx context
 	return _c
 }
 
+// AssignServiceToUser provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) AssignServiceToUser(ctx context.Context, arg AssignServiceToUserParams) error {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AssignServiceToUser")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, AssignServiceToUserParams) error); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockQuerier_AssignServiceToUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AssignServiceToUser'
+type MockQuerier_AssignServiceToUser_Call struct {
+	*mock.Call
+}
+
+// AssignServiceToUser is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockQuerier_Expecter) AssignServiceToUser(ctx interface{}, arg interface{}) *MockQuerier_AssignServiceToUser_Call {
+	return &MockQuerier_AssignServiceToUser_Call{Call: _e.mock.On("AssignServiceToUser", ctx, arg)}
+}
+
+func (_c *MockQuerier_AssignServiceToUser_Call) Run(run func(ctx context.Context, arg AssignServiceToUserParams)) *MockQuerier_AssignServiceToUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(AssignServiceToUserParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_AssignServiceToUser_Call) Return(err error) *MockQuerier_AssignServiceToUser_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockQuerier_AssignServiceToUser_Call) RunAndReturn(run func(ctx context.Context, arg AssignServiceToUserParams) error) *MockQuerier_AssignServiceToUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // AssociateUserWithBrand provides a mock function for the type MockQuerier
 func (_mock *MockQuerier) AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) error {
 	ret := _mock.Called(ctx, arg)
@@ -467,6 +514,63 @@ func (_c *MockQuerier_CreateBrand_Call) Return(brand *Brand, err error) *MockQue
 }
 
 func (_c *MockQuerier_CreateBrand_Call) RunAndReturn(run func(ctx context.Context, arg CreateBrandParams) (*Brand, error)) *MockQuerier_CreateBrand_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateService provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateService")
+	}
+
+	var r0 *Service
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateServiceParams) (*Service, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateServiceParams) *Service); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Service)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, CreateServiceParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_CreateService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateService'
+type MockQuerier_CreateService_Call struct {
+	*mock.Call
+}
+
+// CreateService is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockQuerier_Expecter) CreateService(ctx interface{}, arg interface{}) *MockQuerier_CreateService_Call {
+	return &MockQuerier_CreateService_Call{Call: _e.mock.On("CreateService", ctx, arg)}
+}
+
+func (_c *MockQuerier_CreateService_Call) Run(run func(ctx context.Context, arg CreateServiceParams)) *MockQuerier_CreateService_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CreateServiceParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CreateService_Call) Return(service *Service, err error) *MockQuerier_CreateService_Call {
+	_c.Call.Return(service, err)
+	return _c
+}
+
+func (_c *MockQuerier_CreateService_Call) RunAndReturn(run func(ctx context.Context, arg CreateServiceParams) (*Service, error)) *MockQuerier_CreateService_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -616,6 +720,52 @@ func (_c *MockQuerier_DeleteBrandSocialLink_Call) Return(err error) *MockQuerier
 }
 
 func (_c *MockQuerier_DeleteBrandSocialLink_Call) RunAndReturn(run func(ctx context.Context, arg DeleteBrandSocialLinkParams) error) *MockQuerier_DeleteBrandSocialLink_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// DeleteService provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) DeleteService(ctx context.Context, id uuid.UUID) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteService")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockQuerier_DeleteService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteService'
+type MockQuerier_DeleteService_Call struct {
+	*mock.Call
+}
+
+// DeleteService is a helper method to define mock.On call
+//   - ctx
+//   - id
+func (_e *MockQuerier_Expecter) DeleteService(ctx interface{}, id interface{}) *MockQuerier_DeleteService_Call {
+	return &MockQuerier_DeleteService_Call{Call: _e.mock.On("DeleteService", ctx, id)}
+}
+
+func (_c *MockQuerier_DeleteService_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockQuerier_DeleteService_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_DeleteService_Call) Return(err error) *MockQuerier_DeleteService_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockQuerier_DeleteService_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) error) *MockQuerier_DeleteService_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -938,6 +1088,63 @@ func (_c *MockQuerier_GetBrandWorkingHours_Call) RunAndReturn(run func(ctx conte
 	return _c
 }
 
+// GetService provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) GetService(ctx context.Context, id uuid.UUID) (*Service, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetService")
+	}
+
+	var r0 *Service
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*Service, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) *Service); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Service)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_GetService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetService'
+type MockQuerier_GetService_Call struct {
+	*mock.Call
+}
+
+// GetService is a helper method to define mock.On call
+//   - ctx
+//   - id
+func (_e *MockQuerier_Expecter) GetService(ctx interface{}, id interface{}) *MockQuerier_GetService_Call {
+	return &MockQuerier_GetService_Call{Call: _e.mock.On("GetService", ctx, id)}
+}
+
+func (_c *MockQuerier_GetService_Call) Run(run func(ctx context.Context, id uuid.UUID)) *MockQuerier_GetService_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetService_Call) Return(service *Service, err error) *MockQuerier_GetService_Call {
+	_c.Call.Return(service, err)
+	return _c
+}
+
+func (_c *MockQuerier_GetService_Call) RunAndReturn(run func(ctx context.Context, id uuid.UUID) (*Service, error)) *MockQuerier_GetService_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserByEmail provides a mock function for the type MockQuerier
 func (_mock *MockQuerier) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	ret := _mock.Called(ctx, email)
@@ -1103,6 +1310,223 @@ func (_c *MockQuerier_GetUserFromInvitation_Call) Return(n int64, err error) *Mo
 }
 
 func (_c *MockQuerier_GetUserFromInvitation_Call) RunAndReturn(run func(ctx context.Context, token string) (int64, error)) *MockQuerier_GetUserFromInvitation_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListServices provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) ListServices(ctx context.Context, brandID int32) ([]*Service, error) {
+	ret := _mock.Called(ctx, brandID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListServices")
+	}
+
+	var r0 []*Service
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*Service, error)); ok {
+		return returnFunc(ctx, brandID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*Service); ok {
+		r0 = returnFunc(ctx, brandID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Service)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = returnFunc(ctx, brandID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_ListServices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListServices'
+type MockQuerier_ListServices_Call struct {
+	*mock.Call
+}
+
+// ListServices is a helper method to define mock.On call
+//   - ctx
+//   - brandID
+func (_e *MockQuerier_Expecter) ListServices(ctx interface{}, brandID interface{}) *MockQuerier_ListServices_Call {
+	return &MockQuerier_ListServices_Call{Call: _e.mock.On("ListServices", ctx, brandID)}
+}
+
+func (_c *MockQuerier_ListServices_Call) Run(run func(ctx context.Context, brandID int32)) *MockQuerier_ListServices_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_ListServices_Call) Return(services []*Service, err error) *MockQuerier_ListServices_Call {
+	_c.Call.Return(services, err)
+	return _c
+}
+
+func (_c *MockQuerier_ListServices_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*Service, error)) *MockQuerier_ListServices_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListUserServices provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) ListUserServices(ctx context.Context, userID int64) ([]*Service, error) {
+	ret := _mock.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListUserServices")
+	}
+
+	var r0 []*Service
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) ([]*Service, error)); ok {
+		return returnFunc(ctx, userID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) []*Service); ok {
+		r0 = returnFunc(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Service)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = returnFunc(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_ListUserServices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListUserServices'
+type MockQuerier_ListUserServices_Call struct {
+	*mock.Call
+}
+
+// ListUserServices is a helper method to define mock.On call
+//   - ctx
+//   - userID
+func (_e *MockQuerier_Expecter) ListUserServices(ctx interface{}, userID interface{}) *MockQuerier_ListUserServices_Call {
+	return &MockQuerier_ListUserServices_Call{Call: _e.mock.On("ListUserServices", ctx, userID)}
+}
+
+func (_c *MockQuerier_ListUserServices_Call) Run(run func(ctx context.Context, userID int64)) *MockQuerier_ListUserServices_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int64))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_ListUserServices_Call) Return(services []*Service, err error) *MockQuerier_ListUserServices_Call {
+	_c.Call.Return(services, err)
+	return _c
+}
+
+func (_c *MockQuerier_ListUserServices_Call) RunAndReturn(run func(ctx context.Context, userID int64) ([]*Service, error)) *MockQuerier_ListUserServices_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListVisibleServices provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) ListVisibleServices(ctx context.Context, brandID int32) ([]*Service, error) {
+	ret := _mock.Called(ctx, brandID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListVisibleServices")
+	}
+
+	var r0 []*Service
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*Service, error)); ok {
+		return returnFunc(ctx, brandID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*Service); ok {
+		r0 = returnFunc(ctx, brandID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Service)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = returnFunc(ctx, brandID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_ListVisibleServices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListVisibleServices'
+type MockQuerier_ListVisibleServices_Call struct {
+	*mock.Call
+}
+
+// ListVisibleServices is a helper method to define mock.On call
+//   - ctx
+//   - brandID
+func (_e *MockQuerier_Expecter) ListVisibleServices(ctx interface{}, brandID interface{}) *MockQuerier_ListVisibleServices_Call {
+	return &MockQuerier_ListVisibleServices_Call{Call: _e.mock.On("ListVisibleServices", ctx, brandID)}
+}
+
+func (_c *MockQuerier_ListVisibleServices_Call) Run(run func(ctx context.Context, brandID int32)) *MockQuerier_ListVisibleServices_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_ListVisibleServices_Call) Return(services []*Service, err error) *MockQuerier_ListVisibleServices_Call {
+	_c.Call.Return(services, err)
+	return _c
+}
+
+func (_c *MockQuerier_ListVisibleServices_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*Service, error)) *MockQuerier_ListVisibleServices_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoveServiceFromUser provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveServiceFromUser")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, RemoveServiceFromUserParams) error); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockQuerier_RemoveServiceFromUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveServiceFromUser'
+type MockQuerier_RemoveServiceFromUser_Call struct {
+	*mock.Call
+}
+
+// RemoveServiceFromUser is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockQuerier_Expecter) RemoveServiceFromUser(ctx interface{}, arg interface{}) *MockQuerier_RemoveServiceFromUser_Call {
+	return &MockQuerier_RemoveServiceFromUser_Call{Call: _e.mock.On("RemoveServiceFromUser", ctx, arg)}
+}
+
+func (_c *MockQuerier_RemoveServiceFromUser_Call) Run(run func(ctx context.Context, arg RemoveServiceFromUserParams)) *MockQuerier_RemoveServiceFromUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(RemoveServiceFromUserParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_RemoveServiceFromUser_Call) Return(err error) *MockQuerier_RemoveServiceFromUser_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockQuerier_RemoveServiceFromUser_Call) RunAndReturn(run func(ctx context.Context, arg RemoveServiceFromUserParams) error) *MockQuerier_RemoveServiceFromUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1274,6 +1698,63 @@ func (_c *MockQuerier_UpdateBrandWorkingHours_Call) Return(brandWorkingHour *Bra
 }
 
 func (_c *MockQuerier_UpdateBrandWorkingHours_Call) RunAndReturn(run func(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error)) *MockQuerier_UpdateBrandWorkingHours_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateService provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) UpdateService(ctx context.Context, arg UpdateServiceParams) (*Service, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateService")
+	}
+
+	var r0 *Service
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateServiceParams) (*Service, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateServiceParams) *Service); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Service)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, UpdateServiceParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_UpdateService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateService'
+type MockQuerier_UpdateService_Call struct {
+	*mock.Call
+}
+
+// UpdateService is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockQuerier_Expecter) UpdateService(ctx interface{}, arg interface{}) *MockQuerier_UpdateService_Call {
+	return &MockQuerier_UpdateService_Call{Call: _e.mock.On("UpdateService", ctx, arg)}
+}
+
+func (_c *MockQuerier_UpdateService_Call) Run(run func(ctx context.Context, arg UpdateServiceParams)) *MockQuerier_UpdateService_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(UpdateServiceParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_UpdateService_Call) Return(service *Service, err error) *MockQuerier_UpdateService_Call {
+	_c.Call.Return(service, err)
+	return _c
+}
+
+func (_c *MockQuerier_UpdateService_Call) RunAndReturn(run func(ctx context.Context, arg UpdateServiceParams) (*Service, error)) *MockQuerier_UpdateService_Call {
 	_c.Call.Return(run)
 	return _c
 }
