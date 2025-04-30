@@ -64,7 +64,7 @@ type Service struct {
 	Duration    int64          `json:"duration"`
 	BufferTime  sql.NullInt64  `json:"bufferTime"`
 	Cost        sql.NullString `json:"cost"`
-	IsVisible   sql.NullBool   `json:"isVisible"`
+	IsVisible   bool           `json:"isVisible"`
 	ImageUrl    sql.NullString `json:"imageUrl"`
 	BrandID     int32          `json:"brandId"`
 	CreatedAt   time.Time      `json:"createdAt"`

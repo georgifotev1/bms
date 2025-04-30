@@ -8,6 +8,8 @@ package store
 import (
 	"context"
 	"database/sql"
+
+	"github.com/lib/pq"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -100,6 +102,61 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (*User, error) {
 		&i.Role,
 	)
 	return &i, err
+}
+
+const getUsersByBrand = `-- name: GetUsersByBrand :many
+SELECT id, name, email, password, avatar, verified, created_at, updated_at, brand_id, role FROM users WHERE brand_id = $1
+`
+
+func (q *Queries) GetUsersByBrand(ctx context.Context, brandID sql.NullInt32) ([]*User, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersByBrand, brandID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Password,
+			&i.Avatar,
+			&i.Verified,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.BrandID,
+			&i.Role,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const validateUsersCount = `-- name: ValidateUsersCount :one
+SELECT COUNT(*) FROM users
+WHERE id = ANY($1::bigint[]) AND brand_id = $2
+`
+
+type ValidateUsersCountParams struct {
+	Ids     []int64       `json:"ids"`
+	BrandID sql.NullInt32 `json:"brandId"`
+}
+
+func (q *Queries) ValidateUsersCount(ctx context.Context, arg ValidateUsersCountParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, validateUsersCount, pq.Array(arg.Ids), arg.BrandID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const verifyUser = `-- name: VerifyUser :exec

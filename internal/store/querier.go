@@ -31,6 +31,7 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)
 	GetUserFromInvitation(ctx context.Context, token string) (int64, error)
+	GetUsersByBrand(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
 	ListServices(ctx context.Context, brandID int32) ([]*Service, error)
 	ListUserServices(ctx context.Context, userID int64) ([]*Service, error)
 	ListVisibleServices(ctx context.Context, brandID int32) ([]*Service, error)
@@ -39,6 +40,7 @@ type Querier interface {
 	UpdateBrandPartial(ctx context.Context, arg UpdateBrandPartialParams) (*Brand, error)
 	UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error)
 	UpdateService(ctx context.Context, arg UpdateServiceParams) (*Service, error)
+	ValidateUsersCount(ctx context.Context, arg ValidateUsersCountParams) (int64, error)
 	VerifyUser(ctx context.Context, id int64) error
 }
 

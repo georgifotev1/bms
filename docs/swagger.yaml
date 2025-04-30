@@ -44,6 +44,32 @@ definitions:
     required:
     - name
     type: object
+  main.CreateServicePayload:
+    properties:
+      buffer_time:
+        type: integer
+      cost:
+        type: string
+      description:
+        type: string
+      duration:
+        type: integer
+      image_url:
+        type: string
+      is_visible:
+        type: boolean
+      title:
+        maxLength: 100
+        minLength: 3
+        type: string
+      user_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - duration
+    - title
+    type: object
   main.CreateUserTokenPayload:
     properties:
       email:
@@ -86,6 +112,35 @@ definitions:
     - password
     - username
     type: object
+  main.ServiceResponse:
+    properties:
+      brandId:
+        type: integer
+      bufferTime:
+        type: integer
+      cost:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      duration:
+        type: integer
+      id:
+        type: string
+      imageUrl:
+        type: string
+      isVisible:
+        type: boolean
+      providers:
+        items:
+          type: integer
+        type: array
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   main.UserResponse:
     properties:
       avatar:
@@ -100,8 +155,8 @@ definitions:
         type: integer
       name:
         type: string
-      roleId:
-        type: integer
+      role:
+        type: string
       updatedAt:
         type: string
       verified:
@@ -121,8 +176,8 @@ definitions:
         type: integer
       name:
         type: string
-      roleId:
-        type: integer
+      role:
+        type: string
       token:
         type: string
       updatedAt:
@@ -272,6 +327,45 @@ paths:
       summary: Healthcheck
       tags:
       - ops
+  /service:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new service for a brand and assigns it to specified providers
+      parameters:
+      - description: Service creation data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateServicePayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created service
+          schema:
+            $ref: '#/definitions/main.ServiceResponse'
+        "400":
+          description: Bad request - Invalid input
+          schema: {}
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema: {}
+        "403":
+          description: Forbidden - User does not belong to a brand
+          schema: {}
+        "404":
+          description: Not found - One or more providers not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new service
+      tags:
+      - service
   /users/{id}:
     get:
       consumes:

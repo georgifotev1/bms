@@ -1314,6 +1314,63 @@ func (_c *MockQuerier_GetUserFromInvitation_Call) RunAndReturn(run func(ctx cont
 	return _c
 }
 
+// GetUsersByBrand provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) GetUsersByBrand(ctx context.Context, brandID sql.NullInt32) ([]*User, error) {
+	ret := _mock.Called(ctx, brandID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersByBrand")
+	}
+
+	var r0 []*User
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, sql.NullInt32) ([]*User, error)); ok {
+		return returnFunc(ctx, brandID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, sql.NullInt32) []*User); ok {
+		r0 = returnFunc(ctx, brandID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*User)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, sql.NullInt32) error); ok {
+		r1 = returnFunc(ctx, brandID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_GetUsersByBrand_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersByBrand'
+type MockQuerier_GetUsersByBrand_Call struct {
+	*mock.Call
+}
+
+// GetUsersByBrand is a helper method to define mock.On call
+//   - ctx
+//   - brandID
+func (_e *MockQuerier_Expecter) GetUsersByBrand(ctx interface{}, brandID interface{}) *MockQuerier_GetUsersByBrand_Call {
+	return &MockQuerier_GetUsersByBrand_Call{Call: _e.mock.On("GetUsersByBrand", ctx, brandID)}
+}
+
+func (_c *MockQuerier_GetUsersByBrand_Call) Run(run func(ctx context.Context, brandID sql.NullInt32)) *MockQuerier_GetUsersByBrand_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(sql.NullInt32))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersByBrand_Call) Return(users []*User, err error) *MockQuerier_GetUsersByBrand_Call {
+	_c.Call.Return(users, err)
+	return _c
+}
+
+func (_c *MockQuerier_GetUsersByBrand_Call) RunAndReturn(run func(ctx context.Context, brandID sql.NullInt32) ([]*User, error)) *MockQuerier_GetUsersByBrand_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListServices provides a mock function for the type MockQuerier
 func (_mock *MockQuerier) ListServices(ctx context.Context, brandID int32) ([]*Service, error) {
 	ret := _mock.Called(ctx, brandID)
@@ -1755,6 +1812,61 @@ func (_c *MockQuerier_UpdateService_Call) Return(service *Service, err error) *M
 }
 
 func (_c *MockQuerier_UpdateService_Call) RunAndReturn(run func(ctx context.Context, arg UpdateServiceParams) (*Service, error)) *MockQuerier_UpdateService_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ValidateUsersCount provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) ValidateUsersCount(ctx context.Context, arg ValidateUsersCountParams) (int64, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ValidateUsersCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ValidateUsersCountParams) (int64, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ValidateUsersCountParams) int64); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ValidateUsersCountParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_ValidateUsersCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ValidateUsersCount'
+type MockQuerier_ValidateUsersCount_Call struct {
+	*mock.Call
+}
+
+// ValidateUsersCount is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockQuerier_Expecter) ValidateUsersCount(ctx interface{}, arg interface{}) *MockQuerier_ValidateUsersCount_Call {
+	return &MockQuerier_ValidateUsersCount_Call{Call: _e.mock.On("ValidateUsersCount", ctx, arg)}
+}
+
+func (_c *MockQuerier_ValidateUsersCount_Call) Run(run func(ctx context.Context, arg ValidateUsersCountParams)) *MockQuerier_ValidateUsersCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(ValidateUsersCountParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_ValidateUsersCount_Call) Return(n int64, err error) *MockQuerier_ValidateUsersCount_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockQuerier_ValidateUsersCount_Call) RunAndReturn(run func(ctx context.Context, arg ValidateUsersCountParams) (int64, error)) *MockQuerier_ValidateUsersCount_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2880,6 +2992,63 @@ func (_c *MockStore_GetUserFromInvitation_Call) RunAndReturn(run func(ctx contex
 	return _c
 }
 
+// GetUsersByBrand provides a mock function for the type MockStore
+func (_mock *MockStore) GetUsersByBrand(ctx context.Context, brandID sql.NullInt32) ([]*User, error) {
+	ret := _mock.Called(ctx, brandID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersByBrand")
+	}
+
+	var r0 []*User
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, sql.NullInt32) ([]*User, error)); ok {
+		return returnFunc(ctx, brandID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, sql.NullInt32) []*User); ok {
+		r0 = returnFunc(ctx, brandID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*User)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, sql.NullInt32) error); ok {
+		r1 = returnFunc(ctx, brandID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_GetUsersByBrand_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsersByBrand'
+type MockStore_GetUsersByBrand_Call struct {
+	*mock.Call
+}
+
+// GetUsersByBrand is a helper method to define mock.On call
+//   - ctx
+//   - brandID
+func (_e *MockStore_Expecter) GetUsersByBrand(ctx interface{}, brandID interface{}) *MockStore_GetUsersByBrand_Call {
+	return &MockStore_GetUsersByBrand_Call{Call: _e.mock.On("GetUsersByBrand", ctx, brandID)}
+}
+
+func (_c *MockStore_GetUsersByBrand_Call) Run(run func(ctx context.Context, brandID sql.NullInt32)) *MockStore_GetUsersByBrand_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(sql.NullInt32))
+	})
+	return _c
+}
+
+func (_c *MockStore_GetUsersByBrand_Call) Return(users []*User, err error) *MockStore_GetUsersByBrand_Call {
+	_c.Call.Return(users, err)
+	return _c
+}
+
+func (_c *MockStore_GetUsersByBrand_Call) RunAndReturn(run func(ctx context.Context, brandID sql.NullInt32) ([]*User, error)) *MockStore_GetUsersByBrand_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListServices provides a mock function for the type MockStore
 func (_mock *MockStore) ListServices(ctx context.Context, brandID int32) ([]*Service, error) {
 	ret := _mock.Called(ctx, brandID)
@@ -3321,6 +3490,61 @@ func (_c *MockStore_UpdateService_Call) Return(service *Service, err error) *Moc
 }
 
 func (_c *MockStore_UpdateService_Call) RunAndReturn(run func(ctx context.Context, arg UpdateServiceParams) (*Service, error)) *MockStore_UpdateService_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ValidateUsersCount provides a mock function for the type MockStore
+func (_mock *MockStore) ValidateUsersCount(ctx context.Context, arg ValidateUsersCountParams) (int64, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ValidateUsersCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ValidateUsersCountParams) (int64, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ValidateUsersCountParams) int64); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, ValidateUsersCountParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_ValidateUsersCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ValidateUsersCount'
+type MockStore_ValidateUsersCount_Call struct {
+	*mock.Call
+}
+
+// ValidateUsersCount is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockStore_Expecter) ValidateUsersCount(ctx interface{}, arg interface{}) *MockStore_ValidateUsersCount_Call {
+	return &MockStore_ValidateUsersCount_Call{Call: _e.mock.On("ValidateUsersCount", ctx, arg)}
+}
+
+func (_c *MockStore_ValidateUsersCount_Call) Run(run func(ctx context.Context, arg ValidateUsersCountParams)) *MockStore_ValidateUsersCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(ValidateUsersCountParams))
+	})
+	return _c
+}
+
+func (_c *MockStore_ValidateUsersCount_Call) Return(n int64, err error) *MockStore_ValidateUsersCount_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockStore_ValidateUsersCount_Call) RunAndReturn(run func(ctx context.Context, arg ValidateUsersCountParams) (int64, error)) *MockStore_ValidateUsersCount_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -219,6 +219,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/service": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a new service for a brand and assigns it to specified providers",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "Create a new service",
+                "parameters": [
+                    {
+                        "description": "Service creation data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateServicePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created service",
+                        "schema": {
+                            "$ref": "#/definitions/main.ServiceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid input",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {}
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not belong to a brand",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found - One or more providers not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/users/confirm/{token}": {
             "get": {
                 "description": "Activates a user account using the token sent in the activation email",
@@ -427,6 +486,44 @@ const docTemplate = `{
                 }
             }
         },
+        "main.CreateServicePayload": {
+            "type": "object",
+            "required": [
+                "duration",
+                "title"
+            ],
+            "properties": {
+                "buffer_time": {
+                    "type": "integer"
+                },
+                "cost": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "is_visible": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "user_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "main.CreateUserTokenPayload": {
             "type": "object",
             "required": [
@@ -485,6 +582,50 @@ const docTemplate = `{
                 }
             }
         },
+        "main.ServiceResponse": {
+            "type": "object",
+            "properties": {
+                "brandId": {
+                    "type": "integer"
+                },
+                "bufferTime": {
+                    "type": "integer"
+                },
+                "cost": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "isVisible": {
+                    "type": "boolean"
+                },
+                "providers": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "main.UserResponse": {
             "type": "object",
             "properties": {
@@ -506,8 +647,8 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "roleId": {
-                    "type": "integer"
+                "role": {
+                    "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -538,8 +679,8 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "roleId": {
-                    "type": "integer"
+                "role": {
+                    "type": "string"
                 },
                 "token": {
                     "type": "string"

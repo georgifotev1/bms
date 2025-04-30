@@ -16,3 +16,10 @@ SELECT * FROM users WHERE email = $1;
 
 -- name: GetUserById :one
 SELECT * FROM users WHERE id = $1;
+
+-- name: GetUsersByBrand :many
+SELECT * FROM users WHERE brand_id = $1;
+
+-- name: ValidateUsersCount :one
+SELECT COUNT(*) FROM users
+WHERE id = ANY(@ids::bigint[]) AND brand_id = @brand_id;

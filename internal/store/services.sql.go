@@ -52,7 +52,7 @@ type CreateServiceParams struct {
 	Duration    int64          `json:"duration"`
 	BufferTime  sql.NullInt64  `json:"bufferTime"`
 	Cost        sql.NullString `json:"cost"`
-	IsVisible   sql.NullBool   `json:"isVisible"`
+	IsVisible   bool           `json:"isVisible"`
 	ImageUrl    sql.NullString `json:"imageUrl"`
 	BrandID     int32          `json:"brandId"`
 }
@@ -281,7 +281,7 @@ type UpdateServiceParams struct {
 	Duration    int64          `json:"duration"`
 	BufferTime  sql.NullInt64  `json:"bufferTime"`
 	Cost        sql.NullString `json:"cost"`
-	IsVisible   sql.NullBool   `json:"isVisible"`
+	IsVisible   bool           `json:"isVisible"`
 	ImageUrl    sql.NullString `json:"imageUrl"`
 	BrandID     int32          `json:"brandId"`
 }

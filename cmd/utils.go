@@ -97,6 +97,23 @@ func brandResponseMapper(brand *store.Brand) BrandResponse {
 	}
 }
 
+func serviceResponseMapper(service *store.Service, providers []int64) ServiceResponse {
+	return ServiceResponse{
+		ID:          service.ID,
+		Title:       service.Title,
+		Description: service.Description.String,
+		Duration:    service.Duration,
+		BufferTime:  service.BufferTime.Int64,
+		Cost:        service.Cost.String,
+		IsVisible:   service.IsVisible,
+		ImageUrl:    service.ImageUrl.String,
+		BrandID:     service.BrandID,
+		Providers:   providers,
+		CreatedAt:   service.CreatedAt,
+		UpdatedAt:   service.UpdatedAt,
+	}
+}
+
 func isBrowser(r *http.Request) bool {
 	userAgent := r.Header.Get("User-Agent")
 	// Check for common browser identifiers

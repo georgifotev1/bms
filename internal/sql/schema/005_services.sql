@@ -6,7 +6,7 @@ CREATE TABLE services (
     duration BIGINT NOT NULL,
     buffer_time BIGINT,
     cost DECIMAL(10, 2),
-    is_visible BOOLEAN DEFAULT true,
+    is_visible BOOLEAN NOT NULL DEFAULT true,
     image_url VARCHAR(255),
     brand_id INTEGER NOT NULL REFERENCES brand (id) ON DELETE CASCADE,
     created_at TIMESTAMP(0) NOT NULL DEFAULT NOW (),
