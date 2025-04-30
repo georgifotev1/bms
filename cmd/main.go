@@ -109,7 +109,7 @@ func main() {
 		defer rdb.Close()
 	}
 
-	queries := store.New(db)
+	store := store.NewStore(db)
 	redisCache := cache.NewRedisStorage(rdb)
 
 	mailtrap, err := mailer.NewMailTrapClient(cfg.mail.mailTrap.apiKey, cfg.mail.fromEmail)
@@ -130,7 +130,7 @@ func main() {
 
 	app := &application{
 		config:      cfg,
-		store:       queries,
+		store:       store,
 		logger:      logger,
 		mailer:      mailtrap,
 		auth:        jwtAuthenticator,

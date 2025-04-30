@@ -16,7 +16,7 @@ import (
 )
 
 func TestCreateBrandsHandler(t *testing.T) {
-	app := newTestApplication(config{})
+	app := newTestApplication(t, config{})
 	mux := app.mount()
 
 	t.Run("Success", func(t *testing.T) {
@@ -43,7 +43,7 @@ func TestCreateBrandsHandler(t *testing.T) {
 			Name: "Test Brand",
 		}
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockStore.On("GetUserById", mock.Anything, mockUser.ID).Return(mockUser, nil)
 		mockStore.On("GetBrandByUrl", mock.Anything, "testbrand").Return("", sql.ErrNoRows)
 		mockStore.On("CreateBrand", mock.Anything, store.CreateBrandParams{
@@ -111,7 +111,7 @@ func TestCreateBrandsHandler(t *testing.T) {
 			Name: "Test Brand",
 		}
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockStore.On("GetUserById", mock.Anything, mockUser.ID).Return(mockUser, nil)
 
 		body, err := json.Marshal(payload)

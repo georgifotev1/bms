@@ -27,7 +27,7 @@ import (
 
 type application struct {
 	config      config
-	store       store.Querier
+	store       store.Store
 	cache       cache.Storage
 	logger      *zap.SugaredLogger
 	mailer      mailer.Client

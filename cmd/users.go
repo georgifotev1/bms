@@ -17,7 +17,10 @@ import (
 
 type userKey string
 
-const userCtx userKey = "user"
+const (
+	userCtx      userKey = "user"
+	invalidToken string  = "invalid activation token"
+)
 
 type UserResponse struct {
 	ID        int64     `json:"id"`
@@ -188,25 +191,33 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	ctx := r.Context()
+	err := app.store.ExecTx(ctx, func(q store.Querier) error {
+		userId, err := q.GetUserFromInvitation(ctx, hashToken(token))
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return errors.New(invalidToken)
+			default:
+				return err
+			}
+		}
 
-	userId, err := app.store.GetUserFromInvitation(ctx, hashToken(token))
+		if err := q.VerifyUser(ctx, userId); err != nil {
+			return err
+		}
+
+		if err := q.DeleteUserInvitation(ctx, userId); err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			app.notFoundResponse(w, r, errors.New("invalid token"))
+		switch {
+		case err.Error() == invalidToken:
+			app.notFoundResponse(w, r, err)
 		default:
 			app.internalServerError(w, r, err)
 		}
-		return
-	}
-
-	if err := app.store.VerifyUser(ctx, userId); err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	if err := app.store.DeleteUserInvitation(ctx, userId); err != nil {
-		app.internalServerError(w, r, err)
 		return
 	}
 

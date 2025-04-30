@@ -18,7 +18,7 @@ import (
 )
 
 func TestRegisterUserHandler(t *testing.T) {
-	app := newTestApplication(config{})
+	app := newTestApplication(t, config{})
 
 	t.Run("Success", func(t *testing.T) {
 		userData := RegisterUserPayload{
@@ -41,7 +41,7 @@ func TestRegisterUserHandler(t *testing.T) {
 			UpdatedAt: time.Now(),
 		}
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockMailer := app.mailer.(*mailer.MockClient)
 		mockStore.On("CreateUser", mock.Anything, mock.AnythingOfType("store.CreateUserParams")).Return(mockUser, nil)
 		mockMailer.On("Send", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(200, nil)
@@ -80,7 +80,7 @@ func TestRegisterUserHandler(t *testing.T) {
 
 		require.Equal(t, http.StatusBadRequest, rr.Code)
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockMailer := app.mailer.(*mailer.MockClient)
 		mockStore.AssertNotCalled(t, "CreateUser")
 		mockStore.AssertNotCalled(t, "CreateUserInvitation")
@@ -89,7 +89,7 @@ func TestRegisterUserHandler(t *testing.T) {
 }
 
 func TestCreateTokenHandler(t *testing.T) {
-	app := newTestApplication(config{})
+	app := newTestApplication(t, config{})
 
 	t.Run("Success", func(t *testing.T) {
 		credentials := CreateUserTokenPayload{
@@ -112,7 +112,7 @@ func TestCreateTokenHandler(t *testing.T) {
 			Password: hashedPass,
 		}
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockStore.On("GetUserByEmail", mock.Anything, credentials.Email).Return(mockUser, nil)
 
 		rr := httptest.NewRecorder()
@@ -147,7 +147,7 @@ func TestCreateTokenHandler(t *testing.T) {
 
 		require.Equal(t, http.StatusBadRequest, rr.Code)
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockStore.AssertNotCalled(t, "GetUserByEmail")
 	})
 
@@ -163,7 +163,7 @@ func TestCreateTokenHandler(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockStore.On("GetUserByEmail", mock.Anything, credentials.Email).Return(&store.User{}, sql.ErrNoRows)
 
 		rr := httptest.NewRecorder()
@@ -195,7 +195,7 @@ func TestCreateTokenHandler(t *testing.T) {
 			Password: hashedPass,
 		}
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockStore.On("GetUserByEmail", mock.Anything, credentials.Email).Return(mockUser, nil)
 
 		rr := httptest.NewRecorder()
@@ -207,7 +207,7 @@ func TestCreateTokenHandler(t *testing.T) {
 }
 
 func TestRefreshTokenHandler(t *testing.T) {
-	app := newTestApplication(config{})
+	app := newTestApplication(t, config{})
 
 	t.Run("Success", func(t *testing.T) {
 		req, err := http.NewRequest("POST", "/v1/auth/refresh", nil)

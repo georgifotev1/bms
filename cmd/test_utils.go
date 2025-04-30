@@ -14,8 +14,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func newTestApplication(cfg config) *application {
-	mockStore := new(store.MockQuerier)
+func newTestApplication(t *testing.T, cfg config) *application {
+	mockStore := store.NewMockStore(t)
 	mockMailer := new(mailer.MockClient)
 	mockAuth := new(auth.MockAuthenticator)
 

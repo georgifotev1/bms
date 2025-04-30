@@ -9,18 +9,14 @@ import (
 )
 
 func TestActivateUserHandler(t *testing.T) {
-	app := newTestApplication(config{})
+	app := newTestApplication(t, config{})
 	mux := app.mount()
 
 	t.Run("Success", func(t *testing.T) {
 		token := "validtoken"
-		hashedToken := hashToken(token)
-		userId := int64(1)
+		mockStore := app.store.(*store.MockStore)
 
-		mockStore := app.store.(*store.MockQuerier)
-		mockStore.On("GetUserFromInvitation", mock.Anything, hashedToken).Return(userId, nil)
-		mockStore.On("VerifyUser", mock.Anything, userId).Return(nil)
-		mockStore.On("DeleteUserInvitation", mock.Anything, userId).Return(nil)
+		mockStore.On("ExecTx", mock.Anything, mock.AnythingOfType("func(store.Querier) error")).Return(nil)
 
 		req, err := http.NewRequest(http.MethodGet, "/v1/users/confirm/"+token, nil)
 		if err != nil {
@@ -35,7 +31,7 @@ func TestActivateUserHandler(t *testing.T) {
 }
 
 func TestGetUserHandler(t *testing.T) {
-	app := newTestApplication(config{})
+	app := newTestApplication(t, config{})
 	mux := app.mount()
 
 	testToken, err := app.auth.GenerateToken(nil)
@@ -51,7 +47,7 @@ func TestGetUserHandler(t *testing.T) {
 			Email: "test@example.com",
 		}
 
-		mockStore := app.store.(*store.MockQuerier)
+		mockStore := app.store.(*store.MockStore)
 		mockStore.On("GetUserById", mock.Anything, mockUser.ID).Return(mockUser, nil)
 
 		req, err := http.NewRequest(http.MethodGet, "/v1/users/1", nil)
