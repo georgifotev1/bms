@@ -1,9 +1,7 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -72,70 +70,20 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var newService *store.Service
-	errInvalidUserIDs := errors.New("one or more user IDs are invalid or don't belong to your brand")
-
-	err := app.store.ExecTx(ctx, func(q store.Querier) error {
-		if len(payload.UserIDs) > 0 {
-			count, err := q.ValidateUsersCount(ctx, store.ValidateUsersCountParams{
-				Ids: payload.UserIDs,
-				BrandID: sql.NullInt32{
-					Int32: ctxUserBrandId,
-					Valid: ctxUserBrandId != 0,
-				},
-			})
-			if err != nil {
-				return err
-			}
-			fmt.Println("count", count)
-			fmt.Println(len(payload.UserIDs))
-			if int(count) != len(payload.UserIDs) {
-				return errInvalidUserIDs
-			}
-		}
-
-		service, err := q.CreateService(ctx, store.CreateServiceParams{
-			Title: payload.Title,
-			Description: sql.NullString{
-				String: payload.Description,
-				Valid:  payload.Description != "",
-			},
-			Duration: payload.Duration,
-			BufferTime: sql.NullInt64{
-				Int64: payload.BufferTime,
-				Valid: payload.BufferTime > 0,
-			},
-			Cost: sql.NullString{
-				String: payload.Cost,
-				Valid:  payload.Cost != "",
-			},
-			IsVisible: payload.IsVisible,
-			ImageUrl: sql.NullString{
-				String: payload.ImageURL,
-				Valid:  payload.ImageURL != "",
-			},
-			BrandID: ctxUser.BrandID.Int32,
-		})
-		if err != nil {
-			return err
-		}
-
-		for _, userId := range payload.UserIDs {
-			err := q.AssignServiceToUser(ctx, store.AssignServiceToUserParams{
-				ServiceID: service.ID,
-				UserID:    userId,
-			})
-			if err != nil {
-				return err
-			}
-		}
-
-		newService = service
-		return nil
+	result, err := app.store.CreateServiceTx(ctx, store.CreateServiceTxParams{
+		Title:       payload.Title,
+		Description: payload.Description,
+		Duration:    payload.Duration,
+		BufferTime:  payload.BufferTime,
+		Cost:        payload.Cost,
+		IsVisible:   payload.IsVisible,
+		ImageURL:    payload.ImageURL,
+		BrandID:     ctxUserBrandId,
+		UserIDs:     payload.UserIDs,
 	})
 	if err != nil {
 		switch {
-		case errors.Is(err, errInvalidUserIDs):
+		case errors.Is(err, store.ErrInvalidUserIDs):
 			app.badRequestResponse(w, r, err)
 		default:
 			app.internalServerError(w, r, err)
@@ -143,7 +91,7 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	response := serviceResponseMapper(newService, payload.UserIDs)
+	response := serviceResponseMapper(result.Service, result.Providers)
 	if err := writeJSON(w, http.StatusCreated, response); err != nil {
 		app.internalServerError(w, r, err)
 	}

@@ -18,8 +18,7 @@ import (
 type userKey string
 
 const (
-	userCtx      userKey = "user"
-	invalidToken string  = "invalid activation token"
+	userCtx userKey = "user"
 )
 
 type UserResponse struct {
@@ -190,30 +189,12 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	ctx := r.Context()
-	err := app.store.ExecTx(ctx, func(q store.Querier) error {
-		userId, err := q.GetUserFromInvitation(ctx, hashToken(token))
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return errors.New(invalidToken)
-			default:
-				return err
-			}
-		}
-
-		if err := q.VerifyUser(ctx, userId); err != nil {
-			return err
-		}
-
-		if err := q.DeleteUserInvitation(ctx, userId); err != nil {
-			return err
-		}
-		return nil
+	err := app.store.ActivateUserTx(r.Context(), store.ActivateUserTxParams{
+		Token: hashToken(token),
 	})
 	if err != nil {
 		switch {
-		case err.Error() == invalidToken:
+		case err == store.ErrInvalidActivationToken:
 			app.notFoundResponse(w, r, err)
 		default:
 			app.internalServerError(w, r, err)

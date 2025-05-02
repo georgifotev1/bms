@@ -8,7 +8,8 @@ import (
 
 type Store interface {
 	Querier
-	ExecTx(ctx context.Context, fn func(Querier) error) error
+	CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (CreateServiceTxResult, error)
+	ActivateUserTx(ctx context.Context, arg ActivateUserTxParams) error
 }
 
 type SQLStore struct {
@@ -23,7 +24,7 @@ func NewStore(db *sql.DB) Store {
 	}
 }
 
-func (s *SQLStore) ExecTx(ctx context.Context, fn func(Querier) error) error {
+func (s *SQLStore) execTx(ctx context.Context, fn func(Querier) error) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err

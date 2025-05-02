@@ -1944,6 +1944,52 @@ func (_m *MockStore) EXPECT() *MockStore_Expecter {
 	return &MockStore_Expecter{mock: &_m.Mock}
 }
 
+// ActivateUserTx provides a mock function for the type MockStore
+func (_mock *MockStore) ActivateUserTx(ctx context.Context, arg ActivateUserTxParams) error {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ActivateUserTx")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ActivateUserTxParams) error); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockStore_ActivateUserTx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ActivateUserTx'
+type MockStore_ActivateUserTx_Call struct {
+	*mock.Call
+}
+
+// ActivateUserTx is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockStore_Expecter) ActivateUserTx(ctx interface{}, arg interface{}) *MockStore_ActivateUserTx_Call {
+	return &MockStore_ActivateUserTx_Call{Call: _e.mock.On("ActivateUserTx", ctx, arg)}
+}
+
+func (_c *MockStore_ActivateUserTx_Call) Run(run func(ctx context.Context, arg ActivateUserTxParams)) *MockStore_ActivateUserTx_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(ActivateUserTxParams))
+	})
+	return _c
+}
+
+func (_c *MockStore_ActivateUserTx_Call) Return(err error) *MockStore_ActivateUserTx_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockStore_ActivateUserTx_Call) RunAndReturn(run func(ctx context.Context, arg ActivateUserTxParams) error) *MockStore_ActivateUserTx_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // AddBrandSocialLink provides a mock function for the type MockStore
 func (_mock *MockStore) AddBrandSocialLink(ctx context.Context, arg AddBrandSocialLinkParams) (*BrandSocialLink, error) {
 	ret := _mock.Called(ctx, arg)
@@ -2203,6 +2249,61 @@ func (_c *MockStore_CreateService_Call) Return(service *Service, err error) *Moc
 }
 
 func (_c *MockStore_CreateService_Call) RunAndReturn(run func(ctx context.Context, arg CreateServiceParams) (*Service, error)) *MockStore_CreateService_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateServiceTx provides a mock function for the type MockStore
+func (_mock *MockStore) CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (CreateServiceTxResult, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateServiceTx")
+	}
+
+	var r0 CreateServiceTxResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateServiceTxParams) (CreateServiceTxResult, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateServiceTxParams) CreateServiceTxResult); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		r0 = ret.Get(0).(CreateServiceTxResult)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, CreateServiceTxParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_CreateServiceTx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateServiceTx'
+type MockStore_CreateServiceTx_Call struct {
+	*mock.Call
+}
+
+// CreateServiceTx is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockStore_Expecter) CreateServiceTx(ctx interface{}, arg interface{}) *MockStore_CreateServiceTx_Call {
+	return &MockStore_CreateServiceTx_Call{Call: _e.mock.On("CreateServiceTx", ctx, arg)}
+}
+
+func (_c *MockStore_CreateServiceTx_Call) Run(run func(ctx context.Context, arg CreateServiceTxParams)) *MockStore_CreateServiceTx_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CreateServiceTxParams))
+	})
+	return _c
+}
+
+func (_c *MockStore_CreateServiceTx_Call) Return(createServiceTxResult CreateServiceTxResult, err error) *MockStore_CreateServiceTx_Call {
+	_c.Call.Return(createServiceTxResult, err)
+	return _c
+}
+
+func (_c *MockStore_CreateServiceTx_Call) RunAndReturn(run func(ctx context.Context, arg CreateServiceTxParams) (CreateServiceTxResult, error)) *MockStore_CreateServiceTx_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2490,52 +2591,6 @@ func (_c *MockStore_DeleteUserInvitation_Call) Return(err error) *MockStore_Dele
 }
 
 func (_c *MockStore_DeleteUserInvitation_Call) RunAndReturn(run func(ctx context.Context, userID int64) error) *MockStore_DeleteUserInvitation_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ExecTx provides a mock function for the type MockStore
-func (_mock *MockStore) ExecTx(ctx context.Context, fn func(Querier) error) error {
-	ret := _mock.Called(ctx, fn)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ExecTx")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, func(Querier) error) error); ok {
-		r0 = returnFunc(ctx, fn)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// MockStore_ExecTx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExecTx'
-type MockStore_ExecTx_Call struct {
-	*mock.Call
-}
-
-// ExecTx is a helper method to define mock.On call
-//   - ctx
-//   - fn
-func (_e *MockStore_Expecter) ExecTx(ctx interface{}, fn interface{}) *MockStore_ExecTx_Call {
-	return &MockStore_ExecTx_Call{Call: _e.mock.On("ExecTx", ctx, fn)}
-}
-
-func (_c *MockStore_ExecTx_Call) Run(run func(ctx context.Context, fn func(Querier) error)) *MockStore_ExecTx_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(func(Querier) error))
-	})
-	return _c
-}
-
-func (_c *MockStore_ExecTx_Call) Return(err error) *MockStore_ExecTx_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *MockStore_ExecTx_Call) RunAndReturn(run func(ctx context.Context, fn func(Querier) error) error) *MockStore_ExecTx_Call {
 	_c.Call.Return(run)
 	return _c
 }
