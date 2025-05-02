@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -71,27 +72,28 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if len(payload.UserIDs) > 0 {
-		count, err := app.store.ValidateUsersCount(ctx, store.ValidateUsersCountParams{
-			Ids: payload.UserIDs,
-			BrandID: sql.NullInt32{
-				Int32: ctxUserBrandId,
-				Valid: ctxUserBrandId == 0,
-			},
-		})
-		if err != nil {
-			app.internalServerError(w, r, err)
-			return
-		}
-
-		if int(count) != len(payload.UserIDs) {
-			app.badRequestResponse(w, r, errors.New("one or more user IDs are invalid or don't belong to your brand"))
-			return
-		}
-	}
-
 	var newService *store.Service
+	errInvalidUserIDs := errors.New("one or more user IDs are invalid or don't belong to your brand")
+
 	err := app.store.ExecTx(ctx, func(q store.Querier) error {
+		if len(payload.UserIDs) > 0 {
+			count, err := q.ValidateUsersCount(ctx, store.ValidateUsersCountParams{
+				Ids: payload.UserIDs,
+				BrandID: sql.NullInt32{
+					Int32: ctxUserBrandId,
+					Valid: ctxUserBrandId != 0,
+				},
+			})
+			if err != nil {
+				return err
+			}
+			fmt.Println("count", count)
+			fmt.Println(len(payload.UserIDs))
+			if int(count) != len(payload.UserIDs) {
+				return errInvalidUserIDs
+			}
+		}
+
 		service, err := q.CreateService(ctx, store.CreateServiceParams{
 			Title: payload.Title,
 			Description: sql.NullString{
@@ -132,7 +134,12 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		return nil
 	})
 	if err != nil {
-		app.internalServerError(w, r, err)
+		switch {
+		case errors.Is(err, errInvalidUserIDs):
+			app.badRequestResponse(w, r, err)
+		default:
+			app.internalServerError(w, r, err)
+		}
 		return
 	}
 
