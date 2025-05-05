@@ -120,6 +120,7 @@ func (app *application) mount() http.Handler {
 
 			r.Route("/", func(r chi.Router) {
 				r.Use(app.AuthTokenMiddleware)
+				r.Get("/me", app.getUserProfile)
 				r.Post("/invite", app.inviteUserHandler)
 				r.Get("/{id}", app.getUserHandler)
 			})
@@ -140,7 +141,7 @@ func (app *application) mount() http.Handler {
 		})
 
 		r.Route("/auth", func(r chi.Router) {
-			r.Post("/user", app.registerUserHandler)
+			r.Post("/register", app.registerUserHandler)
 			r.Post("/token", app.createTokenHandler)
 			r.Get("/refresh", app.refreshTokenHandler)
 			r.Post("/logout", app.logoutHandler)

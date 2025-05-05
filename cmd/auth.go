@@ -31,7 +31,7 @@ type RegisterUserPayload struct {
 //	@Success		201		{object}	UserResponse		"User registered"
 //	@Failure		400		{object}	error
 //	@Failure		500		{object}	error
-//	@Router			/auth/user [post]
+//	@Router			/auth/register [post]
 func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	var payload RegisterUserPayload
 	if err := readJSON(w, r, &payload); err != nil {
@@ -296,13 +296,14 @@ func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Reque
 }
 
 // logoutHandler godoc
-// @Summary		Logs out a user
-// @Description	Clears the refresh token cookie to log out the user
-// @Tags		auth
-// @Produce		json
-// @Success		200	{string}	string	"Logged out successfully"
-// @Failure		500	{object}	error
-// @Router		/auth/logout [post]
+//
+//	@Summary		Logs out a user
+//	@Description	Clears the refresh token cookie to log out the user
+//	@Tags			auth
+//	@Produce		json
+//	@Success		200	{string}	string	"Logged out successfully"
+//	@Failure		500	{object}	error
+//	@Router			/auth/logout [post]
 func (app *application) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     REFRESH_TOKEN,

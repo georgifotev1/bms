@@ -250,3 +250,24 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 		app.internalServerError(w, r, err)
 	}
 }
+
+// GetUser godoc
+//
+//	@Summary		Get user by token
+//	@Description	Fetches a user token
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	UserResponse
+//	@Failure		400	{object}	error
+//	@Failure		404	{object}	error
+//	@Failure		500	{object}	error
+//	@Security		ApiKeyAuth
+//	@Router			/users/me [get]
+func (app *application) getUserProfile(w http.ResponseWriter, r *http.Request) {
+	ctxUser := r.Context().Value(userCtx).(*store.User)
+	userResponse := userResponseMapper(ctxUser)
+	if err := writeJSON(w, http.StatusOK, userResponse); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
