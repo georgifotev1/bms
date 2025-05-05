@@ -94,7 +94,7 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{app.config.clientUrl},
+		AllowedOrigins:   []string{fmt.Sprintf("https://app.%v", app.config.clientUrl), fmt.Sprintf("https://*.%v", app.config.clientUrl)},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "User-Agent"},
 		ExposedHeaders:   []string{"Link"},
@@ -143,6 +143,7 @@ func (app *application) mount() http.Handler {
 			r.Post("/user", app.registerUserHandler)
 			r.Post("/token", app.createTokenHandler)
 			r.Get("/refresh", app.refreshTokenHandler)
+			r.Post("/logout", app.logoutHandler)
 		})
 	})
 

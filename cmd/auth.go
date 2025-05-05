@@ -294,3 +294,32 @@ func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Reque
 		app.internalServerError(w, r, err)
 	}
 }
+
+// logoutHandler godoc
+// @Summary		Logs out a user
+// @Description	Clears the refresh token cookie to log out the user
+// @Tags		auth
+// @Produce		json
+// @Success		200	{string}	string	"Logged out successfully"
+// @Failure		500	{object}	error
+// @Router		/auth/logout [post]
+func (app *application) logoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     REFRESH_TOKEN,
+		Value:    "", // Empty value
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   -1,
+		Expires:  time.Now().Add(-time.Hour),
+	})
+
+	response := map[string]string{
+		"message": "Logged out successfully",
+	}
+
+	if err := writeJSON(w, http.StatusOK, response); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
