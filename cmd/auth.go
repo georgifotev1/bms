@@ -135,7 +135,7 @@ func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			app.unauthorizedBasicErrorResponse(w, r, err)
+			app.unauthorizedErrorResponse(w, r, err)
 		default:
 			app.internalServerError(w, r, err)
 		}
@@ -181,15 +181,7 @@ func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Reques
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{
-			Name:     REFRESH_TOKEN,
-			Value:    refreshToken,
-			Path:     "/",
-			HttpOnly: true,
-			Secure:   true,
-			SameSite: http.SameSiteStrictMode,
-			MaxAge:   60 * 60 * 24 * 30,
-		})
+		app.SetCookie(w, REFRESH_TOKEN, refreshToken)
 	}
 
 	response := map[string]string{
@@ -276,15 +268,7 @@ func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     REFRESH_TOKEN,
-		Value:    newRefreshToken,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   60 * 60 * 24 * 30,
-	})
+	app.SetCookie(w, REFRESH_TOKEN, newRefreshToken)
 
 	response := map[string]string{
 		"token": newAccessToken,
@@ -305,16 +289,7 @@ func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Reque
 //	@Failure		500	{object}	error
 //	@Router			/auth/logout [post]
 func (app *application) logoutHandler(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     REFRESH_TOKEN,
-		Value:    "", // Empty value
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   -1,
-		Expires:  time.Now().Add(-time.Hour),
-	})
+	app.ClearCookie(w, REFRESH_TOKEN)
 
 	response := map[string]string{
 		"message": "Logged out successfully",

@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/go-playground/validator/v10"
@@ -153,4 +154,43 @@ func generateSubstring(length int) string {
 	}
 
 	return string(result)
+}
+
+func (app *application) SetCookie(w http.ResponseWriter, name, value string) {
+	isDev := app.config.env == "development"
+	sameSite := http.SameSiteStrictMode
+	if isDev {
+		sameSite = http.SameSiteNoneMode
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: sameSite,
+		Domain:   app.config.clientHost,
+		MaxAge:   60 * 60 * 24 * 30,
+	})
+}
+
+func (app *application) ClearCookie(w http.ResponseWriter, name string) {
+	isDev := app.config.env == "development"
+	sameSite := http.SameSiteStrictMode
+	if isDev {
+		sameSite = http.SameSiteNoneMode
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    "", // Empty value
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: sameSite,
+		Domain:   app.config.clientHost,
+		MaxAge:   -1,
+		Expires:  time.Now().Add(-time.Hour),
+	})
 }

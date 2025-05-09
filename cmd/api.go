@@ -43,6 +43,7 @@ type config struct {
 	env         string
 	apiUrl      string
 	clientUrl   string
+	clientHost  string
 	cache       redisConfig
 	rateLimiter ratelimiter.Config
 }
@@ -94,7 +95,7 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{fmt.Sprintf("https://app.%v", app.config.clientUrl), fmt.Sprintf("https://*.%v", app.config.clientUrl)},
+		AllowedOrigins:   []string{fmt.Sprintf("http://app.%v", app.config.clientUrl), fmt.Sprintf("http://*.%v", app.config.clientUrl)},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "User-Agent"},
 		ExposedHeaders:   []string{"Link"},
