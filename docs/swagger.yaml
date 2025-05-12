@@ -83,6 +83,25 @@ definitions:
     - email
     - password
     type: object
+  main.CustomerResponse:
+    properties:
+      brandId:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      token:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   main.InviteUserPayload:
     properties:
       email:
@@ -93,6 +112,45 @@ definitions:
         type: string
     required:
     - email
+    - username
+    type: object
+  main.LoginCustomerPayload:
+    properties:
+      brandId:
+        minimum: 1
+        type: integer
+      email:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+    required:
+    - brandId
+    - email
+    - password
+    type: object
+  main.RegisterCustomerPayload:
+    properties:
+      brandId:
+        minimum: 1
+        type: integer
+      email:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+      phoneNumber:
+        type: string
+      username:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - brandId
+    - email
+    - password
     - username
     type: object
   main.RegisterUserPayload:
@@ -330,6 +388,62 @@ paths:
       summary: Create a new brand
       tags:
       - brand
+  /customers/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a customer
+      parameters:
+      - description: User credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.LoginCustomerPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User logged in
+          schema:
+            $ref: '#/definitions/main.CustomerResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Login a customer
+      tags:
+      - auth
+  /customers/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a customer
+      parameters:
+      - description: User credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterCustomerPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered
+          schema:
+            $ref: '#/definitions/main.CustomerResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Registers a customer
+      tags:
+      - auth
   /health:
     get:
       description: Healthcheck endpoint

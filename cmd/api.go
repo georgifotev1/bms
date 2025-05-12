@@ -141,6 +141,13 @@ func (app *application) mount() http.Handler {
 			})
 		})
 
+		r.Route("/customers", func(r chi.Router) {
+			r.Route("/auth", func(r chi.Router) {
+				r.Post("/register", app.registerCustomerHandler)
+				r.Post("/login", app.loginCustomerHandler)
+			})
+		})
+
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", app.registerUserHandler)
 			r.Post("/token", app.createTokenHandler)

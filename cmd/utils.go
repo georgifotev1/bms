@@ -17,7 +17,8 @@ import (
 var Validate *validator.Validate
 
 const (
-	REFRESH_TOKEN string = "refresh_token"
+	REFRESH_TOKEN         string = "refresh_token"
+	CUSTOMER_REFRES_TOKEN string = "customer_refresh_token"
 
 	ownerRole      string = "owner"
 	adminRole      string = "admin"
@@ -115,6 +116,16 @@ func serviceResponseMapper(service *store.Service, providers []int64) ServiceRes
 	}
 }
 
+func customerResponseMapper(customer *store.Customer, token string) CustomerResponse {
+	return CustomerResponse{
+		ID:          customer.ID,
+		Name:        customer.Name,
+		Email:       customer.Email,
+		BrandId:     customer.BrandID,
+		Token:       token,
+		PhoneNumber: customer.PhoneNumber.String,
+	}
+}
 func isBrowser(r *http.Request) bool {
 	userAgent := r.Header.Get("User-Agent")
 	// Check for common browser identifiers

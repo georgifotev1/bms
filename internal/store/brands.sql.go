@@ -108,6 +108,34 @@ func (q *Queries) DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSoci
 	return err
 }
 
+const getBrandById = `-- name: GetBrandById :one
+SELECT id, name, page_url, description, email, phone, country, state, zip_code, city, address, logo_url, banner_url, currency, created_at, updated_at FROM brand WHERE id = $1
+`
+
+func (q *Queries) GetBrandById(ctx context.Context, id int32) (*Brand, error) {
+	row := q.db.QueryRowContext(ctx, getBrandById, id)
+	var i Brand
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.PageUrl,
+		&i.Description,
+		&i.Email,
+		&i.Phone,
+		&i.Country,
+		&i.State,
+		&i.ZipCode,
+		&i.City,
+		&i.Address,
+		&i.LogoUrl,
+		&i.BannerUrl,
+		&i.Currency,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
 const getBrandByUrl = `-- name: GetBrandByUrl :one
 SELECT page_url FROM brand WHERE page_url = $1
 `

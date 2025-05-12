@@ -16,17 +16,22 @@ type Querier interface {
 	AssignServiceToUser(ctx context.Context, arg AssignServiceToUserParams) error
 	AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) error
 	CreateBrand(ctx context.Context, arg CreateBrandParams) (*Brand, error)
+	CreateCustomer(ctx context.Context, arg CreateCustomerParams) (*Customer, error)
 	CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
 	DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error
+	DeleteCustomer(ctx context.Context, id int64) error
 	DeleteService(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
+	GetBrandById(ctx context.Context, id int32) (*Brand, error)
 	GetBrandByUrl(ctx context.Context, pageUrl string) (string, error)
 	GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error)
 	GetBrandUsers(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
 	GetBrandWorkingHours(ctx context.Context, brandID int32) ([]*BrandWorkingHour, error)
+	GetCustomerByEmail(ctx context.Context, email string) (*Customer, error)
+	GetCustomerById(ctx context.Context, id int64) (*Customer, error)
 	GetService(ctx context.Context, id uuid.UUID) (*Service, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)

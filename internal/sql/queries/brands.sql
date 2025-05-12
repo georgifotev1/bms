@@ -91,3 +91,6 @@ UPDATE users SET brand_id = $1 WHERE id = $2 RETURNING *;
 
 -- name: GetBrandByUrl :one
 SELECT page_url FROM brand WHERE page_url = $1;
+
+-- name: GetBrandById :one
+SELECT * FROM brand WHERE id = $1;
