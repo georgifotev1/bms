@@ -54,7 +54,7 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 	ctxUser := ctx.Value(userCtx).(*store.User)
 
 	if ctxUser.Role != ownerRole {
-		app.forbiddenResponse(w, r, accessDeniedError)
+		app.forbiddenResponse(w, r, ErrAccessDenied)
 		return
 	}
 

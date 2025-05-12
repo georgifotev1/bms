@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/georgifotev1/bms/internal/store"
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -92,39 +91,13 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	claims := jwt.MapClaims{
-		"sub":  customer.ID,
-		"exp":  time.Now().Add(app.config.auth.token.exp).Unix(),
-		"iat":  time.Now().Unix(),
-		"nbf":  time.Now().Unix(),
-		"iss":  app.config.auth.token.iss,
-		"aud":  app.config.auth.token.iss,
-		"type": "access",
-	}
-
-	accessToken, err := app.auth.GenerateToken(claims)
+	accessToken, refreshToken, err := app.auth.GenerateTokens(customer.ID)
 	if err != nil {
 		app.internalServerError(w, r, err)
 		return
 	}
 
 	if isBrowser(r) {
-		refreshClaims := jwt.MapClaims{
-			"sub":  customer.ID,
-			"exp":  time.Now().Add(30 * 24 * time.Hour).Unix(),
-			"iat":  time.Now().Unix(),
-			"nbf":  time.Now().Unix(),
-			"iss":  app.config.auth.token.iss,
-			"aud":  app.config.auth.token.iss,
-			"type": "refresh",
-		}
-
-		refreshToken, err := app.auth.GenerateToken(refreshClaims)
-		if err != nil {
-			app.internalServerError(w, r, err)
-			return
-		}
-
 		app.SetCookie(w, CUSTOMER_REFRES_TOKEN, refreshToken)
 	}
 
@@ -193,39 +166,13 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	claims := jwt.MapClaims{
-		"sub":  customer.ID,
-		"exp":  time.Now().Add(app.config.auth.token.exp).Unix(),
-		"iat":  time.Now().Unix(),
-		"nbf":  time.Now().Unix(),
-		"iss":  app.config.auth.token.iss,
-		"aud":  app.config.auth.token.iss,
-		"type": "access",
-	}
-
-	accessToken, err := app.auth.GenerateToken(claims)
+	accessToken, refreshToken, err := app.auth.GenerateTokens(customer.ID)
 	if err != nil {
 		app.internalServerError(w, r, err)
 		return
 	}
 
 	if isBrowser(r) {
-		refreshClaims := jwt.MapClaims{
-			"sub":  customer.ID,
-			"exp":  time.Now().Add(30 * 24 * time.Hour).Unix(),
-			"iat":  time.Now().Unix(),
-			"nbf":  time.Now().Unix(),
-			"iss":  app.config.auth.token.iss,
-			"aud":  app.config.auth.token.iss,
-			"type": "refresh",
-		}
-
-		refreshToken, err := app.auth.GenerateToken(refreshClaims)
-		if err != nil {
-			app.internalServerError(w, r, err)
-			return
-		}
-
 		app.SetCookie(w, CUSTOMER_REFRES_TOKEN, refreshToken)
 	}
 

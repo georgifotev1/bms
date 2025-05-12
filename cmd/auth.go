@@ -3,14 +3,11 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
-	"strconv"
-	"time"
 
+	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -148,41 +145,13 @@ func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	claims := jwt.MapClaims{
-		"sub":  user.ID,
-		"exp":  time.Now().Add(app.config.auth.token.exp).Unix(),
-		"iat":  time.Now().Unix(),
-		"nbf":  time.Now().Unix(),
-		"iss":  app.config.auth.token.iss,
-		"aud":  app.config.auth.token.iss,
-		"type": "access",
-	}
-
-	accessToken, err := app.auth.GenerateToken(claims)
+	accessToken, refreshToken, err := app.auth.GenerateTokens(user.ID)
 	if err != nil {
 		app.internalServerError(w, r, err)
 		return
 	}
 
-	if isBrowser(r) {
-		refreshClaims := jwt.MapClaims{
-			"sub":  user.ID,
-			"exp":  time.Now().Add(30 * 24 * time.Hour).Unix(),
-			"iat":  time.Now().Unix(),
-			"nbf":  time.Now().Unix(),
-			"iss":  app.config.auth.token.iss,
-			"aud":  app.config.auth.token.iss,
-			"type": "refresh",
-		}
-
-		refreshToken, err := app.auth.GenerateToken(refreshClaims)
-		if err != nil {
-			app.internalServerError(w, r, err)
-			return
-		}
-
-		app.SetCookie(w, REFRESH_TOKEN, refreshToken)
-	}
+	app.SetCookie(w, REFRESH_TOKEN, refreshToken)
 
 	response := map[string]string{
 		"token": accessToken,
@@ -212,59 +181,14 @@ func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Reque
 
 	refreshToken := cookie.Value
 
-	jwtToken, err := app.auth.ValidateToken(refreshToken)
+	newAccessToken, newRefreshToken, err := app.auth.RefreshTokens(refreshToken)
 	if err != nil {
-		app.unauthorizedErrorResponse(w, r, err)
-		return
-	}
-
-	claims, ok := jwtToken.Claims.(jwt.MapClaims)
-	if !ok {
-		app.unauthorizedErrorResponse(w, r, errors.New("invalid token claims"))
-		return
-	}
-
-	tokenType, ok := claims["type"].(string)
-	if !ok || tokenType != "refresh" {
-		app.unauthorizedErrorResponse(w, r, errors.New("invalid token type"))
-		return
-	}
-
-	userID, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["sub"]), 10, 64)
-	if err != nil {
-		app.unauthorizedErrorResponse(w, r, err)
-		return
-	}
-
-	accessClaims := jwt.MapClaims{
-		"sub":  userID,
-		"exp":  time.Now().Add(app.config.auth.token.exp).Unix(),
-		"iat":  time.Now().Unix(),
-		"nbf":  time.Now().Unix(),
-		"iss":  app.config.auth.token.iss,
-		"aud":  app.config.auth.token.iss,
-		"type": "access",
-	}
-
-	newAccessToken, err := app.auth.GenerateToken(accessClaims)
-	if err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	refreshClaims := jwt.MapClaims{
-		"sub":  userID,
-		"exp":  time.Now().Add(30 * 24 * time.Hour).Unix(),
-		"iat":  time.Now().Unix(),
-		"nbf":  time.Now().Unix(),
-		"iss":  app.config.auth.token.iss,
-		"aud":  app.config.auth.token.iss,
-		"type": "refresh",
-	}
-
-	newRefreshToken, err := app.auth.GenerateToken(refreshClaims)
-	if err != nil {
-		app.internalServerError(w, r, err)
+		switch err.Error() {
+		case auth.ErrTokenClaims, auth.ErrTokenType:
+			app.unauthorizedErrorResponse(w, r, err)
+		default:
+			app.internalServerError(w, r, err)
+		}
 		return
 	}
 

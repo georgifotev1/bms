@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/georgifotev1/bms/internal/store"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -21,9 +20,7 @@ func TestCreateBrandsHandler(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 
-		testToken, err := app.auth.GenerateToken(jwt.MapClaims{
-			"sub": int64(1),
-		})
+		testToken, _, err := app.auth.GenerateTokens(1)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -89,9 +86,7 @@ func TestCreateBrandsHandler(t *testing.T) {
 	})
 
 	t.Run("User already has brand id", func(t *testing.T) {
-		testToken, err := app.auth.GenerateToken(jwt.MapClaims{
-			"sub": int64(2),
-		})
+		testToken, _,  err := app.auth.GenerateTokens(2)
 		if err != nil {
 			t.Fatal(err)
 		}

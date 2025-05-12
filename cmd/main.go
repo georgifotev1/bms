@@ -118,10 +118,11 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	jwtAuthenticator := auth.NewJWTAuthenticator(
+	tokenService := auth.NewTokenService(
 		cfg.auth.token.secret,
 		cfg.auth.token.iss,
 		cfg.auth.token.iss,
+		cfg.auth.token.exp,
 	)
 
 	rateLimiter := ratelimiter.NewFixedWindowLimiter(
@@ -134,7 +135,7 @@ func main() {
 		store:       store,
 		logger:      logger,
 		mailer:      mailtrap,
-		auth:        jwtAuthenticator,
+		auth:        tokenService,
 		cache:       redisCache,
 		rateLimiter: rateLimiter,
 	}

@@ -5,6 +5,7 @@ import (
 )
 
 type Authenticator interface {
-	GenerateToken(claims jwt.Claims) (string, error)
+	GenerateTokens(id int64) (string, string, error)
 	ValidateToken(token string) (*jwt.Token, error)
+	RefreshTokens(refreshToken string) (access, refresh string, err error)
 }
