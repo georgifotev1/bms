@@ -14,9 +14,9 @@ type Storage struct {
 		Delete(context.Context, int64)
 	}
 	Brands interface {
-		Get(context.Context, int64) (*store.GetBrandProfileRow, error)
-		Set(context.Context, *store.GetBrandProfileRow) error
-		Delete(context.Context, int64)
+		Get(context.Context, int32) (*store.BrandResponse, error)
+		Set(context.Context, *store.BrandResponse) error
+		Delete(context.Context, int32)
 	}
 	Customers interface {
 		Get(context.Context, int64) (*store.Customer, error)
@@ -27,6 +27,8 @@ type Storage struct {
 
 func NewRedisStorage(rbd *redis.Client) Storage {
 	return Storage{
-		Users: &UserStore{rdb: rbd},
+		Users:     &UserStore{rdb: rbd},
+		Brands:    &BrandStore{rdb: rbd},
+		Customers: &CustomerStore{rdb: rbd},
 	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -138,7 +139,7 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	ctx := r.Context()
-	_, err := app.getBrand(ctx, payload.BrandId)
+	brand, err := app.getBrand(ctx, payload.BrandId)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -148,7 +149,7 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		}
 		return
 	}
-
+	fmt.Println("BRAND IS, ", brand)
 	customer, err := app.store.GetCustomerByEmail(ctx, payload.Email)
 	if err != nil {
 		switch err {

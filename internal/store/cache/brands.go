@@ -13,7 +13,7 @@ type BrandStore struct {
 	rdb *redis.Client
 }
 
-func (s *BrandStore) Get(ctx context.Context, brandID int64) (*store.GetBrandProfileRow, error) {
+func (s *BrandStore) Get(ctx context.Context, brandID int32) (*store.BrandResponse, error) {
 	cacheKey := fmt.Sprintf("brand-%d", brandID)
 
 	data, err := s.rdb.Get(ctx, cacheKey).Result()
@@ -23,7 +23,7 @@ func (s *BrandStore) Get(ctx context.Context, brandID int64) (*store.GetBrandPro
 		return nil, err
 	}
 
-	var brand store.GetBrandProfileRow
+	var brand store.BrandResponse
 	if data != "" {
 		err := json.Unmarshal([]byte(data), &brand)
 		if err != nil {
@@ -34,7 +34,7 @@ func (s *BrandStore) Get(ctx context.Context, brandID int64) (*store.GetBrandPro
 	return &brand, nil
 }
 
-func (s *BrandStore) Set(ctx context.Context, brand *store.GetBrandProfileRow) error {
+func (s *BrandStore) Set(ctx context.Context, brand *store.BrandResponse) error {
 	cacheKey := fmt.Sprintf("brand-%d", brand.ID)
 
 	json, err := json.Marshal(brand)
@@ -45,7 +45,7 @@ func (s *BrandStore) Set(ctx context.Context, brand *store.GetBrandProfileRow) e
 	return s.rdb.SetEX(ctx, cacheKey, json, UserExpTime).Err()
 }
 
-func (s *BrandStore) Delete(ctx context.Context, brandId int64) {
+func (s *BrandStore) Delete(ctx context.Context, brandId int32) {
 	cacheKey := fmt.Sprintf("brand-%d", brandId)
 	s.rdb.Del(ctx, cacheKey)
 }

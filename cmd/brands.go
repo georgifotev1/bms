@@ -3,26 +3,48 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/georgifotev1/bms/internal/store"
 )
 
-func (app *application) getBrand(ctx context.Context, brandID int32) (*store.GetBrandProfileRow, error) {
-	if !app.config.cache.enabled {
-		return app.store.GetBrandProfile(ctx, brandID)
+func (app *application) getBrandProfile(ctx context.Context, brandID int32) (*store.BrandResponse, error) {
+	profile, err := app.store.GetBrandProfile(ctx, brandID)
+	if err != nil {
+		return nil, err
 	}
 
-	brand, err := app.cache.Brands.Get(ctx, int64(brandID))
+	var wh []store.WorkingHour
+	err = json.Unmarshal(profile.WorkingHours.([]byte), &wh)
+	if err != nil {
+		return nil, err
+	}
+
+	var sl []store.SocialLink
+	err = json.Unmarshal(profile.SocialLinks.([]byte), &sl)
+	if err != nil {
+		return nil, err
+	}
+
+	br := brandResponseMapper(&profile.Brand, sl, wh)
+	return &br, nil
+}
+
+func (app *application) getBrand(ctx context.Context, brandID int32) (*store.BrandResponse, error) {
+	if !app.config.cache.enabled {
+		return app.getBrandProfile(ctx, brandID)
+	}
+
+	brand, err := app.cache.Brands.Get(ctx, brandID)
 	if err != nil {
 		return nil, err
 	}
 
 	if brand == nil {
-		brand, err = app.store.GetBrandProfile(ctx, brandID)
+		brand, err = app.getBrandProfile(ctx, brandID)
 		if err != nil {
 			return nil, err
 		}
@@ -33,48 +55,6 @@ func (app *application) getBrand(ctx context.Context, brandID int32) (*store.Get
 	}
 
 	return brand, nil
-}
-
-type BrandResponse struct {
-	ID           int32          `json:"id"`
-	Name         string         `json:"name"`
-	PageUrl      string         `json:"pageUrl"`
-	Description  string         `json:"description"`
-	Email        string         `json:"email"`
-	Phone        string         `json:"phone"`
-	Country      string         `json:"country"`
-	State        string         `json:"state"`
-	ZipCode      string         `json:"zipCode"`
-	City         string         `json:"city"`
-	Address      string         `json:"address"`
-	LogoUrl      string         `json:"logoUrl"`
-	BannerUrl    string         `json:"bannerUrl"`
-	Currency     string         `json:"currency"`
-	CreatedAt    time.Time      `json:"createdAt"`
-	UpdatedAt    time.Time      `json:"updatedAt"`
-	SocialLinks  []*SocialLink  `json:"socialLinks"`
-	WorkingHours []*WorkingHour `json:"workingHours"`
-}
-
-type SocialLink struct {
-	ID          int32     `json:"id"`
-	BrandID     int32     `json:"brandId"`
-	Platform    string    `json:"platform"`
-	Url         string    `json:"url"`
-	DisplayName string    `json:"displayName"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-}
-
-type WorkingHour struct {
-	ID        int32     `json:"id"`
-	BrandID   int32     `json:"brandId"`
-	DayOfWeek int32     `json:"dayOfWeek"`
-	OpenTime  time.Time `json:"openTime"`
-	CloseTime time.Time `json:"closeTime"`
-	IsClosed  bool      `json:"isClosed"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type CreateBrandPayload struct {

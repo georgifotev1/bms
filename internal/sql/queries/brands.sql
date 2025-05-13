@@ -51,7 +51,7 @@ ORDER BY day_of_week;
 
 -- name: GetBrandProfile :one
 SELECT
-    b.*,
+    sqlc.embed(b),
     COALESCE(
         (SELECT json_agg(sl) FROM brand_social_link sl WHERE sl.brand_id = b.id),
         '[]'

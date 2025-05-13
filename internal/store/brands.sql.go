@@ -8,7 +8,6 @@ package store
 import (
 	"context"
 	"database/sql"
-	"time"
 )
 
 const addBrandSocialLink = `-- name: AddBrandSocialLink :one
@@ -163,46 +162,31 @@ WHERE b.id = $1
 `
 
 type GetBrandProfileRow struct {
-	ID           int32          `json:"id"`
-	Name         string         `json:"name"`
-	PageUrl      string         `json:"pageUrl"`
-	Description  sql.NullString `json:"description"`
-	Email        sql.NullString `json:"email"`
-	Phone        sql.NullString `json:"phone"`
-	Country      sql.NullString `json:"country"`
-	State        sql.NullString `json:"state"`
-	ZipCode      sql.NullString `json:"zipCode"`
-	City         sql.NullString `json:"city"`
-	Address      sql.NullString `json:"address"`
-	LogoUrl      sql.NullString `json:"logoUrl"`
-	BannerUrl    sql.NullString `json:"bannerUrl"`
-	Currency     sql.NullString `json:"currency"`
-	CreatedAt    time.Time      `json:"createdAt"`
-	UpdatedAt    time.Time      `json:"updatedAt"`
-	SocialLinks  interface{}    `json:"socialLinks"`
-	WorkingHours interface{}    `json:"workingHours"`
+	Brand        Brand       `json:"brand"`
+	SocialLinks  interface{} `json:"socialLinks"`
+	WorkingHours interface{} `json:"workingHours"`
 }
 
 func (q *Queries) GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error) {
 	row := q.db.QueryRowContext(ctx, getBrandProfile, id)
 	var i GetBrandProfileRow
 	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.PageUrl,
-		&i.Description,
-		&i.Email,
-		&i.Phone,
-		&i.Country,
-		&i.State,
-		&i.ZipCode,
-		&i.City,
-		&i.Address,
-		&i.LogoUrl,
-		&i.BannerUrl,
-		&i.Currency,
-		&i.CreatedAt,
-		&i.UpdatedAt,
+		&i.Brand.ID,
+		&i.Brand.Name,
+		&i.Brand.PageUrl,
+		&i.Brand.Description,
+		&i.Brand.Email,
+		&i.Brand.Phone,
+		&i.Brand.Country,
+		&i.Brand.State,
+		&i.Brand.ZipCode,
+		&i.Brand.City,
+		&i.Brand.Address,
+		&i.Brand.LogoUrl,
+		&i.Brand.BannerUrl,
+		&i.Brand.Currency,
+		&i.Brand.CreatedAt,
+		&i.Brand.UpdatedAt,
 		&i.SocialLinks,
 		&i.WorkingHours,
 	)

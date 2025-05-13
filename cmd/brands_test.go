@@ -77,7 +77,7 @@ func TestCreateBrandsHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, rr.Code)
 
-		var response BrandResponse
+		var response store.BrandResponse
 		err = json.NewDecoder(rr.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, payload.Name, response.Name)
@@ -86,7 +86,7 @@ func TestCreateBrandsHandler(t *testing.T) {
 	})
 
 	t.Run("User already has brand id", func(t *testing.T) {
-		testToken, _,  err := app.auth.GenerateTokens(2)
+		testToken, _, err := app.auth.GenerateTokens(2)
 		if err != nil {
 			t.Fatal(err)
 		}
