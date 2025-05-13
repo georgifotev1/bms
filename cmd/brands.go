@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -10,23 +11,49 @@ import (
 	"github.com/georgifotev1/bms/internal/store"
 )
 
+func (app *application) getBrand(ctx context.Context, brandID int32) (*store.GetBrandProfileRow, error) {
+	if !app.config.cache.enabled {
+		return app.store.GetBrandProfile(ctx, brandID)
+	}
+
+	brand, err := app.cache.Brands.Get(ctx, int64(brandID))
+	if err != nil {
+		return nil, err
+	}
+
+	if brand == nil {
+		brand, err = app.store.GetBrandProfile(ctx, brandID)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := app.cache.Brands.Set(ctx, brand); err != nil {
+			return nil, err
+		}
+	}
+
+	return brand, nil
+}
+
 type BrandResponse struct {
-	ID          int32     `json:"id"`
-	Name        string    `json:"name"`
-	PageUrl     string    `json:"pageUrl"`
-	Description string    `json:"description"`
-	Email       string    `json:"email"`
-	Phone       string    `json:"phone"`
-	Country     string    `json:"country"`
-	State       string    `json:"state"`
-	ZipCode     string    `json:"zipCode"`
-	City        string    `json:"city"`
-	Address     string    `json:"address"`
-	LogoUrl     string    `json:"logoUrl"`
-	BannerUrl   string    `json:"bannerUrl"`
-	Currency    string    `json:"currency"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID           int32                     `json:"id"`
+	Name         string                    `json:"name"`
+	PageUrl      string                    `json:"pageUrl"`
+	Description  string                    `json:"description"`
+	Email        string                    `json:"email"`
+	Phone        string                    `json:"phone"`
+	Country      string                    `json:"country"`
+	State        string                    `json:"state"`
+	ZipCode      string                    `json:"zipCode"`
+	City         string                    `json:"city"`
+	Address      string                    `json:"address"`
+	LogoUrl      string                    `json:"logoUrl"`
+	BannerUrl    string                    `json:"bannerUrl"`
+	Currency     string                    `json:"currency"`
+	CreatedAt    time.Time                 `json:"createdAt"`
+	UpdatedAt    time.Time                 `json:"updatedAt"`
+	SocialLinks  []*store.BrandSocialLink  `json:"socialLinks"`
+	WorkingHours []*store.BrandWorkingHour `json:"workingHours"`
 }
 
 type CreateBrandPayload struct {
@@ -110,7 +137,7 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	brandResponse := brandResponseMapper(brand)
+	brandResponse := brandResponseMapper(brand, nil, nil)
 	if err := writeJSON(w, http.StatusCreated, brandResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}

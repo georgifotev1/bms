@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -20,6 +21,30 @@ type userKey string
 const (
 	userCtx userKey = "user"
 )
+
+func (app *application) getUser(ctx context.Context, userID int64) (*store.User, error) {
+	if !app.config.cache.enabled {
+		return app.store.GetUserById(ctx, userID)
+	}
+
+	user, err := app.cache.Users.Get(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		user, err = app.store.GetUserById(ctx, userID)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := app.cache.Users.Set(ctx, user); err != nil {
+			return nil, err
+		}
+	}
+
+	return user, nil
+}
 
 type UserResponse struct {
 	ID        int64     `json:"id"`

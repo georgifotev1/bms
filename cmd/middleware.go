@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/georgifotev1/bms/internal/store"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -89,30 +88,6 @@ func (app *application) AuthTokenMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) getUser(ctx context.Context, userID int64) (*store.User, error) {
-	if !app.config.cache.enabled {
-		return app.store.GetUserById(ctx, userID)
-	}
-
-	user, err := app.cache.Users.Get(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	if user == nil {
-		user, err = app.store.GetUserById(ctx, userID)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := app.cache.Users.Set(ctx, user); err != nil {
-			return nil, err
-		}
-	}
-
-	return user, nil
-}
-
 func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if app.config.rateLimiter.Enabled {
@@ -122,6 +97,13 @@ func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) BrandMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//TODO: create middleware to pick the brand from the host
 		next.ServeHTTP(w, r)
 	})
 }

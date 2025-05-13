@@ -14,8 +14,8 @@ type Storage struct {
 		Delete(context.Context, int64)
 	}
 	Brands interface {
-		Get(context.Context, int64) (*store.Brand, error)
-		Set(context.Context, *store.Brand) error
+		Get(context.Context, int64) (*store.GetBrandProfileRow, error)
+		Set(context.Context, *store.GetBrandProfileRow) error
 		Delete(context.Context, int64)
 	}
 	Customers interface {

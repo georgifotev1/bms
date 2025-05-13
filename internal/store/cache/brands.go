@@ -13,7 +13,7 @@ type BrandStore struct {
 	rdb *redis.Client
 }
 
-func (s *BrandStore) Get(ctx context.Context, brandID int64) (*store.Brand, error) {
+func (s *BrandStore) Get(ctx context.Context, brandID int64) (*store.GetBrandProfileRow, error) {
 	cacheKey := fmt.Sprintf("brand-%d", brandID)
 
 	data, err := s.rdb.Get(ctx, cacheKey).Result()
@@ -23,7 +23,7 @@ func (s *BrandStore) Get(ctx context.Context, brandID int64) (*store.Brand, erro
 		return nil, err
 	}
 
-	var brand store.Brand
+	var brand store.GetBrandProfileRow
 	if data != "" {
 		err := json.Unmarshal([]byte(data), &brand)
 		if err != nil {
@@ -34,7 +34,7 @@ func (s *BrandStore) Get(ctx context.Context, brandID int64) (*store.Brand, erro
 	return &brand, nil
 }
 
-func (s *BrandStore) Set(ctx context.Context, brand *store.Brand) error {
+func (s *BrandStore) Set(ctx context.Context, brand *store.GetBrandProfileRow) error {
 	cacheKey := fmt.Sprintf("brand-%d", brand.ID)
 
 	json, err := json.Marshal(brand)

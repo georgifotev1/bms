@@ -60,7 +60,7 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 	}
 
 	ctx := r.Context()
-	_, err = app.store.GetBrandById(ctx, payload.BrandId)
+	_, err = app.getBrand(ctx, payload.BrandId) // TODO: remove when create middleware
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -138,7 +138,7 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	ctx := r.Context()
-	_, err := app.store.GetBrandById(ctx, payload.BrandId)
+	_, err := app.getBrand(ctx, payload.BrandId)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

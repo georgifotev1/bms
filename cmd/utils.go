@@ -77,25 +77,34 @@ func userResponseMapper(user *store.User) UserResponse {
 		UpdatedAt: user.UpdatedAt,
 	}
 }
+func brandResponseMapper(brand *store.Brand, links []*store.BrandSocialLink, workingHours []*store.BrandWorkingHour) BrandResponse {
+	if links == nil {
+		links = []*store.BrandSocialLink{}
+	}
 
-func brandResponseMapper(brand *store.Brand) BrandResponse {
+	if workingHours == nil {
+		workingHours = []*store.BrandWorkingHour{}
+	}
+
 	return BrandResponse{
-		ID:          brand.ID,
-		Name:        brand.Name,
-		PageUrl:     brand.PageUrl,
-		Description: brand.Description.String,
-		Email:       brand.Email.String,
-		Phone:       brand.Phone.String,
-		Country:     brand.Country.String,
-		State:       brand.State.String,
-		ZipCode:     brand.ZipCode.String,
-		City:        brand.City.String,
-		Address:     brand.Address.String,
-		LogoUrl:     brand.LogoUrl.String,
-		BannerUrl:   brand.BannerUrl.String,
-		Currency:    brand.Currency.String,
-		CreatedAt:   brand.CreatedAt,
-		UpdatedAt:   brand.UpdatedAt,
+		ID:           brand.ID,
+		Name:         brand.Name,
+		PageUrl:      brand.PageUrl,
+		Description:  brand.Description.String,
+		Email:        brand.Email.String,
+		Phone:        brand.Phone.String,
+		Country:      brand.Country.String,
+		State:        brand.State.String,
+		ZipCode:      brand.ZipCode.String,
+		City:         brand.City.String,
+		Address:      brand.Address.String,
+		LogoUrl:      brand.LogoUrl.String,
+		BannerUrl:    brand.BannerUrl.String,
+		Currency:     brand.Currency.String,
+		CreatedAt:    brand.CreatedAt,
+		UpdatedAt:    brand.UpdatedAt,
+		SocialLinks:  links,
+		WorkingHours: workingHours,
 	}
 }
 
