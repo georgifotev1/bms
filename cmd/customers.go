@@ -33,7 +33,7 @@ type RegisterCustomerPayload struct {
 //
 //	@Summary		Registers a customer
 //	@Description	Registers a customer
-//	@Tags			auth
+//	@Tags			customers
 //	@Accept			json
 //	@Produce		json
 //	@Param			payload	body		RegisterCustomerPayload	true	"User credentials"
@@ -117,7 +117,7 @@ type LoginCustomerPayload struct {
 //
 //	@Summary		Login a customer
 //	@Description	Login a customer
-//	@Tags			auth
+//	@Tags			customers
 //	@Accept			json
 //	@Produce		json
 //	@Param			payload	body		LoginCustomerPayload	true	"User credentials"

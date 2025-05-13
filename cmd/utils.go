@@ -77,13 +77,13 @@ func userResponseMapper(user *store.User) UserResponse {
 		UpdatedAt: user.UpdatedAt,
 	}
 }
-func brandResponseMapper(brand *store.Brand, links []*store.BrandSocialLink, workingHours []*store.BrandWorkingHour) BrandResponse {
+func brandResponseMapper(brand *store.Brand, links []*SocialLink, workingHours []*WorkingHour) BrandResponse {
 	if links == nil {
-		links = []*store.BrandSocialLink{}
+		links = []*SocialLink{}
 	}
 
 	if workingHours == nil {
-		workingHours = []*store.BrandWorkingHour{}
+		workingHours = []*WorkingHour{}
 	}
 
 	return BrandResponse{

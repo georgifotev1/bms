@@ -28,10 +28,18 @@ definitions:
         type: string
       phone:
         type: string
+      socialLinks:
+        items:
+          $ref: '#/definitions/main.SocialLink'
+        type: array
       state:
         type: string
       updatedAt:
         type: string
+      workingHours:
+        items:
+          $ref: '#/definitions/main.WorkingHour'
+        type: array
       zipCode:
         type: string
     type: object
@@ -199,6 +207,23 @@ definitions:
       updatedAt:
         type: string
     type: object
+  main.SocialLink:
+    properties:
+      brandId:
+        type: integer
+      createdAt:
+        type: string
+      displayName:
+        type: string
+      id:
+        type: integer
+      platform:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        type: string
+    type: object
   main.UserResponse:
     properties:
       avatar:
@@ -242,6 +267,25 @@ definitions:
         type: string
       verified:
         type: boolean
+    type: object
+  main.WorkingHour:
+    properties:
+      brandId:
+        type: integer
+      closeTime:
+        type: string
+      createdAt:
+        type: string
+      dayOfWeek:
+        type: integer
+      id:
+        type: integer
+      isClosed:
+        type: boolean
+      openTime:
+        type: string
+      updatedAt:
+        type: string
     type: object
 info:
   contact:
@@ -415,7 +459,7 @@ paths:
           schema: {}
       summary: Login a customer
       tags:
-      - auth
+      - customers
   /customers/auth/register:
     post:
       consumes:
@@ -443,7 +487,7 @@ paths:
           schema: {}
       summary: Registers a customer
       tags:
-      - auth
+      - customers
   /health:
     get:
       description: Healthcheck endpoint

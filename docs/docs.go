@@ -233,7 +233,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "customers"
                 ],
                 "summary": "Login a customer",
                 "parameters": [
@@ -275,7 +275,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "customers"
                 ],
                 "summary": "Registers a customer",
                 "parameters": [
@@ -610,11 +610,23 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
+                "socialLinks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.SocialLink"
+                    }
+                },
                 "state": {
                     "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
+                },
+                "workingHours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.WorkingHour"
+                    }
                 },
                 "zipCode": {
                     "type": "string"
@@ -856,6 +868,32 @@ const docTemplate = `{
                 }
             }
         },
+        "main.SocialLink": {
+            "type": "object",
+            "properties": {
+                "brandId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "platform": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "main.UserResponse": {
             "type": "object",
             "properties": {
@@ -920,6 +958,35 @@ const docTemplate = `{
                 },
                 "verified": {
                     "type": "boolean"
+                }
+            }
+        },
+        "main.WorkingHour": {
+            "type": "object",
+            "properties": {
+                "brandId": {
+                    "type": "integer"
+                },
+                "closeTime": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "dayOfWeek": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isClosed": {
+                    "type": "boolean"
+                },
+                "openTime": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         }
