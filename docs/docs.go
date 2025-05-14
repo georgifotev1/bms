@@ -197,7 +197,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created brand",
                         "schema": {
-                            "$ref": "#/definitions/main.BrandResponse"
+                            "$ref": "#/definitions/store.BrandResponse"
                         }
                     },
                     "400": {
@@ -568,71 +568,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "main.BrandResponse": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "bannerUrl": {
-                    "type": "string"
-                },
-                "city": {
-                    "type": "string"
-                },
-                "country": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "currency": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "logoUrl": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "pageUrl": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "socialLinks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/main.SocialLink"
-                    }
-                },
-                "state": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "workingHours": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/main.WorkingHour"
-                    }
-                },
-                "zipCode": {
-                    "type": "string"
-                }
-            }
-        },
         "main.CreateBrandPayload": {
             "type": "object",
             "required": [
@@ -868,32 +803,6 @@ const docTemplate = `{
                 }
             }
         },
-        "main.SocialLink": {
-            "type": "object",
-            "properties": {
-                "brandId": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "displayName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "platform": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
         "main.UserResponse": {
             "type": "object",
             "properties": {
@@ -961,7 +870,98 @@ const docTemplate = `{
                 }
             }
         },
-        "main.WorkingHour": {
+        "store.BrandResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pageUrl": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "socialLinks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/store.SocialLink"
+                    }
+                },
+                "state": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "workingHours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/store.WorkingHour"
+                    }
+                },
+                "zipCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "store.SocialLink": {
+            "type": "object",
+            "properties": {
+                "brandId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "platform": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "store.WorkingHour": {
             "type": "object",
             "properties": {
                 "brandId": {

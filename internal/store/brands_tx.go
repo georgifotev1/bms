@@ -1,6 +1,10 @@
 package store
 
-import "time"
+import (
+	"context"
+	"database/sql"
+	"time"
+)
 
 type BrandResponse struct {
 	ID           int32         `json:"id"`
@@ -42,4 +46,40 @@ type WorkingHour struct {
 	IsClosed  bool      `json:"isClosed"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type CreateBrandTxParams struct {
+	Name    string
+	PageUrl string
+	UserID  int64
+}
+
+func (s *SQLStore) CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, error) {
+	var result Brand
+
+	err := s.execTx(ctx, func(q Querier) error {
+		brand, err := q.CreateBrand(ctx, CreateBrandParams{
+			Name:    arg.Name,
+			PageUrl: arg.PageUrl,
+		})
+		if err != nil {
+			return err
+		}
+
+		err = q.AssociateUserWithBrand(ctx, AssociateUserWithBrandParams{
+			BrandID: sql.NullInt32{
+				Valid: true,
+				Int32: brand.ID,
+			},
+			ID: arg.UserID,
+		})
+		if err != nil {
+			return err
+		}
+
+		result = *brand
+		return nil
+	})
+
+	return &result, err
 }

@@ -10,6 +10,7 @@ type Store interface {
 	Querier
 	CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (CreateServiceTxResult, error)
 	ActivateUserTx(ctx context.Context, arg ActivateUserTxParams) error
+	CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, error)
 }
 
 type SQLStore struct {

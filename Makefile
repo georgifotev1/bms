@@ -13,7 +13,7 @@ create_db:
 	docker-compose exec db createdb --username=${DB_DOCKER_USER} --owner=${DB_DOCKER_USER} ${DB_NAME}
 
 gen-docs:
-	@swag init -g /main.go -d cmd && swag fmt
+	@swag init -g /main.go -d cmd --parseDependency --parseInternal && swag fmt
 
 queries:
 	sqlc generate && mockery

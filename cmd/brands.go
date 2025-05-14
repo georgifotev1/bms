@@ -11,52 +11,6 @@ import (
 	"github.com/georgifotev1/bms/internal/store"
 )
 
-func (app *application) getBrandProfile(ctx context.Context, brandID int32) (*store.BrandResponse, error) {
-	profile, err := app.store.GetBrandProfile(ctx, brandID)
-	if err != nil {
-		return nil, err
-	}
-
-	var wh []store.WorkingHour
-	err = json.Unmarshal(profile.WorkingHours.([]byte), &wh)
-	if err != nil {
-		return nil, err
-	}
-
-	var sl []store.SocialLink
-	err = json.Unmarshal(profile.SocialLinks.([]byte), &sl)
-	if err != nil {
-		return nil, err
-	}
-
-	br := brandResponseMapper(&profile.Brand, sl, wh)
-	return &br, nil
-}
-
-func (app *application) getBrand(ctx context.Context, brandID int32) (*store.BrandResponse, error) {
-	if !app.config.cache.enabled {
-		return app.getBrandProfile(ctx, brandID)
-	}
-
-	brand, err := app.cache.Brands.Get(ctx, brandID)
-	if err != nil {
-		return nil, err
-	}
-
-	if brand == nil {
-		brand, err = app.getBrandProfile(ctx, brandID)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := app.cache.Brands.Set(ctx, brand); err != nil {
-			return nil, err
-		}
-	}
-
-	return brand, nil
-}
-
 type CreateBrandPayload struct {
 	Name string `json:"name" validate:"required,min=3,max=100"`
 }
@@ -67,10 +21,10 @@ type CreateBrandPayload struct {
 // @Accept			json
 // @Produce		json
 //
-//	@Security		ApiKeyAuth
+// @Security		ApiKeyAuth
 //
 // @Param			payload	body		CreateBrandPayload	true	"Brand creation data"
-// @Success		201		{object}	BrandResponse		"Created brand"
+// @Success		201		{object}	store.BrandResponse	"Created brand"
 // @Failure		400		{object}	error				"Bad request - Invalid input"
 // @Failure		401		{object}	error				"Unauthorized - Invalid or missing token"
 // @Failure		403		{object}	error				"Forbidden - User is not an owner"
@@ -117,21 +71,10 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	brand, err := app.store.CreateBrand(ctx, store.CreateBrandParams{
+	brand, err := app.store.CreateBrandTx(ctx, store.CreateBrandTxParams{
 		Name:    payload.Name,
 		PageUrl: pageUrl,
-	})
-	if err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	err = app.store.AssociateUserWithBrand(ctx, store.AssociateUserWithBrandParams{
-		BrandID: sql.NullInt32{
-			Valid: true,
-			Int32: brand.ID,
-		},
-		ID: ctxUser.ID,
+		UserID:  ctxUser.ID,
 	})
 	if err != nil {
 		app.internalServerError(w, r, err)
@@ -142,4 +85,52 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 	if err := writeJSON(w, http.StatusCreated, brandResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
+}
+
+// Get brand profile helper/mapper
+func (app *application) getBrandProfile(ctx context.Context, brandID int32) (*store.BrandResponse, error) {
+	profile, err := app.store.GetBrandProfile(ctx, brandID)
+	if err != nil {
+		return nil, err
+	}
+
+	var wh []store.WorkingHour
+	err = json.Unmarshal(profile.WorkingHours.([]byte), &wh)
+	if err != nil {
+		return nil, err
+	}
+
+	var sl []store.SocialLink
+	err = json.Unmarshal(profile.SocialLinks.([]byte), &sl)
+	if err != nil {
+		return nil, err
+	}
+
+	br := brandResponseMapper(&profile.Brand, sl, wh)
+	return &br, nil
+}
+
+// Try to get brand from cache if enabled
+func (app *application) getBrand(ctx context.Context, brandID int32) (*store.BrandResponse, error) {
+	if !app.config.cache.enabled {
+		return app.getBrandProfile(ctx, brandID)
+	}
+
+	brand, err := app.cache.Brands.Get(ctx, brandID)
+	if err != nil {
+		return nil, err
+	}
+
+	if brand == nil {
+		brand, err = app.getBrandProfile(ctx, brandID)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := app.cache.Brands.Set(ctx, brand); err != nil {
+			return nil, err
+		}
+	}
+
+	return brand, nil
 }

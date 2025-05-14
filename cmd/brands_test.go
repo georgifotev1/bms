@@ -43,9 +43,10 @@ func TestCreateBrandsHandler(t *testing.T) {
 		mockStore := app.store.(*store.MockStore)
 		mockStore.On("GetUserById", mock.Anything, mockUser.ID).Return(mockUser, nil)
 		mockStore.On("GetBrandByUrl", mock.Anything, "testbrand").Return("", sql.ErrNoRows)
-		mockStore.On("CreateBrand", mock.Anything, store.CreateBrandParams{
+		mockStore.On("CreateBrandTx", mock.Anything, store.CreateBrandTxParams{
 			Name:    "Test Brand",
 			PageUrl: "testbrand",
+			UserID:  int64(1),
 		}).Return(&store.Brand{
 			ID:        1,
 			Name:      "Test Brand",
@@ -53,10 +54,6 @@ func TestCreateBrandsHandler(t *testing.T) {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}, nil)
-		mockStore.On("AssociateUserWithBrand", mock.Anything, store.AssociateUserWithBrandParams{
-			BrandID: sql.NullInt32{Valid: true, Int32: 1},
-			ID:      1,
-		}).Return(nil)
 
 		body, err := json.Marshal(payload)
 		assert.NoError(t, err)

@@ -1,48 +1,5 @@
 basePath: /v1
 definitions:
-  main.BrandResponse:
-    properties:
-      address:
-        type: string
-      bannerUrl:
-        type: string
-      city:
-        type: string
-      country:
-        type: string
-      createdAt:
-        type: string
-      currency:
-        type: string
-      description:
-        type: string
-      email:
-        type: string
-      id:
-        type: integer
-      logoUrl:
-        type: string
-      name:
-        type: string
-      pageUrl:
-        type: string
-      phone:
-        type: string
-      socialLinks:
-        items:
-          $ref: '#/definitions/main.SocialLink'
-        type: array
-      state:
-        type: string
-      updatedAt:
-        type: string
-      workingHours:
-        items:
-          $ref: '#/definitions/main.WorkingHour'
-        type: array
-      zipCode:
-        type: string
-    type: object
   main.CreateBrandPayload:
     properties:
       name:
@@ -207,23 +164,6 @@ definitions:
       updatedAt:
         type: string
     type: object
-  main.SocialLink:
-    properties:
-      brandId:
-        type: integer
-      createdAt:
-        type: string
-      displayName:
-        type: string
-      id:
-        type: integer
-      platform:
-        type: string
-      updatedAt:
-        type: string
-      url:
-        type: string
-    type: object
   main.UserResponse:
     properties:
       avatar:
@@ -268,7 +208,67 @@ definitions:
       verified:
         type: boolean
     type: object
-  main.WorkingHour:
+  store.BrandResponse:
+    properties:
+      address:
+        type: string
+      bannerUrl:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      createdAt:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      logoUrl:
+        type: string
+      name:
+        type: string
+      pageUrl:
+        type: string
+      phone:
+        type: string
+      socialLinks:
+        items:
+          $ref: '#/definitions/store.SocialLink'
+        type: array
+      state:
+        type: string
+      updatedAt:
+        type: string
+      workingHours:
+        items:
+          $ref: '#/definitions/store.WorkingHour'
+        type: array
+      zipCode:
+        type: string
+    type: object
+  store.SocialLink:
+    properties:
+      brandId:
+        type: integer
+      createdAt:
+        type: string
+      displayName:
+        type: string
+      id:
+        type: integer
+      platform:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        type: string
+    type: object
+  store.WorkingHour:
     properties:
       brandId:
         type: integer
@@ -411,7 +411,7 @@ paths:
         "201":
           description: Created brand
           schema:
-            $ref: '#/definitions/main.BrandResponse'
+            $ref: '#/definitions/store.BrandResponse'
         "400":
           description: Bad request - Invalid input
           schema: {}
