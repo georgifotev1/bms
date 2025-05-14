@@ -21,8 +21,9 @@ func NewTokenService(secret, aud, iss string, exp time.Duration) *TokenService {
 }
 
 const (
-	ErrTokenType   = "invalid token type"
-	ErrTokenClaims = "invalid token claims"
+	ErrTokenValidation = "token validation failed"
+	ErrTokenType       = "invalid token type"
+	ErrTokenClaims     = "invalid token claims"
 )
 
 func (ts *TokenService) generateToken(claims jwt.Claims) (string, error) {
@@ -55,7 +56,7 @@ func (ts *TokenService) ValidateToken(token string) (*jwt.Token, error) {
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("token validation failed: %v", err)
+		return nil, errors.New(ErrTokenValidation)
 	}
 
 	if !parsedToken.Valid {
@@ -105,7 +106,6 @@ func (ts *TokenService) RefreshTokens(refreshToken string) (access, refresh stri
 	if err != nil {
 		return "", "", err
 	}
-	fmt.Println("CODE SHOLD NOT REACH HERE")
 	claims, ok := jwtToken.Claims.(jwt.MapClaims)
 	if !ok {
 		return "", "", errors.New(ErrTokenClaims)

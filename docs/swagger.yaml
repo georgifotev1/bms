@@ -460,6 +460,41 @@ paths:
       summary: Login a customer
       tags:
       - customers
+  /customers/auth/logout:
+    post:
+      description: Clears the refresh token cookie to log out the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logged out successfully
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Logs out a user
+      tags:
+      - customers
+  /customers/auth/refresh:
+    get:
+      description: Uses a refresh token to generate a new access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New access token
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Refreshes the access token of customer
+      tags:
+      - customers
   /customers/auth/register:
     post:
       consumes:

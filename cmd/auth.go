@@ -184,7 +184,9 @@ func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Reque
 	newAccessToken, newRefreshToken, err := app.auth.RefreshTokens(refreshToken)
 	if err != nil {
 		switch err.Error() {
-		case auth.ErrTokenClaims, auth.ErrTokenType:
+		case auth.ErrTokenClaims, auth.ErrTokenType, auth.ErrTokenValidation:
+			// if refresh token is invalid remove it
+			app.ClearCookie(w, REFRESH_TOKEN)
 			app.unauthorizedErrorResponse(w, r, err)
 		default:
 			app.internalServerError(w, r, err)

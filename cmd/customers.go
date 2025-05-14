@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/store"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -179,6 +180,70 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 
 	customerResponse := customerResponseMapper(customer, accessToken)
 	if err := writeJSON(w, http.StatusCreated, customerResponse); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
+// refreshCustomerTokenHandler godoc
+//
+//	@Summary		Refreshes the access token of customer
+//	@Description	Uses a refresh token to generate a new access token
+//	@Tags			customers
+//	@Produce		json
+//	@Success		200	{string}	string	"New access token"
+//	@Failure		401	{object}	error
+//	@Failure		500	{object}	error
+//	@Router			/customers/auth/refresh [get]
+func (app *application) refreshCustomerTokenHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie(CUSTOMER_REFRES_TOKEN)
+	if err != nil {
+		app.unauthorizedErrorResponse(w, r, errors.New("refresh token not found"))
+		return
+	}
+
+	refreshToken := cookie.Value
+
+	newAccessToken, newRefreshToken, err := app.auth.RefreshTokens(refreshToken)
+	if err != nil {
+		switch err.Error() {
+		case auth.ErrTokenClaims, auth.ErrTokenType, auth.ErrTokenValidation:
+			// if refresh token is invalid remove it
+			app.ClearCookie(w, CUSTOMER_REFRES_TOKEN)
+			app.unauthorizedErrorResponse(w, r, err)
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	app.SetCookie(w, CUSTOMER_REFRES_TOKEN, newRefreshToken)
+
+	response := map[string]string{
+		"token": newAccessToken,
+	}
+
+	if err := writeJSON(w, http.StatusOK, response); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
+// logoutCustomerHandler godoc
+//
+//	@Summary		Logs out a user
+//	@Description	Clears the refresh token cookie to log out the user
+//	@Tags			customers
+//	@Produce		json
+//	@Success		200	{string}	string	"Logged out successfully"
+//	@Failure		500	{object}	error
+//	@Router			/customers/auth/logout [post]
+func (app *application) logoutCustomerHandler(w http.ResponseWriter, r *http.Request) {
+	app.ClearCookie(w, CUSTOMER_REFRES_TOKEN)
+
+	response := map[string]string{
+		"message": "Logged out successfully",
+	}
+
+	if err := writeJSON(w, http.StatusOK, response); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }

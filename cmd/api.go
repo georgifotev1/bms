@@ -146,6 +146,8 @@ func (app *application) mount() http.Handler {
 			r.Route("/auth", func(r chi.Router) {
 				r.Post("/register", app.registerCustomerHandler)
 				r.Post("/login", app.loginCustomerHandler)
+				r.Get("/refresh", app.refreshCustomerTokenHandler)
+				r.Post("/logout", app.logoutCustomerHandler)
 			})
 		})
 
