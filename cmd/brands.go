@@ -11,6 +11,12 @@ import (
 	"github.com/georgifotev1/bms/internal/store"
 )
 
+type brandKey string
+
+const (
+	brandIDCtx brandKey = "brand"
+)
+
 type CreateBrandPayload struct {
 	Name string `json:"name" validate:"required,min=3,max=100"`
 }

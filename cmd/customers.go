@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -27,7 +26,6 @@ type RegisterCustomerPayload struct {
 	Email       string `json:"email" validate:"required,email"`
 	Password    string `json:"password" validate:"required,min=3,max=72"`
 	Username    string `json:"username" validate:"required,min=2,max=100"`
-	BrandId     int32  `json:"brandId" validate:"required,min=1"`
 	PhoneNumber string `json:"phoneNumber"`
 }
 
@@ -38,10 +36,11 @@ type RegisterCustomerPayload struct {
 //	@Tags			customers
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		RegisterCustomerPayload	true	"User credentials"
-//	@Success		201		{object}	CustomerResponse		"User registered"
-//	@Failure		400		{object}	error
-//	@Failure		500		{object}	error
+//	@Param			payload		body		RegisterCustomerPayload	true	"User credentials"
+//	@Param			X-Brand-ID	header		string					false	"Brand ID header for development. In production this header is ignored"	default(1)
+//	@Success		201			{object}	CustomerResponse		"User registered"
+//	@Failure		400			{object}	error
+//	@Failure		500			{object}	error
 //	@Router			/customers/auth/register [post]
 func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	var payload RegisterCustomerPayload
@@ -62,22 +61,12 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 	}
 
 	ctx := r.Context()
-	_, err = app.getBrand(ctx, payload.BrandId) // TODO: remove when create middleware
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			app.unauthorizedErrorResponse(w, r, err)
-		default:
-			app.internalServerError(w, r, err)
-		}
-		return
-	}
-
+	ctxBrandID := getBrandIDFromCtx(ctx)
 	customer, err := app.store.CreateCustomer(ctx, store.CreateCustomerParams{
 		Name:     payload.Username,
 		Email:    payload.Email,
 		Password: hashedPass,
-		BrandID:  payload.BrandId,
+		BrandID:  ctxBrandID,
 		PhoneNumber: sql.NullString{
 			String: payload.PhoneNumber,
 			Valid:  payload.PhoneNumber != "",
@@ -112,7 +101,6 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 type LoginCustomerPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=3,max=72"`
-	BrandId  int32  `json:"brandId" validate:"required,min=1"`
 }
 
 // loginCustomerHandler godoc
@@ -122,10 +110,11 @@ type LoginCustomerPayload struct {
 //	@Tags			customers
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		LoginCustomerPayload	true	"User credentials"
-//	@Success		201		{object}	CustomerResponse		"User logged in"
-//	@Failure		400		{object}	error
-//	@Failure		500		{object}	error
+//	@Param			payload		body		LoginCustomerPayload	true	"User credentials"
+//	@Param			X-Brand-ID	header		string					false	"Brand ID header for development. In production this header is ignored"	default(1)
+//	@Success		201			{object}	CustomerResponse		"User logged in"
+//	@Failure		400			{object}	error
+//	@Failure		500			{object}	error
 //	@Router			/customers/auth/login [post]
 func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Request) {
 	var payload LoginCustomerPayload
@@ -139,19 +128,7 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ctx := r.Context()
-	brand, err := app.getBrand(ctx, payload.BrandId)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			app.unauthorizedErrorResponse(w, r, err)
-		default:
-			app.internalServerError(w, r, err)
-		}
-		return
-	}
-	fmt.Println("BRAND IS, ", brand)
-	customer, err := app.store.GetCustomerByEmail(ctx, payload.Email)
+	customer, err := app.store.GetCustomerByEmail(r.Context(), payload.Email)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

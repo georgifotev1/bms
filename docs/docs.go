@@ -245,6 +245,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/main.LoginCustomerPayload"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "Brand ID header for development. In production this header is ignored",
+                        "name": "X-Brand-ID",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -339,6 +346,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/main.RegisterCustomerPayload"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "Brand ID header for development. In production this header is ignored",
+                        "name": "X-Brand-ID",
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -738,15 +752,10 @@ const docTemplate = `{
         "main.LoginCustomerPayload": {
             "type": "object",
             "required": [
-                "brandId",
                 "email",
                 "password"
             ],
             "properties": {
-                "brandId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
                 "email": {
                     "type": "string"
                 },
@@ -760,16 +769,11 @@ const docTemplate = `{
         "main.RegisterCustomerPayload": {
             "type": "object",
             "required": [
-                "brandId",
                 "email",
                 "password",
                 "username"
             ],
             "properties": {
-                "brandId": {
-                    "type": "integer",
-                    "minimum": 1
-                },
                 "email": {
                     "type": "string"
                 },

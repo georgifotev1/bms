@@ -136,14 +136,14 @@ func (q *Queries) GetBrandById(ctx context.Context, id int32) (*Brand, error) {
 }
 
 const getBrandByUrl = `-- name: GetBrandByUrl :one
-SELECT page_url FROM brand WHERE page_url = $1
+SELECT id FROM brand WHERE page_url = $1
 `
 
-func (q *Queries) GetBrandByUrl(ctx context.Context, pageUrl string) (string, error) {
+func (q *Queries) GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error) {
 	row := q.db.QueryRowContext(ctx, getBrandByUrl, pageUrl)
-	var page_url string
-	err := row.Scan(&page_url)
-	return page_url, err
+	var id int32
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getBrandProfile = `-- name: GetBrandProfile :one

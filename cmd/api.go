@@ -142,7 +142,7 @@ func (app *application) mount() http.Handler {
 		})
 
 		r.Route("/customers", func(r chi.Router) {
-			// r.Use(app.BrandMiddleware)
+			r.Use(app.BrandMiddleware)
 			r.Route("/auth", func(r chi.Router) {
 				r.Post("/register", app.registerCustomerHandler)
 				r.Post("/login", app.loginCustomerHandler)

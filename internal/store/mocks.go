@@ -1297,22 +1297,22 @@ func (_c *MockQuerier_GetBrandById_Call) RunAndReturn(run func(ctx context.Conte
 }
 
 // GetBrandByUrl provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) GetBrandByUrl(ctx context.Context, pageUrl string) (string, error) {
+func (_mock *MockQuerier) GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error) {
 	ret := _mock.Called(ctx, pageUrl)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBrandByUrl")
 	}
 
-	var r0 string
+	var r0 int32
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (int32, error)); ok {
 		return returnFunc(ctx, pageUrl)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) string); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) int32); ok {
 		r0 = returnFunc(ctx, pageUrl)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Get(0).(int32)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, pageUrl)
@@ -1341,12 +1341,12 @@ func (_c *MockQuerier_GetBrandByUrl_Call) Run(run func(ctx context.Context, page
 	return _c
 }
 
-func (_c *MockQuerier_GetBrandByUrl_Call) Return(s string, err error) *MockQuerier_GetBrandByUrl_Call {
-	_c.Call.Return(s, err)
+func (_c *MockQuerier_GetBrandByUrl_Call) Return(n int32, err error) *MockQuerier_GetBrandByUrl_Call {
+	_c.Call.Return(n, err)
 	return _c
 }
 
-func (_c *MockQuerier_GetBrandByUrl_Call) RunAndReturn(run func(ctx context.Context, pageUrl string) (string, error)) *MockQuerier_GetBrandByUrl_Call {
+func (_c *MockQuerier_GetBrandByUrl_Call) RunAndReturn(run func(ctx context.Context, pageUrl string) (int32, error)) *MockQuerier_GetBrandByUrl_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3865,22 +3865,22 @@ func (_c *MockStore_GetBrandById_Call) RunAndReturn(run func(ctx context.Context
 }
 
 // GetBrandByUrl provides a mock function for the type MockStore
-func (_mock *MockStore) GetBrandByUrl(ctx context.Context, pageUrl string) (string, error) {
+func (_mock *MockStore) GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error) {
 	ret := _mock.Called(ctx, pageUrl)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBrandByUrl")
 	}
 
-	var r0 string
+	var r0 int32
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (int32, error)); ok {
 		return returnFunc(ctx, pageUrl)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) string); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) int32); ok {
 		r0 = returnFunc(ctx, pageUrl)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Get(0).(int32)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, pageUrl)
@@ -3909,12 +3909,12 @@ func (_c *MockStore_GetBrandByUrl_Call) Run(run func(ctx context.Context, pageUr
 	return _c
 }
 
-func (_c *MockStore_GetBrandByUrl_Call) Return(s string, err error) *MockStore_GetBrandByUrl_Call {
-	_c.Call.Return(s, err)
+func (_c *MockStore_GetBrandByUrl_Call) Return(n int32, err error) *MockStore_GetBrandByUrl_Call {
+	_c.Call.Return(n, err)
 	return _c
 }
 
-func (_c *MockStore_GetBrandByUrl_Call) RunAndReturn(run func(ctx context.Context, pageUrl string) (string, error)) *MockStore_GetBrandByUrl_Call {
+func (_c *MockStore_GetBrandByUrl_Call) RunAndReturn(run func(ctx context.Context, pageUrl string) (int32, error)) *MockStore_GetBrandByUrl_Call {
 	_c.Call.Return(run)
 	return _c
 }

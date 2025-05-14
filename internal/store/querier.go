@@ -31,7 +31,7 @@ type Querier interface {
 	GetBookingsByBrand(ctx context.Context, arg GetBookingsByBrandParams) ([]*GetBookingsByBrandRow, error)
 	GetBookingsByDateRange(ctx context.Context, arg GetBookingsByDateRangeParams) ([]*GetBookingsByDateRangeRow, error)
 	GetBrandById(ctx context.Context, id int32) (*Brand, error)
-	GetBrandByUrl(ctx context.Context, pageUrl string) (string, error)
+	GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error)
 	GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error)
 	GetBrandUsers(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
 	GetBrandWorkingHours(ctx context.Context, brandID int32) ([]*BrandWorkingHour, error)

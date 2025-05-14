@@ -81,9 +81,6 @@ definitions:
     type: object
   main.LoginCustomerPayload:
     properties:
-      brandId:
-        minimum: 1
-        type: integer
       email:
         type: string
       password:
@@ -91,15 +88,11 @@ definitions:
         minLength: 3
         type: string
     required:
-    - brandId
     - email
     - password
     type: object
   main.RegisterCustomerPayload:
     properties:
-      brandId:
-        minimum: 1
-        type: integer
       email:
         type: string
       password:
@@ -113,7 +106,6 @@ definitions:
         minLength: 2
         type: string
     required:
-    - brandId
     - email
     - password
     - username
@@ -444,6 +436,12 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/main.LoginCustomerPayload'
+      - default: "1"
+        description: Brand ID header for development. In production this header is
+          ignored
+        in: header
+        name: X-Brand-ID
+        type: string
       produces:
       - application/json
       responses:
@@ -507,6 +505,12 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/main.RegisterCustomerPayload'
+      - default: "1"
+        description: Brand ID header for development. In production this header is
+          ignored
+        in: header
+        name: X-Brand-ID
+        type: string
       produces:
       - application/json
       responses:

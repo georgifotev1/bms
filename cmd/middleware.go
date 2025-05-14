@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -103,7 +104,36 @@ func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {
 
 func (app *application) BrandMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//TODO: create middleware to pick the brand from the host
-		next.ServeHTTP(w, r)
+		host := r.Host
+		parts := strings.Split(host, ".")
+
+		// Handle development scenarios where swagger does not have the brand in the subdomain
+		if app.config.env == "development" {
+			brandIDHeader := r.Header.Get("X-Brand-ID")
+			if brandIDHeader != "" {
+				id, err := strconv.ParseInt(brandIDHeader, 10, 32)
+				if err == nil {
+					ctx := context.WithValue(r.Context(), brandIDCtx, int32(id))
+					next.ServeHTTP(w, r.WithContext(ctx))
+					return
+				}
+			}
+		}
+
+		brand := parts[0]
+
+		id, err := app.store.GetBrandByUrl(context.Background(), brand)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				app.notFoundResponse(w, r, err)
+			default:
+				app.internalServerError(w, r, err)
+			}
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), brandIDCtx, id)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

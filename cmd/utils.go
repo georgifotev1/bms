@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -213,4 +214,9 @@ func (app *application) ClearCookie(w http.ResponseWriter, name string) {
 		MaxAge:   -1,
 		Expires:  time.Now().Add(-time.Hour),
 	})
+}
+
+func getBrandIDFromCtx(ctx context.Context) int32 {
+	ctxValue := ctx.Value(brandIDCtx)
+	return ctxValue.(int32)
 }
