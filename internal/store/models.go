@@ -11,6 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
+type Booking struct {
+	ID         int64          `json:"id"`
+	CustomerID int32          `json:"customerId"`
+	ServiceID  uuid.UUID      `json:"serviceId"`
+	UserID     sql.NullInt32  `json:"userId"`
+	BrandID    int32          `json:"brandId"`
+	Date       time.Time      `json:"date"`
+	StatusID   int32          `json:"statusId"`
+	Comment    sql.NullString `json:"comment"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	UpdatedAt  time.Time      `json:"updatedAt"`
+}
+
+type BookingStatus struct {
+	StatusID   int32  `json:"statusId"`
+	StatusName string `json:"statusName"`
+}
+
 type Brand struct {
 	ID          int32          `json:"id"`
 	Name        string         `json:"name"`

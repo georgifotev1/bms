@@ -25,7 +25,7 @@ type CreateServiceTxResult struct {
 
 var ErrInvalidUserIDs = errors.New("one or more user IDs are invalid or don't belong to your brand")
 
-func (s *SQLStore) CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (CreateServiceTxResult, error) {
+func (s *SQLStore) CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (*CreateServiceTxResult, error) {
 	var result CreateServiceTxResult
 
 	err := s.execTx(ctx, func(q Querier) error {
@@ -90,5 +90,5 @@ func (s *SQLStore) CreateServiceTx(ctx context.Context, arg CreateServiceTxParam
 		return nil
 	})
 
-	return result, err
+	return &result, err
 }
