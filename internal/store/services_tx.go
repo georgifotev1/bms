@@ -9,8 +9,8 @@ import (
 type CreateServiceTxParams struct {
 	Title       string
 	Description string
-	Duration    int64
-	BufferTime  int64
+	Duration    int32
+	BufferTime  int32
 	Cost        string
 	IsVisible   bool
 	ImageURL    string
@@ -55,8 +55,8 @@ func (s *SQLStore) CreateServiceTx(ctx context.Context, arg CreateServiceTxParam
 				Valid:  arg.Description != "",
 			},
 			Duration: arg.Duration,
-			BufferTime: sql.NullInt64{
-				Int64: arg.BufferTime,
+			BufferTime: sql.NullInt32{
+				Int32: arg.BufferTime,
 				Valid: arg.BufferTime > 0,
 			},
 			Cost: sql.NullString{

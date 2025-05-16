@@ -13,11 +13,12 @@ import (
 
 type Booking struct {
 	ID         int64          `json:"id"`
-	CustomerID int32          `json:"customerId"`
+	CustomerID int64          `json:"customerId"`
 	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     sql.NullInt32  `json:"userId"`
+	UserID     int64          `json:"userId"`
 	BrandID    int32          `json:"brandId"`
-	Date       time.Time      `json:"date"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
 	StatusID   int32          `json:"statusId"`
 	Comment    sql.NullString `json:"comment"`
 	CreatedAt  time.Time      `json:"createdAt"`
@@ -90,8 +91,8 @@ type Service struct {
 	ID          uuid.UUID      `json:"id"`
 	Title       string         `json:"title"`
 	Description sql.NullString `json:"description"`
-	Duration    int64          `json:"duration"`
-	BufferTime  sql.NullInt64  `json:"bufferTime"`
+	Duration    int32          `json:"duration"`
+	BufferTime  sql.NullInt32  `json:"bufferTime"`
 	Cost        sql.NullString `json:"cost"`
 	IsVisible   bool           `json:"isVisible"`
 	ImageUrl    sql.NullString `json:"imageUrl"`

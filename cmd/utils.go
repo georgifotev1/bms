@@ -115,7 +115,7 @@ func serviceResponseMapper(service *store.Service, providers []int64) ServiceRes
 		Title:       service.Title,
 		Description: service.Description.String,
 		Duration:    service.Duration,
-		BufferTime:  service.BufferTime.Int64,
+		BufferTime:  service.BufferTime.Int32,
 		Cost:        service.Cost.String,
 		IsVisible:   service.IsVisible,
 		ImageUrl:    service.ImageUrl.String,
@@ -136,6 +136,23 @@ func customerResponseMapper(customer *store.Customer, token string) CustomerResp
 		PhoneNumber: customer.PhoneNumber.String,
 	}
 }
+
+func bookingResponseMapper(booking *store.Booking) BookingResponse {
+	return BookingResponse{
+		ID:         booking.ID,
+		CustomerID: booking.CustomerID,
+		ServiceID:  booking.ServiceID,
+		UserID:     booking.UserID,
+		BrandID:    booking.BrandID,
+		StartTime:  booking.StartTime,
+		EndTime:    booking.EndTime,
+		StatusID:   booking.StatusID,
+		Comment:    booking.Comment.String,
+		CreatedAt:  booking.CreatedAt,
+		UpdatedAt:  booking.UpdatedAt,
+	}
+}
+
 func isBrowser(r *http.Request) bool {
 	userAgent := r.Header.Get("User-Agent")
 	// Check for common browser identifiers

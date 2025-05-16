@@ -15,36 +15,50 @@ type Querier interface {
 	AddBrandSocialLink(ctx context.Context, arg AddBrandSocialLinkParams) (*BrandSocialLink, error)
 	AssignServiceToUser(ctx context.Context, arg AssignServiceToUserParams) error
 	AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) error
+	CheckSpecificTimeslotAvailability(ctx context.Context, arg CheckSpecificTimeslotAvailabilityParams) (interface{}, error)
 	CreateBooking(ctx context.Context, arg CreateBookingParams) (*Booking, error)
 	CreateBrand(ctx context.Context, arg CreateBrandParams) (*Brand, error)
 	CreateCustomer(ctx context.Context, arg CreateCustomerParams) (*Customer, error)
 	CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
-	DeleteBooking(ctx context.Context, arg DeleteBookingParams) error
+	DeleteBooking(ctx context.Context, id int64) error
 	DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error
 	DeleteCustomer(ctx context.Context, id int64) error
 	DeleteService(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
-	GetBookingByID(ctx context.Context, arg GetBookingByIDParams) (*GetBookingByIDRow, error)
-	GetBookingsByBrand(ctx context.Context, arg GetBookingsByBrandParams) ([]*GetBookingsByBrandRow, error)
-	GetBookingsByDateRange(ctx context.Context, arg GetBookingsByDateRangeParams) ([]*GetBookingsByDateRangeRow, error)
+	GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error)
+	// Parameters: brand_id, date, service_id
+	// Get all bookings for the given date and brand
+	// Get all users (staff) for the brand
+	// Generate time slots for the day (e.g., every 15 min from 9am to 5pm)
+	// Apply service duration to get slot end times
+	// Check availability for each staff member and time slot
+	// Final available time slots with at least one available staff
+	GetAvailableTimeslots(ctx context.Context, arg GetAvailableTimeslotsParams) ([]*GetAvailableTimeslotsRow, error)
+	GetBookingByID(ctx context.Context, id int64) (*GetBookingByIDRow, error)
+	GetBookingStatusByName(ctx context.Context, statusName string) (int32, error)
+	GetBookingsByDate(ctx context.Context, arg GetBookingsByDateParams) ([]*GetBookingsByDateRow, error)
+	GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error)
 	GetBrandById(ctx context.Context, id int32) (*Brand, error)
 	GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error)
 	GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error)
 	GetBrandUsers(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
 	GetBrandWorkingHours(ctx context.Context, brandID int32) ([]*BrandWorkingHour, error)
-	GetCustomerBookings(ctx context.Context, arg GetCustomerBookingsParams) ([]*GetCustomerBookingsRow, error)
 	GetCustomerByEmail(ctx context.Context, email string) (*Customer, error)
 	GetCustomerById(ctx context.Context, id int64) (*Customer, error)
 	GetService(ctx context.Context, id uuid.UUID) (*Service, error)
-	GetUserBookingsByDateRange(ctx context.Context, arg GetUserBookingsByDateRangeParams) ([]*GetUserBookingsByDateRangeRow, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)
 	GetUserFromInvitation(ctx context.Context, token string) (int64, error)
 	GetUsersByBrand(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
+	ListAllBookingStatuses(ctx context.Context) ([]*BookingStatus, error)
+	ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error)
+	ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error)
+	ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*ListBookingsByUserRow, error)
 	ListServices(ctx context.Context, brandID int32) ([]*Service, error)
+	ListUpcomingBookings(ctx context.Context, arg ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error)
 	ListUserServices(ctx context.Context, userID int64) ([]*Service, error)
 	ListVisibleServices(ctx context.Context, brandID int32) ([]*Service, error)
 	RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error

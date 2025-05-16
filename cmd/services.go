@@ -13,8 +13,8 @@ type ServiceResponse struct {
 	ID          uuid.UUID `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Duration    int64     `json:"duration"`
-	BufferTime  int64     `json:"bufferTime"`
+	Duration    int32     `json:"duration"`
+	BufferTime  int32     `json:"bufferTime"`
 	Cost        string    `json:"cost"`
 	IsVisible   bool      `json:"isVisible"`
 	ImageUrl    string    `json:"imageUrl"`
@@ -27,8 +27,8 @@ type ServiceResponse struct {
 type CreateServicePayload struct {
 	Title       string  `json:"title" validate:"required,min=3,max=100"`
 	Description string  `json:"description"`
-	Duration    int64   `json:"duration" validate:"required,gt=0"`
-	BufferTime  int64   `json:"buffer_time"`
+	Duration    int32   `json:"duration" validate:"required,gt=0"`
+	BufferTime  int32   `json:"buffer_time"`
 	Cost        string  `json:"cost"`
 	IsVisible   bool    `json:"is_visible"`
 	ImageURL    string  `json:"image_url"`

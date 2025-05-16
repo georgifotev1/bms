@@ -156,6 +156,57 @@
                 }
             }
         },
+        "/bookings": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a new booking with validation for timeslot availability",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookings"
+                ],
+                "summary": "Create a new booking",
+                "parameters": [
+                    {
+                        "description": "Booking details",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateBookingPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Booking created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.BookingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid input",
+                        "schema": {}
+                    },
+                    "409": {
+                        "description": "Conflict - timeslot already booked",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/brand": {
             "post": {
                 "security": [
@@ -626,6 +677,81 @@
         }
     },
     "definitions": {
+        "main.BookingResponse": {
+            "type": "object",
+            "properties": {
+                "brandId": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "customerId": {
+                    "type": "integer"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "serviceId": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "statusId": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "main.CreateBookingPayload": {
+            "type": "object",
+            "required": [
+                "brandId",
+                "customerId",
+                "endTime",
+                "serviceId",
+                "startTime",
+                "userId"
+            ],
+            "properties": {
+                "brandId": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "customerId": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "serviceId": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
         "main.CreateBrandPayload": {
             "type": "object",
             "required": [

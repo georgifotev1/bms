@@ -13,29 +13,78 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkSpecificTimeslotAvailability = `-- name: CheckSpecificTimeslotAvailability :one
+WITH service_info AS (
+    SELECT s.duration, s.buffer_time
+    FROM services s
+    WHERE s.id = $4
+)
+SELECT
+    COALESCE(
+        NOT EXISTS (
+            SELECT 1
+            FROM bookings b
+            WHERE b.user_id = $1
+              AND b.status_id IN (
+                SELECT bs.status_id FROM booking_status bs
+                WHERE bs.status_name IN ('pending', 'confirmed')
+              )
+              AND (
+                  (b.start_time < $2 AND b.end_time > $3)
+                  OR (b.start_time < ($2 + (INTERVAL '1 minute' * si.buffer_time))
+                      AND b.end_time > $3)
+              )
+        ),
+        ($1 IS NULL)
+    ) AS is_available
+FROM service_info si
+`
+
+type CheckSpecificTimeslotAvailabilityParams struct {
+	UserID    int64     `json:"userId"`
+	EndTime   time.Time `json:"endTime"`
+	StartTime time.Time `json:"startTime"`
+	ServiceID uuid.UUID `json:"serviceId"`
+}
+
+func (q *Queries) CheckSpecificTimeslotAvailability(ctx context.Context, arg CheckSpecificTimeslotAvailabilityParams) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, checkSpecificTimeslotAvailability,
+		arg.UserID,
+		arg.EndTime,
+		arg.StartTime,
+		arg.ServiceID,
+	)
+	var is_available interface{}
+	err := row.Scan(&is_available)
+	return is_available, err
+}
+
 const createBooking = `-- name: CreateBooking :one
 INSERT INTO bookings (
-    customer_id,
-    service_id,
-    user_id,
-    brand_id,
-    date,
-    status_id,
-    comment
+  customer_id,
+  service_id,
+  user_id,
+  brand_id,
+  start_time,
+  end_time,
+  status_id,
+  comment,
+  created_at,
+  updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5,
-    (SELECT status_id FROM booking_status WHERE status_name = $6),
-    $7
-)
-RETURNING id, customer_id, service_id, user_id, brand_id, date, status_id, comment, created_at, updated_at
+  $1, $2, $3, $4, $5, $6,
+  (SELECT status_id FROM booking_status WHERE status_name = $7),
+  $8, NOW(), NOW()
+) RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, status_id, comment, created_at, updated_at
 `
 
 type CreateBookingParams struct {
-	CustomerID int32          `json:"customerId"`
+	CustomerID int64          `json:"customerId"`
 	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     sql.NullInt32  `json:"userId"`
+	UserID     int64          `json:"userId"`
 	BrandID    int32          `json:"brandId"`
-	Date       time.Time      `json:"date"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
 	StatusName string         `json:"statusName"`
 	Comment    sql.NullString `json:"comment"`
 }
@@ -46,7 +95,8 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (*
 		arg.ServiceID,
 		arg.UserID,
 		arg.BrandID,
-		arg.Date,
+		arg.StartTime,
+		arg.EndTime,
 		arg.StatusName,
 		arg.Comment,
 	)
@@ -57,7 +107,8 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (*
 		&i.ServiceID,
 		&i.UserID,
 		&i.BrandID,
-		&i.Date,
+		&i.StartTime,
+		&i.EndTime,
 		&i.StatusID,
 		&i.Comment,
 		&i.CreatedAt,
@@ -68,62 +119,221 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (*
 
 const deleteBooking = `-- name: DeleteBooking :exec
 DELETE FROM bookings
-WHERE
-    id = $1
-    AND brand_id = $2
+WHERE id = $1
 `
 
-type DeleteBookingParams struct {
-	ID      int64 `json:"id"`
-	BrandID int32 `json:"brandId"`
-}
-
-func (q *Queries) DeleteBooking(ctx context.Context, arg DeleteBookingParams) error {
-	_, err := q.db.ExecContext(ctx, deleteBooking, arg.ID, arg.BrandID)
+func (q *Queries) DeleteBooking(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteBooking, id)
 	return err
 }
 
-const getBookingByID = `-- name: GetBookingByID :one
-SELECT
-    b.id,
-    b.customer_id,
-    b.service_id,
-    b.user_id,
-    b.brand_id,
-    b.date,
-    bs.status_name,
-    b.comment,
-    b.created_at,
-    b.updated_at
-FROM
-    bookings b
-JOIN
-    booking_status bs ON b.status_id = bs.status_id
-WHERE
-    b.id = $1
-    AND b.brand_id = $2
+const getActiveBookingsForUser = `-- name: GetActiveBookingsForUser :many
+SELECT b.id, b.customer_id, b.service_id, b.user_id, b.brand_id, b.start_time, b.end_time, b.status_id, b.comment, b.created_at, b.updated_at, bs.status_name
+FROM bookings b
+JOIN booking_status bs ON b.status_id = bs.status_id
+WHERE b.user_id = $1
+  AND b.start_time <= $2
+  AND b.end_time >= $2
+  AND bs.status_name IN ('pending', 'confirmed')
 `
 
-type GetBookingByIDParams struct {
-	ID      int64 `json:"id"`
-	BrandID int32 `json:"brandId"`
+type GetActiveBookingsForUserParams struct {
+	UserID    int64     `json:"userId"`
+	StartTime time.Time `json:"startTime"`
 }
 
-type GetBookingByIDRow struct {
+type GetActiveBookingsForUserRow struct {
 	ID         int64          `json:"id"`
-	CustomerID int32          `json:"customerId"`
+	CustomerID int64          `json:"customerId"`
 	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     sql.NullInt32  `json:"userId"`
+	UserID     int64          `json:"userId"`
 	BrandID    int32          `json:"brandId"`
-	Date       time.Time      `json:"date"`
-	StatusName string         `json:"statusName"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
+	StatusID   int32          `json:"statusId"`
 	Comment    sql.NullString `json:"comment"`
 	CreatedAt  time.Time      `json:"createdAt"`
 	UpdatedAt  time.Time      `json:"updatedAt"`
+	StatusName string         `json:"statusName"`
 }
 
-func (q *Queries) GetBookingByID(ctx context.Context, arg GetBookingByIDParams) (*GetBookingByIDRow, error) {
-	row := q.db.QueryRowContext(ctx, getBookingByID, arg.ID, arg.BrandID)
+func (q *Queries) GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, getActiveBookingsForUser, arg.UserID, arg.StartTime)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetActiveBookingsForUserRow
+	for rows.Next() {
+		var i GetActiveBookingsForUserRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.ServiceID,
+			&i.UserID,
+			&i.BrandID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.StatusID,
+			&i.Comment,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.StatusName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAvailableTimeslots = `-- name: GetAvailableTimeslots :many
+WITH
+service_info AS (
+    SELECT s.id, s.duration, s.buffer_time
+    FROM services s
+    WHERE s.id = $1
+),
+daily_bookings AS (
+    SELECT b.start_time, b.end_time, b.user_id
+    FROM bookings b
+    WHERE b.brand_id = $2
+      AND DATE(b.start_time) = $3
+      AND b.status_id IN (
+        SELECT bs.status_id FROM booking_status bs
+        WHERE bs.status_name IN ('pending', 'confirmed')
+      )
+),
+staff AS (
+    SELECT u.id
+    FROM users u
+    WHERE u.brand_id = $2
+    AND u.verified = true
+),
+time_slots AS (
+    SELECT
+        generate_series(
+            $3::date + '09:00:00'::time,
+            $3::date + '17:00:00'::time,
+            '15 minutes'::interval
+        ) AS slot_start
+),
+service_slots AS (
+    SELECT
+        ts.slot_start,
+        ts.slot_start + (INTERVAL '1 minute' * (SELECT duration FROM service_info)) AS slot_end,
+        (SELECT buffer_time FROM service_info) AS buffer_time
+    FROM time_slots ts
+),
+staff_availability AS (
+    SELECT
+        s.id AS user_id,
+        ss.slot_start,
+        ss.slot_end,
+        CASE WHEN EXISTS (
+            SELECT 1 FROM daily_bookings db
+            WHERE db.user_id = s.id
+              AND (
+                  -- Overlapping condition
+                  (db.start_time < ss.slot_end AND db.end_time > ss.slot_start)
+                  -- Also consider buffer time after appointment
+                  OR (db.start_time < (ss.slot_end + (INTERVAL '1 minute' * ss.buffer_time))
+                      AND db.end_time > ss.slot_start)
+              )
+        ) THEN false ELSE true END AS is_available
+    FROM staff s
+    CROSS JOIN service_slots ss
+)
+SELECT
+    slot_start,
+    slot_end,
+    ARRAY_AGG(user_id) AS available_staff_ids,
+    COUNT(user_id) AS available_staff_count
+FROM staff_availability
+WHERE is_available = true
+GROUP BY slot_start, slot_end
+HAVING COUNT(user_id) > 0
+ORDER BY slot_start
+`
+
+type GetAvailableTimeslotsParams struct {
+	ServiceID uuid.UUID `json:"serviceId"`
+	BrandID   int32     `json:"brandId"`
+	Date      time.Time `json:"date"`
+}
+
+type GetAvailableTimeslotsRow struct {
+	SlotStart           int64       `json:"slotStart"`
+	SlotEnd             int32       `json:"slotEnd"`
+	AvailableStaffIds   interface{} `json:"availableStaffIds"`
+	AvailableStaffCount int64       `json:"availableStaffCount"`
+}
+
+// Parameters: brand_id, date, service_id
+// Get all bookings for the given date and brand
+// Get all users (staff) for the brand
+// Generate time slots for the day (e.g., every 15 min from 9am to 5pm)
+// Apply service duration to get slot end times
+// Check availability for each staff member and time slot
+// Final available time slots with at least one available staff
+func (q *Queries) GetAvailableTimeslots(ctx context.Context, arg GetAvailableTimeslotsParams) ([]*GetAvailableTimeslotsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAvailableTimeslots, arg.ServiceID, arg.BrandID, arg.Date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetAvailableTimeslotsRow
+	for rows.Next() {
+		var i GetAvailableTimeslotsRow
+		if err := rows.Scan(
+			&i.SlotStart,
+			&i.SlotEnd,
+			&i.AvailableStaffIds,
+			&i.AvailableStaffCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getBookingByID = `-- name: GetBookingByID :one
+SELECT b.id, b.customer_id, b.service_id, b.user_id, b.brand_id, b.start_time, b.end_time, b.status_id, b.comment, b.created_at, b.updated_at, bs.status_name
+FROM bookings b
+JOIN booking_status bs ON b.status_id = bs.status_id
+WHERE b.id = $1
+`
+
+type GetBookingByIDRow struct {
+	ID         int64          `json:"id"`
+	CustomerID int64          `json:"customerId"`
+	ServiceID  uuid.UUID      `json:"serviceId"`
+	UserID     int64          `json:"userId"`
+	BrandID    int32          `json:"brandId"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
+	StatusID   int32          `json:"statusId"`
+	Comment    sql.NullString `json:"comment"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	UpdatedAt  time.Time      `json:"updatedAt"`
+	StatusName string         `json:"statusName"`
+}
+
+func (q *Queries) GetBookingByID(ctx context.Context, id int64) (*GetBookingByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getBookingByID, id)
 	var i GetBookingByIDRow
 	err := row.Scan(
 		&i.ID,
@@ -131,78 +341,244 @@ func (q *Queries) GetBookingByID(ctx context.Context, arg GetBookingByIDParams) 
 		&i.ServiceID,
 		&i.UserID,
 		&i.BrandID,
-		&i.Date,
-		&i.StatusName,
+		&i.StartTime,
+		&i.EndTime,
+		&i.StatusID,
 		&i.Comment,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.StatusName,
 	)
 	return &i, err
 }
 
-const getBookingsByBrand = `-- name: GetBookingsByBrand :many
-SELECT
-    b.id,
-    b.customer_id,
-    b.service_id,
-    b.user_id,
-    b.brand_id,
-    b.date,
-    bs.status_name,
-    b.comment,
-    b.created_at,
-    b.updated_at
-FROM
-    bookings b
-JOIN
-    booking_status bs ON b.status_id = bs.status_id
-WHERE
-    b.brand_id = $1
-ORDER BY
-    b.date DESC
+const getBookingStatusByName = `-- name: GetBookingStatusByName :one
+SELECT status_id
+FROM booking_status
+WHERE status_name = $1
+`
+
+func (q *Queries) GetBookingStatusByName(ctx context.Context, statusName string) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getBookingStatusByName, statusName)
+	var status_id int32
+	err := row.Scan(&status_id)
+	return status_id, err
+}
+
+const getBookingsByDate = `-- name: GetBookingsByDate :many
+SELECT b.id, b.customer_id, b.service_id, b.user_id, b.brand_id, b.start_time, b.end_time, b.status_id, b.comment, b.created_at, b.updated_at, bs.status_name
+FROM bookings b
+JOIN booking_status bs ON b.status_id = bs.status_id
+WHERE b.brand_id = $1
+  AND DATE(b.start_time) = $2
+ORDER BY b.start_time
+`
+
+type GetBookingsByDateParams struct {
+	BrandID   int32     `json:"brandId"`
+	StartTime time.Time `json:"startTime"`
+}
+
+type GetBookingsByDateRow struct {
+	ID         int64          `json:"id"`
+	CustomerID int64          `json:"customerId"`
+	ServiceID  uuid.UUID      `json:"serviceId"`
+	UserID     int64          `json:"userId"`
+	BrandID    int32          `json:"brandId"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
+	StatusID   int32          `json:"statusId"`
+	Comment    sql.NullString `json:"comment"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	UpdatedAt  time.Time      `json:"updatedAt"`
+	StatusName string         `json:"statusName"`
+}
+
+func (q *Queries) GetBookingsByDate(ctx context.Context, arg GetBookingsByDateParams) ([]*GetBookingsByDateRow, error) {
+	rows, err := q.db.QueryContext(ctx, getBookingsByDate, arg.BrandID, arg.StartTime)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetBookingsByDateRow
+	for rows.Next() {
+		var i GetBookingsByDateRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.ServiceID,
+			&i.UserID,
+			&i.BrandID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.StatusID,
+			&i.Comment,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.StatusName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getBookingsByTimeRange = `-- name: GetBookingsByTimeRange :many
+SELECT b.id, b.customer_id, b.service_id, b.user_id, b.brand_id, b.start_time, b.end_time, b.status_id, b.comment, b.created_at, b.updated_at, bs.status_name
+FROM bookings b
+JOIN booking_status bs ON b.status_id = bs.status_id
+WHERE b.brand_id = $1
+  AND b.start_time >= $2
+  AND b.end_time <= $3
+ORDER BY b.start_time
+`
+
+type GetBookingsByTimeRangeParams struct {
+	BrandID   int32     `json:"brandId"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+}
+
+type GetBookingsByTimeRangeRow struct {
+	ID         int64          `json:"id"`
+	CustomerID int64          `json:"customerId"`
+	ServiceID  uuid.UUID      `json:"serviceId"`
+	UserID     int64          `json:"userId"`
+	BrandID    int32          `json:"brandId"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
+	StatusID   int32          `json:"statusId"`
+	Comment    sql.NullString `json:"comment"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	UpdatedAt  time.Time      `json:"updatedAt"`
+	StatusName string         `json:"statusName"`
+}
+
+func (q *Queries) GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error) {
+	rows, err := q.db.QueryContext(ctx, getBookingsByTimeRange, arg.BrandID, arg.StartTime, arg.EndTime)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetBookingsByTimeRangeRow
+	for rows.Next() {
+		var i GetBookingsByTimeRangeRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.ServiceID,
+			&i.UserID,
+			&i.BrandID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.StatusID,
+			&i.Comment,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.StatusName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAllBookingStatuses = `-- name: ListAllBookingStatuses :many
+SELECT status_id, status_name
+FROM booking_status
+ORDER BY status_id
+`
+
+func (q *Queries) ListAllBookingStatuses(ctx context.Context) ([]*BookingStatus, error) {
+	rows, err := q.db.QueryContext(ctx, listAllBookingStatuses)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*BookingStatus
+	for rows.Next() {
+		var i BookingStatus
+		if err := rows.Scan(&i.StatusID, &i.StatusName); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listBookingsByBrand = `-- name: ListBookingsByBrand :many
+SELECT b.id, b.customer_id, b.service_id, b.user_id, b.brand_id, b.start_time, b.end_time, b.status_id, b.comment, b.created_at, b.updated_at, bs.status_name
+FROM bookings b
+JOIN booking_status bs ON b.status_id = bs.status_id
+WHERE b.brand_id = $1
+ORDER BY b.start_time
 LIMIT $2
 OFFSET $3
 `
 
-type GetBookingsByBrandParams struct {
+type ListBookingsByBrandParams struct {
 	BrandID int32 `json:"brandId"`
 	Limit   int32 `json:"limit"`
 	Offset  int32 `json:"offset"`
 }
 
-type GetBookingsByBrandRow struct {
+type ListBookingsByBrandRow struct {
 	ID         int64          `json:"id"`
-	CustomerID int32          `json:"customerId"`
+	CustomerID int64          `json:"customerId"`
 	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     sql.NullInt32  `json:"userId"`
+	UserID     int64          `json:"userId"`
 	BrandID    int32          `json:"brandId"`
-	Date       time.Time      `json:"date"`
-	StatusName string         `json:"statusName"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
+	StatusID   int32          `json:"statusId"`
 	Comment    sql.NullString `json:"comment"`
 	CreatedAt  time.Time      `json:"createdAt"`
 	UpdatedAt  time.Time      `json:"updatedAt"`
+	StatusName string         `json:"statusName"`
 }
 
-func (q *Queries) GetBookingsByBrand(ctx context.Context, arg GetBookingsByBrandParams) ([]*GetBookingsByBrandRow, error) {
-	rows, err := q.db.QueryContext(ctx, getBookingsByBrand, arg.BrandID, arg.Limit, arg.Offset)
+func (q *Queries) ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error) {
+	rows, err := q.db.QueryContext(ctx, listBookingsByBrand, arg.BrandID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*GetBookingsByBrandRow
+	var items []*ListBookingsByBrandRow
 	for rows.Next() {
-		var i GetBookingsByBrandRow
+		var i ListBookingsByBrandRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CustomerID,
 			&i.ServiceID,
 			&i.UserID,
 			&i.BrandID,
-			&i.Date,
-			&i.StatusName,
+			&i.StartTime,
+			&i.EndTime,
+			&i.StatusID,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.StatusName,
 		); err != nil {
 			return nil, err
 		}
@@ -217,152 +593,59 @@ func (q *Queries) GetBookingsByBrand(ctx context.Context, arg GetBookingsByBrand
 	return items, nil
 }
 
-const getBookingsByDateRange = `-- name: GetBookingsByDateRange :many
-SELECT
-    b.id,
-    b.customer_id,
-    b.service_id,
-    b.user_id,
-    b.brand_id,
-    b.date,
-    bs.status_name,
-    b.comment,
-    b.created_at,
-    b.updated_at
-FROM
-    bookings b
-JOIN
-    booking_status bs ON b.status_id = bs.status_id
-WHERE
-    b.brand_id = $1
-    AND b.date BETWEEN $2 AND $3
-ORDER BY
-    b.date ASC
+const listBookingsByCustomer = `-- name: ListBookingsByCustomer :many
+SELECT b.id, b.customer_id, b.service_id, b.user_id, b.brand_id, b.start_time, b.end_time, b.status_id, b.comment, b.created_at, b.updated_at, bs.status_name
+FROM bookings b
+JOIN booking_status bs ON b.status_id = bs.status_id
+WHERE b.customer_id = $1
+ORDER BY b.start_time
+LIMIT $2
+OFFSET $3
 `
 
-type GetBookingsByDateRangeParams struct {
-	BrandID int32     `json:"brandId"`
-	Date    time.Time `json:"date"`
-	Date_2  time.Time `json:"date2"`
-}
-
-type GetBookingsByDateRangeRow struct {
-	ID         int64          `json:"id"`
-	CustomerID int32          `json:"customerId"`
-	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     sql.NullInt32  `json:"userId"`
-	BrandID    int32          `json:"brandId"`
-	Date       time.Time      `json:"date"`
-	StatusName string         `json:"statusName"`
-	Comment    sql.NullString `json:"comment"`
-	CreatedAt  time.Time      `json:"createdAt"`
-	UpdatedAt  time.Time      `json:"updatedAt"`
-}
-
-func (q *Queries) GetBookingsByDateRange(ctx context.Context, arg GetBookingsByDateRangeParams) ([]*GetBookingsByDateRangeRow, error) {
-	rows, err := q.db.QueryContext(ctx, getBookingsByDateRange, arg.BrandID, arg.Date, arg.Date_2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*GetBookingsByDateRangeRow
-	for rows.Next() {
-		var i GetBookingsByDateRangeRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.CustomerID,
-			&i.ServiceID,
-			&i.UserID,
-			&i.BrandID,
-			&i.Date,
-			&i.StatusName,
-			&i.Comment,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getCustomerBookings = `-- name: GetCustomerBookings :many
-SELECT
-    b.id,
-    b.customer_id,
-    b.service_id,
-    b.user_id,
-    b.brand_id,
-    b.date,
-    bs.status_name,
-    b.comment,
-    b.created_at,
-    b.updated_at
-FROM
-    bookings b
-JOIN
-    booking_status bs ON b.status_id = bs.status_id
-WHERE
-    b.customer_id = $1
-    AND b.brand_id = $2
-ORDER BY
-    b.date DESC
-LIMIT $3
-OFFSET $4
-`
-
-type GetCustomerBookingsParams struct {
-	CustomerID int32 `json:"customerId"`
-	BrandID    int32 `json:"brandId"`
+type ListBookingsByCustomerParams struct {
+	CustomerID int64 `json:"customerId"`
 	Limit      int32 `json:"limit"`
 	Offset     int32 `json:"offset"`
 }
 
-type GetCustomerBookingsRow struct {
+type ListBookingsByCustomerRow struct {
 	ID         int64          `json:"id"`
-	CustomerID int32          `json:"customerId"`
+	CustomerID int64          `json:"customerId"`
 	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     sql.NullInt32  `json:"userId"`
+	UserID     int64          `json:"userId"`
 	BrandID    int32          `json:"brandId"`
-	Date       time.Time      `json:"date"`
-	StatusName string         `json:"statusName"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
+	StatusID   int32          `json:"statusId"`
 	Comment    sql.NullString `json:"comment"`
 	CreatedAt  time.Time      `json:"createdAt"`
 	UpdatedAt  time.Time      `json:"updatedAt"`
+	StatusName string         `json:"statusName"`
 }
 
-func (q *Queries) GetCustomerBookings(ctx context.Context, arg GetCustomerBookingsParams) ([]*GetCustomerBookingsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCustomerBookings,
-		arg.CustomerID,
-		arg.BrandID,
-		arg.Limit,
-		arg.Offset,
-	)
+func (q *Queries) ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error) {
+	rows, err := q.db.QueryContext(ctx, listBookingsByCustomer, arg.CustomerID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*GetCustomerBookingsRow
+	var items []*ListBookingsByCustomerRow
 	for rows.Next() {
-		var i GetCustomerBookingsRow
+		var i ListBookingsByCustomerRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CustomerID,
 			&i.ServiceID,
 			&i.UserID,
 			&i.BrandID,
-			&i.Date,
-			&i.StatusName,
+			&i.StartTime,
+			&i.EndTime,
+			&i.StatusID,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.StatusName,
 		); err != nil {
 			return nil, err
 		}
@@ -377,75 +660,131 @@ func (q *Queries) GetCustomerBookings(ctx context.Context, arg GetCustomerBookin
 	return items, nil
 }
 
-const getUserBookingsByDateRange = `-- name: GetUserBookingsByDateRange :many
-SELECT
-    b.id,
-    b.customer_id,
-    b.service_id,
-    b.user_id,
-    b.brand_id,
-    b.date,
-    bs.status_name,
-    b.comment,
-    b.created_at,
-    b.updated_at
-FROM
-    bookings b
-JOIN
-    booking_status bs ON b.status_id = bs.status_id
-WHERE
-    b.brand_id = $1
-    AND b.user_id = $2
-    AND b.date BETWEEN $3 AND $4
-ORDER BY
-    b.date ASC
+const listBookingsByUser = `-- name: ListBookingsByUser :many
+SELECT b.id, b.customer_id, b.service_id, b.user_id, b.brand_id, b.start_time, b.end_time, b.status_id, b.comment, b.created_at, b.updated_at, bs.status_name
+FROM bookings b
+JOIN booking_status bs ON b.status_id = bs.status_id
+WHERE b.user_id = $1
+ORDER BY b.start_time
+LIMIT $2
+OFFSET $3
 `
 
-type GetUserBookingsByDateRangeParams struct {
-	BrandID int32         `json:"brandId"`
-	UserID  sql.NullInt32 `json:"userId"`
-	Date    time.Time     `json:"date"`
-	Date_2  time.Time     `json:"date2"`
+type ListBookingsByUserParams struct {
+	UserID int64 `json:"userId"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
-type GetUserBookingsByDateRangeRow struct {
+type ListBookingsByUserRow struct {
 	ID         int64          `json:"id"`
-	CustomerID int32          `json:"customerId"`
+	CustomerID int64          `json:"customerId"`
 	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     sql.NullInt32  `json:"userId"`
+	UserID     int64          `json:"userId"`
 	BrandID    int32          `json:"brandId"`
-	Date       time.Time      `json:"date"`
-	StatusName string         `json:"statusName"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
+	StatusID   int32          `json:"statusId"`
 	Comment    sql.NullString `json:"comment"`
 	CreatedAt  time.Time      `json:"createdAt"`
 	UpdatedAt  time.Time      `json:"updatedAt"`
+	StatusName string         `json:"statusName"`
 }
 
-func (q *Queries) GetUserBookingsByDateRange(ctx context.Context, arg GetUserBookingsByDateRangeParams) ([]*GetUserBookingsByDateRangeRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUserBookingsByDateRange,
-		arg.BrandID,
-		arg.UserID,
-		arg.Date,
-		arg.Date_2,
-	)
+func (q *Queries) ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*ListBookingsByUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, listBookingsByUser, arg.UserID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*GetUserBookingsByDateRangeRow
+	var items []*ListBookingsByUserRow
 	for rows.Next() {
-		var i GetUserBookingsByDateRangeRow
+		var i ListBookingsByUserRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CustomerID,
 			&i.ServiceID,
 			&i.UserID,
 			&i.BrandID,
-			&i.Date,
-			&i.StatusName,
+			&i.StartTime,
+			&i.EndTime,
+			&i.StatusID,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.StatusName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listUpcomingBookings = `-- name: ListUpcomingBookings :many
+SELECT b.id, b.customer_id, b.service_id, b.user_id, b.brand_id, b.start_time, b.end_time, b.status_id, b.comment, b.created_at, b.updated_at, bs.status_name
+FROM bookings b
+JOIN booking_status bs ON b.status_id = bs.status_id
+WHERE b.brand_id = $1
+  AND b.start_time > NOW()
+  AND b.status_id IN (
+    SELECT bs.status_id FROM booking_status bs
+    WHERE bs.status_name IN ('pending', 'confirmed')
+  )
+ORDER BY b.start_time
+LIMIT $2
+OFFSET $3
+`
+
+type ListUpcomingBookingsParams struct {
+	BrandID int32 `json:"brandId"`
+	Limit   int32 `json:"limit"`
+	Offset  int32 `json:"offset"`
+}
+
+type ListUpcomingBookingsRow struct {
+	ID         int64          `json:"id"`
+	CustomerID int64          `json:"customerId"`
+	ServiceID  uuid.UUID      `json:"serviceId"`
+	UserID     int64          `json:"userId"`
+	BrandID    int32          `json:"brandId"`
+	StartTime  time.Time      `json:"startTime"`
+	EndTime    time.Time      `json:"endTime"`
+	StatusID   int32          `json:"statusId"`
+	Comment    sql.NullString `json:"comment"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	UpdatedAt  time.Time      `json:"updatedAt"`
+	StatusName string         `json:"statusName"`
+}
+
+func (q *Queries) ListUpcomingBookings(ctx context.Context, arg ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listUpcomingBookings, arg.BrandID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*ListUpcomingBookingsRow
+	for rows.Next() {
+		var i ListUpcomingBookingsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.ServiceID,
+			&i.UserID,
+			&i.BrandID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.StatusID,
+			&i.Comment,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.StatusName,
 		); err != nil {
 			return nil, err
 		}
@@ -462,32 +801,33 @@ func (q *Queries) GetUserBookingsByDateRange(ctx context.Context, arg GetUserBoo
 
 const updateBookingDetails = `-- name: UpdateBookingDetails :one
 UPDATE bookings
-SET
-    date = COALESCE($2, date),
-    user_id = COALESCE($3, user_id),
-    comment = COALESCE($4, comment),
+SET service_id = $2,
+    user_id = $3,
+    start_time = $4,
+    end_time = $5,
+    comment = $6,
     updated_at = NOW()
-WHERE
-    id = $1
-    AND brand_id = $5
-RETURNING id, customer_id, service_id, user_id, brand_id, date, status_id, comment, created_at, updated_at
+WHERE id = $1
+RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, status_id, comment, created_at, updated_at
 `
 
 type UpdateBookingDetailsParams struct {
-	ID      int64          `json:"id"`
-	Date    time.Time      `json:"date"`
-	UserID  sql.NullInt32  `json:"userId"`
-	Comment sql.NullString `json:"comment"`
-	BrandID int32          `json:"brandId"`
+	ID        int64          `json:"id"`
+	ServiceID uuid.UUID      `json:"serviceId"`
+	UserID    int64          `json:"userId"`
+	StartTime time.Time      `json:"startTime"`
+	EndTime   time.Time      `json:"endTime"`
+	Comment   sql.NullString `json:"comment"`
 }
 
 func (q *Queries) UpdateBookingDetails(ctx context.Context, arg UpdateBookingDetailsParams) (*Booking, error) {
 	row := q.db.QueryRowContext(ctx, updateBookingDetails,
 		arg.ID,
-		arg.Date,
+		arg.ServiceID,
 		arg.UserID,
+		arg.StartTime,
+		arg.EndTime,
 		arg.Comment,
-		arg.BrandID,
 	)
 	var i Booking
 	err := row.Scan(
@@ -496,7 +836,8 @@ func (q *Queries) UpdateBookingDetails(ctx context.Context, arg UpdateBookingDet
 		&i.ServiceID,
 		&i.UserID,
 		&i.BrandID,
-		&i.Date,
+		&i.StartTime,
+		&i.EndTime,
 		&i.StatusID,
 		&i.Comment,
 		&i.CreatedAt,
@@ -507,23 +848,19 @@ func (q *Queries) UpdateBookingDetails(ctx context.Context, arg UpdateBookingDet
 
 const updateBookingStatus = `-- name: UpdateBookingStatus :one
 UPDATE bookings
-SET
-    status_id = (SELECT status_id FROM booking_status WHERE status_name = $2),
+SET status_id = (SELECT status_id FROM booking_status WHERE status_name = $2),
     updated_at = NOW()
-WHERE
-    id = $1
-    AND brand_id = $3
-RETURNING id, customer_id, service_id, user_id, brand_id, date, status_id, comment, created_at, updated_at
+WHERE id = $1
+RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, status_id, comment, created_at, updated_at
 `
 
 type UpdateBookingStatusParams struct {
 	ID         int64  `json:"id"`
 	StatusName string `json:"statusName"`
-	BrandID    int32  `json:"brandId"`
 }
 
 func (q *Queries) UpdateBookingStatus(ctx context.Context, arg UpdateBookingStatusParams) (*Booking, error) {
-	row := q.db.QueryRowContext(ctx, updateBookingStatus, arg.ID, arg.StatusName, arg.BrandID)
+	row := q.db.QueryRowContext(ctx, updateBookingStatus, arg.ID, arg.StatusName)
 	var i Booking
 	err := row.Scan(
 		&i.ID,
@@ -531,7 +868,8 @@ func (q *Queries) UpdateBookingStatus(ctx context.Context, arg UpdateBookingStat
 		&i.ServiceID,
 		&i.UserID,
 		&i.BrandID,
-		&i.Date,
+		&i.StartTime,
+		&i.EndTime,
 		&i.StatusID,
 		&i.Comment,
 		&i.CreatedAt,

@@ -134,7 +134,6 @@ func (app *application) mount() http.Handler {
 
 		r.Route("/service", func(r chi.Router) {
 			// Public handlers
-
 			r.Group(func(r chi.Router) {
 				r.Use(app.AuthTokenMiddleware)
 				r.Post("/", app.createServiceHandler)
@@ -143,12 +142,17 @@ func (app *application) mount() http.Handler {
 
 		r.Route("/customers", func(r chi.Router) {
 			r.Use(app.BrandMiddleware)
+
 			r.Route("/auth", func(r chi.Router) {
 				r.Post("/register", app.registerCustomerHandler)
 				r.Post("/login", app.loginCustomerHandler)
 				r.Get("/refresh", app.refreshCustomerTokenHandler)
 				r.Post("/logout", app.logoutCustomerHandler)
 			})
+		})
+
+		r.Route("/bookings", func(r chi.Router) {
+			r.Post("/", app.createBookingHandler)
 		})
 
 		r.Route("/auth", func(r chi.Router) {

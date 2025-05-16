@@ -49,8 +49,8 @@ INSERT INTO services (
 type CreateServiceParams struct {
 	Title       string         `json:"title"`
 	Description sql.NullString `json:"description"`
-	Duration    int64          `json:"duration"`
-	BufferTime  sql.NullInt64  `json:"bufferTime"`
+	Duration    int32          `json:"duration"`
+	BufferTime  sql.NullInt32  `json:"bufferTime"`
 	Cost        sql.NullString `json:"cost"`
 	IsVisible   bool           `json:"isVisible"`
 	ImageUrl    sql.NullString `json:"imageUrl"`
@@ -278,8 +278,8 @@ type UpdateServiceParams struct {
 	ID          uuid.UUID      `json:"id"`
 	Title       string         `json:"title"`
 	Description sql.NullString `json:"description"`
-	Duration    int64          `json:"duration"`
-	BufferTime  sql.NullInt64  `json:"bufferTime"`
+	Duration    int32          `json:"duration"`
+	BufferTime  sql.NullInt32  `json:"bufferTime"`
 	Cost        sql.NullString `json:"cost"`
 	IsVisible   bool           `json:"isVisible"`
 	ImageUrl    sql.NullString `json:"imageUrl"`
