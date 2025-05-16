@@ -140,6 +140,18 @@ func (app *application) mount() http.Handler {
 			})
 		})
 
+		r.Route("/bookings", func(r chi.Router) {
+			r.Use(app.AuthTokenMiddleware)
+			r.Post("/", app.createBookingHandler)
+		})
+
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/register", app.registerUserHandler)
+			r.Post("/token", app.createTokenHandler)
+			r.Get("/refresh", app.refreshTokenHandler)
+			r.Post("/logout", app.logoutHandler)
+		})
+
 		r.Route("/customers", func(r chi.Router) {
 			r.Use(app.BrandMiddleware)
 
@@ -149,17 +161,11 @@ func (app *application) mount() http.Handler {
 				r.Get("/refresh", app.refreshCustomerTokenHandler)
 				r.Post("/logout", app.logoutCustomerHandler)
 			})
-		})
 
-		r.Route("/bookings", func(r chi.Router) {
-			r.Post("/", app.createBookingHandler)
-		})
-
-		r.Route("/auth", func(r chi.Router) {
-			r.Post("/register", app.registerUserHandler)
-			r.Post("/token", app.createTokenHandler)
-			r.Get("/refresh", app.refreshTokenHandler)
-			r.Post("/logout", app.logoutHandler)
+			r.Route("/bookings", func(r chi.Router) {
+				r.Use(app.CustomerAuthTokenMiddleware)
+				r.Post("/", app.createBookingHandler)
+			})
 		})
 	})
 

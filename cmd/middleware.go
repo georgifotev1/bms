@@ -47,46 +47,71 @@ func (app *application) BasicAuthMiddleware() func(http.Handler) http.Handler {
 	}
 }
 
+type AuthType string
+
+const (
+	UserAuth     AuthType = "user"
+	CustomerAuth AuthType = "customer"
+)
+
+func (app *application) createAuthMiddleware(authType AuthType) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				app.unauthorizedErrorResponse(w, r, fmt.Errorf("authorization header is missing"))
+				return
+			}
+
+			parts := strings.Split(authHeader, " ")
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				app.unauthorizedErrorResponse(w, r, fmt.Errorf("authorization header is malformed"))
+				return
+			}
+
+			token := parts[1]
+			jwtToken, err := app.auth.ValidateToken(token)
+			if err != nil {
+				app.unauthorizedErrorResponse(w, r, err)
+				return
+			}
+
+			claims, _ := jwtToken.Claims.(jwt.MapClaims)
+			id, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["sub"]), 10, 64)
+			if err != nil {
+				app.unauthorizedErrorResponse(w, r, err)
+				return
+			}
+
+			ctx := r.Context()
+
+			if authType == UserAuth {
+				user, err := app.getUser(ctx, id)
+				if err != nil {
+					app.unauthorizedErrorResponse(w, r, err)
+					return
+				}
+				ctx = context.WithValue(ctx, userCtx, user)
+			} else {
+				customer, err := app.getCustomer(ctx, id)
+				if err != nil {
+					app.unauthorizedErrorResponse(w, r, err)
+					return
+				}
+				ctx = context.WithValue(ctx, customerIdCtx, customer)
+			}
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
 func (app *application) AuthTokenMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			app.unauthorizedErrorResponse(w, r, fmt.Errorf("authorization header is missing"))
-			return
-		}
+	return app.createAuthMiddleware(UserAuth)(next)
+}
 
-		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			app.unauthorizedErrorResponse(w, r, fmt.Errorf("authorization header is malformed"))
-			return
-		}
-
-		token := parts[1]
-		jwtToken, err := app.auth.ValidateToken(token)
-		if err != nil {
-			app.unauthorizedErrorResponse(w, r, err)
-			return
-		}
-
-		claims, _ := jwtToken.Claims.(jwt.MapClaims)
-
-		userID, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["sub"]), 10, 64)
-		if err != nil {
-			app.unauthorizedErrorResponse(w, r, err)
-			return
-		}
-
-		ctx := r.Context()
-
-		user, err := app.getUser(ctx, userID)
-		if err != nil {
-			app.unauthorizedErrorResponse(w, r, err)
-			return
-		}
-
-		ctx = context.WithValue(ctx, userCtx, user)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+func (app *application) CustomerAuthTokenMiddleware(next http.Handler) http.Handler {
+	return app.createAuthMiddleware(CustomerAuth)(next)
 }
 
 func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {

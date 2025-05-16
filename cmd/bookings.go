@@ -106,3 +106,45 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 		app.internalServerError(w, r, err)
 	}
 }
+
+func (app *application) createBookingCommon(w http.ResponseWriter, r *http.Request, payload CreateBookingPayload) {
+	isAvailable, err := app.store.CheckSpecificTimeslotAvailability(r.Context(), store.CheckSpecificTimeslotAvailabilityParams{
+		UserID:    payload.UserID,
+		ServiceID: payload.ServiceID,
+		StartTime: payload.StartTime,
+		EndTime:   payload.EndTime,
+	})
+
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	if !isAvailable {
+		app.conflictRespone(w, r, errors.New("The requested timeslot is not available for booking"))
+		return
+	}
+
+	booking, err := app.store.CreateBooking(r.Context(), store.CreateBookingParams{
+		CustomerID: payload.CustomerID,
+		ServiceID:  payload.ServiceID,
+		UserID:     payload.UserID,
+		BrandID:    payload.BrandID,
+		StartTime:  payload.StartTime,
+		EndTime:    payload.EndTime,
+		StatusName: statusPending,
+		Comment: sql.NullString{
+			String: payload.Comment,
+			Valid:  payload.Comment != "",
+		},
+	})
+
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	if err = writeJSON(w, http.StatusCreated, bookingResponseMapper(booking)); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}

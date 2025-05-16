@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -9,6 +10,12 @@ import (
 	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/store"
 	"golang.org/x/crypto/bcrypt"
+)
+
+type customerKey string
+
+const (
+	customerIdCtx customerKey = "customer"
 )
 
 type CustomerResponse struct {
@@ -36,9 +43,9 @@ type RegisterCustomerPayload struct {
 //	@Tags			customers
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload		body		RegisterCustomerPayload	true	"User credentials"
+//	@Param			payload		body		RegisterCustomerPayload	true	"customer credentials"
 //	@Param			X-Brand-ID	header		string					false	"Brand ID header for development. In production this header is ignored"	default(1)
-//	@Success		201			{object}	CustomerResponse		"User registered"
+//	@Success		201			{object}	CustomerResponse		"customer registered"
 //	@Failure		400			{object}	error
 //	@Failure		500			{object}	error
 //	@Router			/customers/auth/register [post]
@@ -110,9 +117,9 @@ type LoginCustomerPayload struct {
 //	@Tags			customers
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload		body		LoginCustomerPayload	true	"User credentials"
+//	@Param			payload		body		LoginCustomerPayload	true	"customer credentials"
 //	@Param			X-Brand-ID	header		string					false	"Brand ID header for development. In production this header is ignored"	default(1)
-//	@Success		201			{object}	CustomerResponse		"User logged in"
+//	@Success		201			{object}	CustomerResponse		"customer logged in"
 //	@Failure		400			{object}	error
 //	@Failure		500			{object}	error
 //	@Router			/customers/auth/login [post]
@@ -206,8 +213,8 @@ func (app *application) refreshCustomerTokenHandler(w http.ResponseWriter, r *ht
 
 // logoutCustomerHandler godoc
 //
-//	@Summary		Logs out a user
-//	@Description	Clears the refresh token cookie to log out the user
+//	@Summary		Logs out a customer
+//	@Description	Clears the refresh token cookie to log out the customer
 //	@Tags			customers
 //	@Produce		json
 //	@Success		200	{string}	string	"Logged out successfully"
@@ -223,4 +230,28 @@ func (app *application) logoutCustomerHandler(w http.ResponseWriter, r *http.Req
 	if err := writeJSON(w, http.StatusOK, response); err != nil {
 		app.internalServerError(w, r, err)
 	}
+}
+
+func (app *application) getCustomer(ctx context.Context, customerID int64) (*store.Customer, error) {
+	if !app.config.cache.enabled {
+		return app.store.GetCustomerById(ctx, customerID)
+	}
+
+	customer, err := app.cache.Customers.Get(ctx, customerID)
+	if err != nil {
+		return nil, err
+	}
+
+	if customer == nil {
+		customer, err = app.store.GetCustomerById(ctx, customerID)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := app.cache.Customers.Set(ctx, customer); err != nil {
+			return nil, err
+		}
+	}
+
+	return customer, nil
 }
