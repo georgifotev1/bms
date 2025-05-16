@@ -7,7 +7,6 @@ package store
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createCustomer = `-- name: CreateCustomer :one
@@ -16,11 +15,11 @@ RETURNING id, name, email, password, phone_number, brand_id, created_at, updated
 `
 
 type CreateCustomerParams struct {
-	Name        string         `json:"name"`
-	Email       string         `json:"email"`
-	Password    []byte         `json:"password"`
-	PhoneNumber sql.NullString `json:"phoneNumber"`
-	BrandID     int32          `json:"brandId"`
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	Password    []byte `json:"password"`
+	PhoneNumber string `json:"phoneNumber"`
+	BrandID     int32  `json:"brandId"`
 }
 
 func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) (*Customer, error) {

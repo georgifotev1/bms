@@ -33,7 +33,7 @@ type RegisterCustomerPayload struct {
 	Email       string `json:"email" validate:"required,email"`
 	Password    string `json:"password" validate:"required,min=3,max=72"`
 	Username    string `json:"username" validate:"required,min=2,max=100"`
-	PhoneNumber string `json:"phoneNumber"`
+	PhoneNumber string `json:"phoneNumber" validate:"required"`
 }
 
 // registerCustomerHandler godoc
@@ -70,14 +70,11 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 	ctx := r.Context()
 	ctxBrandID := getBrandIDFromCtx(ctx)
 	customer, err := app.store.CreateCustomer(ctx, store.CreateCustomerParams{
-		Name:     payload.Username,
-		Email:    payload.Email,
-		Password: hashedPass,
-		BrandID:  ctxBrandID,
-		PhoneNumber: sql.NullString{
-			String: payload.PhoneNumber,
-			Valid:  payload.PhoneNumber != "",
-		},
+		Name:        payload.Username,
+		Email:       payload.Email,
+		Password:    hashedPass,
+		BrandID:     ctxBrandID,
+		PhoneNumber: payload.PhoneNumber,
 	})
 	if err != nil {
 		switch {

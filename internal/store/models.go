@@ -71,14 +71,14 @@ type BrandWorkingHour struct {
 }
 
 type Customer struct {
-	ID          int64          `json:"id"`
-	Name        string         `json:"name"`
-	Email       string         `json:"email"`
-	Password    []byte         `json:"password"`
-	PhoneNumber sql.NullString `json:"phoneNumber"`
-	BrandID     int32          `json:"brandId"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	UpdatedAt   time.Time      `json:"updatedAt"`
+	ID          int64     `json:"id"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	Password    []byte    `json:"password"`
+	PhoneNumber string    `json:"phoneNumber"`
+	BrandID     int32     `json:"brandId"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 type Role struct {

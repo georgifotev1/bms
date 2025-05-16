@@ -133,7 +133,7 @@ func customerResponseMapper(customer *store.Customer, token string) CustomerResp
 		Email:       customer.Email,
 		BrandId:     customer.BrandID,
 		Token:       token,
-		PhoneNumber: customer.PhoneNumber.String,
+		PhoneNumber: customer.PhoneNumber,
 	}
 }
 
