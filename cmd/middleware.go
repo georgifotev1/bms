@@ -54,7 +54,7 @@ const (
 	CustomerAuth AuthType = "customer"
 )
 
-func (app *application) createAuthMiddleware(authType AuthType) func(http.Handler) http.Handler {
+func (app *application) authMiddleware(authType AuthType) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -107,11 +107,11 @@ func (app *application) createAuthMiddleware(authType AuthType) func(http.Handle
 }
 
 func (app *application) AuthTokenMiddleware(next http.Handler) http.Handler {
-	return app.createAuthMiddleware(UserAuth)(next)
+	return app.authMiddleware(UserAuth)(next)
 }
 
 func (app *application) CustomerAuthTokenMiddleware(next http.Handler) http.Handler {
-	return app.createAuthMiddleware(CustomerAuth)(next)
+	return app.authMiddleware(CustomerAuth)(next)
 }
 
 func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {
