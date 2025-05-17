@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -32,7 +33,7 @@ type CustomerResponse struct {
 type RegisterCustomerPayload struct {
 	Email       string `json:"email" validate:"required,email"`
 	Password    string `json:"password" validate:"required,min=3,max=72"`
-	Username    string `json:"username" validate:"required,min=2,max=100"`
+	Name        string `json:"name" validate:"required,min=2,max=100"`
 	PhoneNumber string `json:"phoneNumber" validate:"required"`
 }
 
@@ -69,9 +70,13 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 
 	ctx := r.Context()
 	ctxBrandID := getBrandIDFromCtx(ctx)
+
 	customer, err := app.store.CreateCustomer(ctx, store.CreateCustomerParams{
-		Name:        payload.Username,
-		Email:       payload.Email,
+		Name: payload.Name,
+		Email: sql.NullString{
+			String: payload.Email,
+			Valid:  payload.Email != "",
+		},
 		Password:    hashedPass,
 		BrandID:     ctxBrandID,
 		PhoneNumber: payload.PhoneNumber,
@@ -132,7 +137,10 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	customer, err := app.store.GetCustomerByEmail(r.Context(), payload.Email)
+	customer, err := app.store.GetCustomerByEmail(r.Context(), sql.NullString{
+		String: payload.Email,
+		Valid:  payload.Email != "",
+	})
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -225,6 +233,64 @@ func (app *application) logoutCustomerHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	if err := writeJSON(w, http.StatusOK, response); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
+type CreateGuestCustomerPayload struct {
+	Email       string `json:"email,omitempty" validate:"omitempty,email"`
+	Name        string `json:"name" validate:"required,min=2,max=100"`
+	PhoneNumber string `json:"phoneNumber" validate:"required"`
+}
+
+// createGuestCustomerHandler godoc
+//
+//	@Summary		Create or get a guest (customer without session)
+//	@Description	Create or get a guest
+//	@Tags			customers
+//	@Accept			json
+//	@Produce		json
+//	@Param			payload		body		CreateGuestCustomerPayload	true	"guest credentials"
+//	@Param			X-Brand-ID	header		string						false	"Brand ID header for development. In production this header is ignored"	default(1)
+//	@Success		201			{object}	CustomerResponse			"guest created"
+//	@Success		200			{object}	CustomerResponse			"guest already exists"
+//	@Failure		400			{object}	error
+//	@Failure		500			{object}	error
+//	@Router			/customers/guest [post]
+func (app *application) createGuestCustomerHandler(w http.ResponseWriter, r *http.Request) {
+	var payload CreateGuestCustomerPayload
+
+	if err := readJSON(w, r, &payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := Validate.Struct(payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+	ctxBrandID := getBrandIDFromCtx(ctx)
+
+	customer, exist, err := app.store.CreateGuestTx(ctx, store.CreateGuestTxParams{
+		Name:        payload.Name,
+		Email:       payload.Email,
+		PhoneNumber: payload.PhoneNumber,
+		BrandId:     ctxBrandID,
+	})
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	status := http.StatusCreated
+	if exist {
+		status = http.StatusOK
+	}
+
+	customerResponse := customerResponseMapper(customer, fmt.Sprintf("guest-%d", customer.ID))
+	if err := writeJSON(w, status, customerResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }

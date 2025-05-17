@@ -155,6 +155,8 @@ func (app *application) mount() http.Handler {
 		r.Route("/customers", func(r chi.Router) {
 			r.Use(app.BrandMiddleware)
 
+			r.Post("/guest", app.createGuestCustomerHandler)
+
 			r.Route("/auth", func(r chi.Router) {
 				r.Post("/register", app.registerCustomerHandler)
 				r.Post("/login", app.loginCustomerHandler)
@@ -163,8 +165,7 @@ func (app *application) mount() http.Handler {
 			})
 
 			r.Route("/bookings", func(r chi.Router) {
-				r.Use(app.CustomerAuthTokenMiddleware)
-				r.Post("/", app.createBookingHandler)
+				r.Post("/", app.createCustomerBookingHandler)
 			})
 		})
 	})

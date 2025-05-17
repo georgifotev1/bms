@@ -689,6 +689,63 @@ func (_c *MockQuerier_CreateCustomer_Call) RunAndReturn(run func(ctx context.Con
 	return _c
 }
 
+// CreateGuestCustomer provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) CreateGuestCustomer(ctx context.Context, arg CreateGuestCustomerParams) (*Customer, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateGuestCustomer")
+	}
+
+	var r0 *Customer
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateGuestCustomerParams) (*Customer, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateGuestCustomerParams) *Customer); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Customer)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, CreateGuestCustomerParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_CreateGuestCustomer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateGuestCustomer'
+type MockQuerier_CreateGuestCustomer_Call struct {
+	*mock.Call
+}
+
+// CreateGuestCustomer is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockQuerier_Expecter) CreateGuestCustomer(ctx interface{}, arg interface{}) *MockQuerier_CreateGuestCustomer_Call {
+	return &MockQuerier_CreateGuestCustomer_Call{Call: _e.mock.On("CreateGuestCustomer", ctx, arg)}
+}
+
+func (_c *MockQuerier_CreateGuestCustomer_Call) Run(run func(ctx context.Context, arg CreateGuestCustomerParams)) *MockQuerier_CreateGuestCustomer_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CreateGuestCustomerParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_CreateGuestCustomer_Call) Return(customer *Customer, err error) *MockQuerier_CreateGuestCustomer_Call {
+	_c.Call.Return(customer, err)
+	return _c
+}
+
+func (_c *MockQuerier_CreateGuestCustomer_Call) RunAndReturn(run func(ctx context.Context, arg CreateGuestCustomerParams) (*Customer, error)) *MockQuerier_CreateGuestCustomer_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateService provides a mock function for the type MockQuerier
 func (_mock *MockQuerier) CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error) {
 	ret := _mock.Called(ctx, arg)
@@ -1126,23 +1183,23 @@ func (_c *MockQuerier_DeleteUserInvitation_Call) RunAndReturn(run func(ctx conte
 }
 
 // GetActiveBookingsForUser provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error) {
+func (_mock *MockQuerier) GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetActiveBookingsForUser")
 	}
 
-	var r0 []*GetActiveBookingsForUserRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetActiveBookingsForUserParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetActiveBookingsForUserParams) []*GetActiveBookingsForUserRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetActiveBookingsForUserParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*GetActiveBookingsForUserRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, GetActiveBookingsForUserParams) error); ok {
@@ -1172,12 +1229,12 @@ func (_c *MockQuerier_GetActiveBookingsForUser_Call) Run(run func(ctx context.Co
 	return _c
 }
 
-func (_c *MockQuerier_GetActiveBookingsForUser_Call) Return(getActiveBookingsForUserRows []*GetActiveBookingsForUserRow, err error) *MockQuerier_GetActiveBookingsForUser_Call {
-	_c.Call.Return(getActiveBookingsForUserRows, err)
+func (_c *MockQuerier_GetActiveBookingsForUser_Call) Return(bookings []*Booking, err error) *MockQuerier_GetActiveBookingsForUser_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockQuerier_GetActiveBookingsForUser_Call) RunAndReturn(run func(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error)) *MockQuerier_GetActiveBookingsForUser_Call {
+func (_c *MockQuerier_GetActiveBookingsForUser_Call) RunAndReturn(run func(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*Booking, error)) *MockQuerier_GetActiveBookingsForUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1240,23 +1297,23 @@ func (_c *MockQuerier_GetAvailableTimeslots_Call) RunAndReturn(run func(ctx cont
 }
 
 // GetBookingByID provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) GetBookingByID(ctx context.Context, id int64) (*GetBookingByIDRow, error) {
+func (_mock *MockQuerier) GetBookingByID(ctx context.Context, id int64) (*Booking, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBookingByID")
 	}
 
-	var r0 *GetBookingByIDRow
+	var r0 *Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) (*GetBookingByIDRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) (*Booking, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) *GetBookingByIDRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) *Booking); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*GetBookingByIDRow)
+			r0 = ret.Get(0).(*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, int64) error); ok {
@@ -1286,146 +1343,34 @@ func (_c *MockQuerier_GetBookingByID_Call) Run(run func(ctx context.Context, id 
 	return _c
 }
 
-func (_c *MockQuerier_GetBookingByID_Call) Return(getBookingByIDRow *GetBookingByIDRow, err error) *MockQuerier_GetBookingByID_Call {
-	_c.Call.Return(getBookingByIDRow, err)
+func (_c *MockQuerier_GetBookingByID_Call) Return(booking *Booking, err error) *MockQuerier_GetBookingByID_Call {
+	_c.Call.Return(booking, err)
 	return _c
 }
 
-func (_c *MockQuerier_GetBookingByID_Call) RunAndReturn(run func(ctx context.Context, id int64) (*GetBookingByIDRow, error)) *MockQuerier_GetBookingByID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetBookingStatusByName provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) GetBookingStatusByName(ctx context.Context, statusName string) (int32, error) {
-	ret := _mock.Called(ctx, statusName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetBookingStatusByName")
-	}
-
-	var r0 int32
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (int32, error)); ok {
-		return returnFunc(ctx, statusName)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) int32); ok {
-		r0 = returnFunc(ctx, statusName)
-	} else {
-		r0 = ret.Get(0).(int32)
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = returnFunc(ctx, statusName)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockQuerier_GetBookingStatusByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBookingStatusByName'
-type MockQuerier_GetBookingStatusByName_Call struct {
-	*mock.Call
-}
-
-// GetBookingStatusByName is a helper method to define mock.On call
-//   - ctx
-//   - statusName
-func (_e *MockQuerier_Expecter) GetBookingStatusByName(ctx interface{}, statusName interface{}) *MockQuerier_GetBookingStatusByName_Call {
-	return &MockQuerier_GetBookingStatusByName_Call{Call: _e.mock.On("GetBookingStatusByName", ctx, statusName)}
-}
-
-func (_c *MockQuerier_GetBookingStatusByName_Call) Run(run func(ctx context.Context, statusName string)) *MockQuerier_GetBookingStatusByName_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetBookingStatusByName_Call) Return(n int32, err error) *MockQuerier_GetBookingStatusByName_Call {
-	_c.Call.Return(n, err)
-	return _c
-}
-
-func (_c *MockQuerier_GetBookingStatusByName_Call) RunAndReturn(run func(ctx context.Context, statusName string) (int32, error)) *MockQuerier_GetBookingStatusByName_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetBookingsByDate provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) GetBookingsByDate(ctx context.Context, arg GetBookingsByDateParams) ([]*GetBookingsByDateRow, error) {
-	ret := _mock.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetBookingsByDate")
-	}
-
-	var r0 []*GetBookingsByDateRow
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByDateParams) ([]*GetBookingsByDateRow, error)); ok {
-		return returnFunc(ctx, arg)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByDateParams) []*GetBookingsByDateRow); ok {
-		r0 = returnFunc(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*GetBookingsByDateRow)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, GetBookingsByDateParams) error); ok {
-		r1 = returnFunc(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockQuerier_GetBookingsByDate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBookingsByDate'
-type MockQuerier_GetBookingsByDate_Call struct {
-	*mock.Call
-}
-
-// GetBookingsByDate is a helper method to define mock.On call
-//   - ctx
-//   - arg
-func (_e *MockQuerier_Expecter) GetBookingsByDate(ctx interface{}, arg interface{}) *MockQuerier_GetBookingsByDate_Call {
-	return &MockQuerier_GetBookingsByDate_Call{Call: _e.mock.On("GetBookingsByDate", ctx, arg)}
-}
-
-func (_c *MockQuerier_GetBookingsByDate_Call) Run(run func(ctx context.Context, arg GetBookingsByDateParams)) *MockQuerier_GetBookingsByDate_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetBookingsByDateParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_GetBookingsByDate_Call) Return(getBookingsByDateRows []*GetBookingsByDateRow, err error) *MockQuerier_GetBookingsByDate_Call {
-	_c.Call.Return(getBookingsByDateRows, err)
-	return _c
-}
-
-func (_c *MockQuerier_GetBookingsByDate_Call) RunAndReturn(run func(ctx context.Context, arg GetBookingsByDateParams) ([]*GetBookingsByDateRow, error)) *MockQuerier_GetBookingsByDate_Call {
+func (_c *MockQuerier_GetBookingByID_Call) RunAndReturn(run func(ctx context.Context, id int64) (*Booking, error)) *MockQuerier_GetBookingByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetBookingsByTimeRange provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error) {
+func (_mock *MockQuerier) GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBookingsByTimeRange")
 	}
 
-	var r0 []*GetBookingsByTimeRangeRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByTimeRangeParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByTimeRangeParams) []*GetBookingsByTimeRangeRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByTimeRangeParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*GetBookingsByTimeRangeRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, GetBookingsByTimeRangeParams) error); ok {
@@ -1455,12 +1400,12 @@ func (_c *MockQuerier_GetBookingsByTimeRange_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *MockQuerier_GetBookingsByTimeRange_Call) Return(getBookingsByTimeRangeRows []*GetBookingsByTimeRangeRow, err error) *MockQuerier_GetBookingsByTimeRange_Call {
-	_c.Call.Return(getBookingsByTimeRangeRows, err)
+func (_c *MockQuerier_GetBookingsByTimeRange_Call) Return(bookings []*Booking, err error) *MockQuerier_GetBookingsByTimeRange_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockQuerier_GetBookingsByTimeRange_Call) RunAndReturn(run func(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error)) *MockQuerier_GetBookingsByTimeRange_Call {
+func (_c *MockQuerier_GetBookingsByTimeRange_Call) RunAndReturn(run func(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*Booking, error)) *MockQuerier_GetBookingsByTimeRange_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1749,7 +1694,7 @@ func (_c *MockQuerier_GetBrandWorkingHours_Call) RunAndReturn(run func(ctx conte
 }
 
 // GetCustomerByEmail provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) GetCustomerByEmail(ctx context.Context, email string) (*Customer, error) {
+func (_mock *MockQuerier) GetCustomerByEmail(ctx context.Context, email sql.NullString) (*Customer, error) {
 	ret := _mock.Called(ctx, email)
 
 	if len(ret) == 0 {
@@ -1758,17 +1703,17 @@ func (_mock *MockQuerier) GetCustomerByEmail(ctx context.Context, email string) 
 
 	var r0 *Customer
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*Customer, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, sql.NullString) (*Customer, error)); ok {
 		return returnFunc(ctx, email)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *Customer); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, sql.NullString) *Customer); ok {
 		r0 = returnFunc(ctx, email)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Customer)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, sql.NullString) error); ok {
 		r1 = returnFunc(ctx, email)
 	} else {
 		r1 = ret.Error(1)
@@ -1788,9 +1733,9 @@ func (_e *MockQuerier_Expecter) GetCustomerByEmail(ctx interface{}, email interf
 	return &MockQuerier_GetCustomerByEmail_Call{Call: _e.mock.On("GetCustomerByEmail", ctx, email)}
 }
 
-func (_c *MockQuerier_GetCustomerByEmail_Call) Run(run func(ctx context.Context, email string)) *MockQuerier_GetCustomerByEmail_Call {
+func (_c *MockQuerier_GetCustomerByEmail_Call) Run(run func(ctx context.Context, email sql.NullString)) *MockQuerier_GetCustomerByEmail_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		run(args[0].(context.Context), args[1].(sql.NullString))
 	})
 	return _c
 }
@@ -1800,7 +1745,7 @@ func (_c *MockQuerier_GetCustomerByEmail_Call) Return(customer *Customer, err er
 	return _c
 }
 
-func (_c *MockQuerier_GetCustomerByEmail_Call) RunAndReturn(run func(ctx context.Context, email string) (*Customer, error)) *MockQuerier_GetCustomerByEmail_Call {
+func (_c *MockQuerier_GetCustomerByEmail_Call) RunAndReturn(run func(ctx context.Context, email sql.NullString) (*Customer, error)) *MockQuerier_GetCustomerByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1858,6 +1803,63 @@ func (_c *MockQuerier_GetCustomerById_Call) Return(customer *Customer, err error
 }
 
 func (_c *MockQuerier_GetCustomerById_Call) RunAndReturn(run func(ctx context.Context, id int64) (*Customer, error)) *MockQuerier_GetCustomerById_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetCustomerByNameAndPhone provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCustomerByNameAndPhone")
+	}
+
+	var r0 *Customer
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetCustomerByNameAndPhoneParams) (*Customer, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetCustomerByNameAndPhoneParams) *Customer); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Customer)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, GetCustomerByNameAndPhoneParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_GetCustomerByNameAndPhone_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCustomerByNameAndPhone'
+type MockQuerier_GetCustomerByNameAndPhone_Call struct {
+	*mock.Call
+}
+
+// GetCustomerByNameAndPhone is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockQuerier_Expecter) GetCustomerByNameAndPhone(ctx interface{}, arg interface{}) *MockQuerier_GetCustomerByNameAndPhone_Call {
+	return &MockQuerier_GetCustomerByNameAndPhone_Call{Call: _e.mock.On("GetCustomerByNameAndPhone", ctx, arg)}
+}
+
+func (_c *MockQuerier_GetCustomerByNameAndPhone_Call) Run(run func(ctx context.Context, arg GetCustomerByNameAndPhoneParams)) *MockQuerier_GetCustomerByNameAndPhone_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetCustomerByNameAndPhoneParams))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetCustomerByNameAndPhone_Call) Return(customer *Customer, err error) *MockQuerier_GetCustomerByNameAndPhone_Call {
+	_c.Call.Return(customer, err)
+	return _c
+}
+
+func (_c *MockQuerier_GetCustomerByNameAndPhone_Call) RunAndReturn(run func(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error)) *MockQuerier_GetCustomerByNameAndPhone_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2145,80 +2147,24 @@ func (_c *MockQuerier_GetUsersByBrand_Call) RunAndReturn(run func(ctx context.Co
 	return _c
 }
 
-// ListAllBookingStatuses provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) ListAllBookingStatuses(ctx context.Context) ([]*BookingStatus, error) {
-	ret := _mock.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListAllBookingStatuses")
-	}
-
-	var r0 []*BookingStatus
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*BookingStatus, error)); ok {
-		return returnFunc(ctx)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context) []*BookingStatus); ok {
-		r0 = returnFunc(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*BookingStatus)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = returnFunc(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockQuerier_ListAllBookingStatuses_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAllBookingStatuses'
-type MockQuerier_ListAllBookingStatuses_Call struct {
-	*mock.Call
-}
-
-// ListAllBookingStatuses is a helper method to define mock.On call
-//   - ctx
-func (_e *MockQuerier_Expecter) ListAllBookingStatuses(ctx interface{}) *MockQuerier_ListAllBookingStatuses_Call {
-	return &MockQuerier_ListAllBookingStatuses_Call{Call: _e.mock.On("ListAllBookingStatuses", ctx)}
-}
-
-func (_c *MockQuerier_ListAllBookingStatuses_Call) Run(run func(ctx context.Context)) *MockQuerier_ListAllBookingStatuses_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_ListAllBookingStatuses_Call) Return(bookingStatuss []*BookingStatus, err error) *MockQuerier_ListAllBookingStatuses_Call {
-	_c.Call.Return(bookingStatuss, err)
-	return _c
-}
-
-func (_c *MockQuerier_ListAllBookingStatuses_Call) RunAndReturn(run func(ctx context.Context) ([]*BookingStatus, error)) *MockQuerier_ListAllBookingStatuses_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // ListBookingsByBrand provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error) {
+func (_mock *MockQuerier) ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListBookingsByBrand")
 	}
 
-	var r0 []*ListBookingsByBrandRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByBrandParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByBrandParams) []*ListBookingsByBrandRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByBrandParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ListBookingsByBrandRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, ListBookingsByBrandParams) error); ok {
@@ -2248,34 +2194,34 @@ func (_c *MockQuerier_ListBookingsByBrand_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockQuerier_ListBookingsByBrand_Call) Return(listBookingsByBrandRows []*ListBookingsByBrandRow, err error) *MockQuerier_ListBookingsByBrand_Call {
-	_c.Call.Return(listBookingsByBrandRows, err)
+func (_c *MockQuerier_ListBookingsByBrand_Call) Return(bookings []*Booking, err error) *MockQuerier_ListBookingsByBrand_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockQuerier_ListBookingsByBrand_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error)) *MockQuerier_ListBookingsByBrand_Call {
+func (_c *MockQuerier_ListBookingsByBrand_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByBrandParams) ([]*Booking, error)) *MockQuerier_ListBookingsByBrand_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListBookingsByCustomer provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error) {
+func (_mock *MockQuerier) ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListBookingsByCustomer")
 	}
 
-	var r0 []*ListBookingsByCustomerRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByCustomerParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByCustomerParams) []*ListBookingsByCustomerRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByCustomerParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ListBookingsByCustomerRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, ListBookingsByCustomerParams) error); ok {
@@ -2305,34 +2251,34 @@ func (_c *MockQuerier_ListBookingsByCustomer_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *MockQuerier_ListBookingsByCustomer_Call) Return(listBookingsByCustomerRows []*ListBookingsByCustomerRow, err error) *MockQuerier_ListBookingsByCustomer_Call {
-	_c.Call.Return(listBookingsByCustomerRows, err)
+func (_c *MockQuerier_ListBookingsByCustomer_Call) Return(bookings []*Booking, err error) *MockQuerier_ListBookingsByCustomer_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockQuerier_ListBookingsByCustomer_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error)) *MockQuerier_ListBookingsByCustomer_Call {
+func (_c *MockQuerier_ListBookingsByCustomer_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByCustomerParams) ([]*Booking, error)) *MockQuerier_ListBookingsByCustomer_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListBookingsByUser provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*ListBookingsByUserRow, error) {
+func (_mock *MockQuerier) ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListBookingsByUser")
 	}
 
-	var r0 []*ListBookingsByUserRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByUserParams) ([]*ListBookingsByUserRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByUserParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByUserParams) []*ListBookingsByUserRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByUserParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ListBookingsByUserRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, ListBookingsByUserParams) error); ok {
@@ -2362,12 +2308,12 @@ func (_c *MockQuerier_ListBookingsByUser_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockQuerier_ListBookingsByUser_Call) Return(listBookingsByUserRows []*ListBookingsByUserRow, err error) *MockQuerier_ListBookingsByUser_Call {
-	_c.Call.Return(listBookingsByUserRows, err)
+func (_c *MockQuerier_ListBookingsByUser_Call) Return(bookings []*Booking, err error) *MockQuerier_ListBookingsByUser_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockQuerier_ListBookingsByUser_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByUserParams) ([]*ListBookingsByUserRow, error)) *MockQuerier_ListBookingsByUser_Call {
+func (_c *MockQuerier_ListBookingsByUser_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByUserParams) ([]*Booking, error)) *MockQuerier_ListBookingsByUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2425,63 +2371,6 @@ func (_c *MockQuerier_ListServices_Call) Return(services []*Service, err error) 
 }
 
 func (_c *MockQuerier_ListServices_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*Service, error)) *MockQuerier_ListServices_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ListUpcomingBookings provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) ListUpcomingBookings(ctx context.Context, arg ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error) {
-	ret := _mock.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListUpcomingBookings")
-	}
-
-	var r0 []*ListUpcomingBookingsRow
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error)); ok {
-		return returnFunc(ctx, arg)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListUpcomingBookingsParams) []*ListUpcomingBookingsRow); ok {
-		r0 = returnFunc(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ListUpcomingBookingsRow)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, ListUpcomingBookingsParams) error); ok {
-		r1 = returnFunc(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockQuerier_ListUpcomingBookings_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListUpcomingBookings'
-type MockQuerier_ListUpcomingBookings_Call struct {
-	*mock.Call
-}
-
-// ListUpcomingBookings is a helper method to define mock.On call
-//   - ctx
-//   - arg
-func (_e *MockQuerier_Expecter) ListUpcomingBookings(ctx interface{}, arg interface{}) *MockQuerier_ListUpcomingBookings_Call {
-	return &MockQuerier_ListUpcomingBookings_Call{Call: _e.mock.On("ListUpcomingBookings", ctx, arg)}
-}
-
-func (_c *MockQuerier_ListUpcomingBookings_Call) Run(run func(ctx context.Context, arg ListUpcomingBookingsParams)) *MockQuerier_ListUpcomingBookings_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(ListUpcomingBookingsParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_ListUpcomingBookings_Call) Return(listUpcomingBookingsRows []*ListUpcomingBookingsRow, err error) *MockQuerier_ListUpcomingBookings_Call {
-	_c.Call.Return(listUpcomingBookingsRows, err)
-	return _c
-}
-
-func (_c *MockQuerier_ListUpcomingBookings_Call) RunAndReturn(run func(ctx context.Context, arg ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error)) *MockQuerier_ListUpcomingBookings_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2699,63 +2588,6 @@ func (_c *MockQuerier_UpdateBookingDetails_Call) Return(booking *Booking, err er
 }
 
 func (_c *MockQuerier_UpdateBookingDetails_Call) RunAndReturn(run func(ctx context.Context, arg UpdateBookingDetailsParams) (*Booking, error)) *MockQuerier_UpdateBookingDetails_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateBookingStatus provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) UpdateBookingStatus(ctx context.Context, arg UpdateBookingStatusParams) (*Booking, error) {
-	ret := _mock.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateBookingStatus")
-	}
-
-	var r0 *Booking
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateBookingStatusParams) (*Booking, error)); ok {
-		return returnFunc(ctx, arg)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateBookingStatusParams) *Booking); ok {
-		r0 = returnFunc(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Booking)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, UpdateBookingStatusParams) error); ok {
-		r1 = returnFunc(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockQuerier_UpdateBookingStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateBookingStatus'
-type MockQuerier_UpdateBookingStatus_Call struct {
-	*mock.Call
-}
-
-// UpdateBookingStatus is a helper method to define mock.On call
-//   - ctx
-//   - arg
-func (_e *MockQuerier_Expecter) UpdateBookingStatus(ctx interface{}, arg interface{}) *MockQuerier_UpdateBookingStatus_Call {
-	return &MockQuerier_UpdateBookingStatus_Call{Call: _e.mock.On("UpdateBookingStatus", ctx, arg)}
-}
-
-func (_c *MockQuerier_UpdateBookingStatus_Call) Run(run func(ctx context.Context, arg UpdateBookingStatusParams)) *MockQuerier_UpdateBookingStatus_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(UpdateBookingStatusParams))
-	})
-	return _c
-}
-
-func (_c *MockQuerier_UpdateBookingStatus_Call) Return(booking *Booking, err error) *MockQuerier_UpdateBookingStatus_Call {
-	_c.Call.Return(booking, err)
-	return _c
-}
-
-func (_c *MockQuerier_UpdateBookingStatus_Call) RunAndReturn(run func(ctx context.Context, arg UpdateBookingStatusParams) (*Booking, error)) *MockQuerier_UpdateBookingStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3596,6 +3428,126 @@ func (_c *MockStore_CreateCustomer_Call) RunAndReturn(run func(ctx context.Conte
 	return _c
 }
 
+// CreateGuestCustomer provides a mock function for the type MockStore
+func (_mock *MockStore) CreateGuestCustomer(ctx context.Context, arg CreateGuestCustomerParams) (*Customer, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateGuestCustomer")
+	}
+
+	var r0 *Customer
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateGuestCustomerParams) (*Customer, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateGuestCustomerParams) *Customer); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Customer)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, CreateGuestCustomerParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_CreateGuestCustomer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateGuestCustomer'
+type MockStore_CreateGuestCustomer_Call struct {
+	*mock.Call
+}
+
+// CreateGuestCustomer is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockStore_Expecter) CreateGuestCustomer(ctx interface{}, arg interface{}) *MockStore_CreateGuestCustomer_Call {
+	return &MockStore_CreateGuestCustomer_Call{Call: _e.mock.On("CreateGuestCustomer", ctx, arg)}
+}
+
+func (_c *MockStore_CreateGuestCustomer_Call) Run(run func(ctx context.Context, arg CreateGuestCustomerParams)) *MockStore_CreateGuestCustomer_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CreateGuestCustomerParams))
+	})
+	return _c
+}
+
+func (_c *MockStore_CreateGuestCustomer_Call) Return(customer *Customer, err error) *MockStore_CreateGuestCustomer_Call {
+	_c.Call.Return(customer, err)
+	return _c
+}
+
+func (_c *MockStore_CreateGuestCustomer_Call) RunAndReturn(run func(ctx context.Context, arg CreateGuestCustomerParams) (*Customer, error)) *MockStore_CreateGuestCustomer_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateGuestTx provides a mock function for the type MockStore
+func (_mock *MockStore) CreateGuestTx(ctx context.Context, arg CreateGuestTxParams) (*Customer, bool, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateGuestTx")
+	}
+
+	var r0 *Customer
+	var r1 bool
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateGuestTxParams) (*Customer, bool, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateGuestTxParams) *Customer); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Customer)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, CreateGuestTxParams) bool); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+	if returnFunc, ok := ret.Get(2).(func(context.Context, CreateGuestTxParams) error); ok {
+		r2 = returnFunc(ctx, arg)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
+}
+
+// MockStore_CreateGuestTx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateGuestTx'
+type MockStore_CreateGuestTx_Call struct {
+	*mock.Call
+}
+
+// CreateGuestTx is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockStore_Expecter) CreateGuestTx(ctx interface{}, arg interface{}) *MockStore_CreateGuestTx_Call {
+	return &MockStore_CreateGuestTx_Call{Call: _e.mock.On("CreateGuestTx", ctx, arg)}
+}
+
+func (_c *MockStore_CreateGuestTx_Call) Run(run func(ctx context.Context, arg CreateGuestTxParams)) *MockStore_CreateGuestTx_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(CreateGuestTxParams))
+	})
+	return _c
+}
+
+func (_c *MockStore_CreateGuestTx_Call) Return(customer *Customer, b bool, err error) *MockStore_CreateGuestTx_Call {
+	_c.Call.Return(customer, b, err)
+	return _c
+}
+
+func (_c *MockStore_CreateGuestTx_Call) RunAndReturn(run func(ctx context.Context, arg CreateGuestTxParams) (*Customer, bool, error)) *MockStore_CreateGuestTx_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateService provides a mock function for the type MockStore
 func (_mock *MockStore) CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error) {
 	ret := _mock.Called(ctx, arg)
@@ -4090,23 +4042,23 @@ func (_c *MockStore_DeleteUserInvitation_Call) RunAndReturn(run func(ctx context
 }
 
 // GetActiveBookingsForUser provides a mock function for the type MockStore
-func (_mock *MockStore) GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error) {
+func (_mock *MockStore) GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetActiveBookingsForUser")
 	}
 
-	var r0 []*GetActiveBookingsForUserRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetActiveBookingsForUserParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetActiveBookingsForUserParams) []*GetActiveBookingsForUserRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetActiveBookingsForUserParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*GetActiveBookingsForUserRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, GetActiveBookingsForUserParams) error); ok {
@@ -4136,12 +4088,12 @@ func (_c *MockStore_GetActiveBookingsForUser_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *MockStore_GetActiveBookingsForUser_Call) Return(getActiveBookingsForUserRows []*GetActiveBookingsForUserRow, err error) *MockStore_GetActiveBookingsForUser_Call {
-	_c.Call.Return(getActiveBookingsForUserRows, err)
+func (_c *MockStore_GetActiveBookingsForUser_Call) Return(bookings []*Booking, err error) *MockStore_GetActiveBookingsForUser_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockStore_GetActiveBookingsForUser_Call) RunAndReturn(run func(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error)) *MockStore_GetActiveBookingsForUser_Call {
+func (_c *MockStore_GetActiveBookingsForUser_Call) RunAndReturn(run func(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*Booking, error)) *MockStore_GetActiveBookingsForUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4204,23 +4156,23 @@ func (_c *MockStore_GetAvailableTimeslots_Call) RunAndReturn(run func(ctx contex
 }
 
 // GetBookingByID provides a mock function for the type MockStore
-func (_mock *MockStore) GetBookingByID(ctx context.Context, id int64) (*GetBookingByIDRow, error) {
+func (_mock *MockStore) GetBookingByID(ctx context.Context, id int64) (*Booking, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBookingByID")
 	}
 
-	var r0 *GetBookingByIDRow
+	var r0 *Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) (*GetBookingByIDRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) (*Booking, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) *GetBookingByIDRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int64) *Booking); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*GetBookingByIDRow)
+			r0 = ret.Get(0).(*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, int64) error); ok {
@@ -4250,146 +4202,34 @@ func (_c *MockStore_GetBookingByID_Call) Run(run func(ctx context.Context, id in
 	return _c
 }
 
-func (_c *MockStore_GetBookingByID_Call) Return(getBookingByIDRow *GetBookingByIDRow, err error) *MockStore_GetBookingByID_Call {
-	_c.Call.Return(getBookingByIDRow, err)
+func (_c *MockStore_GetBookingByID_Call) Return(booking *Booking, err error) *MockStore_GetBookingByID_Call {
+	_c.Call.Return(booking, err)
 	return _c
 }
 
-func (_c *MockStore_GetBookingByID_Call) RunAndReturn(run func(ctx context.Context, id int64) (*GetBookingByIDRow, error)) *MockStore_GetBookingByID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetBookingStatusByName provides a mock function for the type MockStore
-func (_mock *MockStore) GetBookingStatusByName(ctx context.Context, statusName string) (int32, error) {
-	ret := _mock.Called(ctx, statusName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetBookingStatusByName")
-	}
-
-	var r0 int32
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (int32, error)); ok {
-		return returnFunc(ctx, statusName)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) int32); ok {
-		r0 = returnFunc(ctx, statusName)
-	} else {
-		r0 = ret.Get(0).(int32)
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = returnFunc(ctx, statusName)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockStore_GetBookingStatusByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBookingStatusByName'
-type MockStore_GetBookingStatusByName_Call struct {
-	*mock.Call
-}
-
-// GetBookingStatusByName is a helper method to define mock.On call
-//   - ctx
-//   - statusName
-func (_e *MockStore_Expecter) GetBookingStatusByName(ctx interface{}, statusName interface{}) *MockStore_GetBookingStatusByName_Call {
-	return &MockStore_GetBookingStatusByName_Call{Call: _e.mock.On("GetBookingStatusByName", ctx, statusName)}
-}
-
-func (_c *MockStore_GetBookingStatusByName_Call) Run(run func(ctx context.Context, statusName string)) *MockStore_GetBookingStatusByName_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
-	})
-	return _c
-}
-
-func (_c *MockStore_GetBookingStatusByName_Call) Return(n int32, err error) *MockStore_GetBookingStatusByName_Call {
-	_c.Call.Return(n, err)
-	return _c
-}
-
-func (_c *MockStore_GetBookingStatusByName_Call) RunAndReturn(run func(ctx context.Context, statusName string) (int32, error)) *MockStore_GetBookingStatusByName_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetBookingsByDate provides a mock function for the type MockStore
-func (_mock *MockStore) GetBookingsByDate(ctx context.Context, arg GetBookingsByDateParams) ([]*GetBookingsByDateRow, error) {
-	ret := _mock.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetBookingsByDate")
-	}
-
-	var r0 []*GetBookingsByDateRow
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByDateParams) ([]*GetBookingsByDateRow, error)); ok {
-		return returnFunc(ctx, arg)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByDateParams) []*GetBookingsByDateRow); ok {
-		r0 = returnFunc(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*GetBookingsByDateRow)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, GetBookingsByDateParams) error); ok {
-		r1 = returnFunc(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockStore_GetBookingsByDate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBookingsByDate'
-type MockStore_GetBookingsByDate_Call struct {
-	*mock.Call
-}
-
-// GetBookingsByDate is a helper method to define mock.On call
-//   - ctx
-//   - arg
-func (_e *MockStore_Expecter) GetBookingsByDate(ctx interface{}, arg interface{}) *MockStore_GetBookingsByDate_Call {
-	return &MockStore_GetBookingsByDate_Call{Call: _e.mock.On("GetBookingsByDate", ctx, arg)}
-}
-
-func (_c *MockStore_GetBookingsByDate_Call) Run(run func(ctx context.Context, arg GetBookingsByDateParams)) *MockStore_GetBookingsByDate_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(GetBookingsByDateParams))
-	})
-	return _c
-}
-
-func (_c *MockStore_GetBookingsByDate_Call) Return(getBookingsByDateRows []*GetBookingsByDateRow, err error) *MockStore_GetBookingsByDate_Call {
-	_c.Call.Return(getBookingsByDateRows, err)
-	return _c
-}
-
-func (_c *MockStore_GetBookingsByDate_Call) RunAndReturn(run func(ctx context.Context, arg GetBookingsByDateParams) ([]*GetBookingsByDateRow, error)) *MockStore_GetBookingsByDate_Call {
+func (_c *MockStore_GetBookingByID_Call) RunAndReturn(run func(ctx context.Context, id int64) (*Booking, error)) *MockStore_GetBookingByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetBookingsByTimeRange provides a mock function for the type MockStore
-func (_mock *MockStore) GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error) {
+func (_mock *MockStore) GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBookingsByTimeRange")
 	}
 
-	var r0 []*GetBookingsByTimeRangeRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByTimeRangeParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByTimeRangeParams) []*GetBookingsByTimeRangeRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetBookingsByTimeRangeParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*GetBookingsByTimeRangeRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, GetBookingsByTimeRangeParams) error); ok {
@@ -4419,12 +4259,12 @@ func (_c *MockStore_GetBookingsByTimeRange_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MockStore_GetBookingsByTimeRange_Call) Return(getBookingsByTimeRangeRows []*GetBookingsByTimeRangeRow, err error) *MockStore_GetBookingsByTimeRange_Call {
-	_c.Call.Return(getBookingsByTimeRangeRows, err)
+func (_c *MockStore_GetBookingsByTimeRange_Call) Return(bookings []*Booking, err error) *MockStore_GetBookingsByTimeRange_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockStore_GetBookingsByTimeRange_Call) RunAndReturn(run func(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error)) *MockStore_GetBookingsByTimeRange_Call {
+func (_c *MockStore_GetBookingsByTimeRange_Call) RunAndReturn(run func(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*Booking, error)) *MockStore_GetBookingsByTimeRange_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4713,7 +4553,7 @@ func (_c *MockStore_GetBrandWorkingHours_Call) RunAndReturn(run func(ctx context
 }
 
 // GetCustomerByEmail provides a mock function for the type MockStore
-func (_mock *MockStore) GetCustomerByEmail(ctx context.Context, email string) (*Customer, error) {
+func (_mock *MockStore) GetCustomerByEmail(ctx context.Context, email sql.NullString) (*Customer, error) {
 	ret := _mock.Called(ctx, email)
 
 	if len(ret) == 0 {
@@ -4722,17 +4562,17 @@ func (_mock *MockStore) GetCustomerByEmail(ctx context.Context, email string) (*
 
 	var r0 *Customer
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*Customer, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, sql.NullString) (*Customer, error)); ok {
 		return returnFunc(ctx, email)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *Customer); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, sql.NullString) *Customer); ok {
 		r0 = returnFunc(ctx, email)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Customer)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, sql.NullString) error); ok {
 		r1 = returnFunc(ctx, email)
 	} else {
 		r1 = ret.Error(1)
@@ -4752,9 +4592,9 @@ func (_e *MockStore_Expecter) GetCustomerByEmail(ctx interface{}, email interfac
 	return &MockStore_GetCustomerByEmail_Call{Call: _e.mock.On("GetCustomerByEmail", ctx, email)}
 }
 
-func (_c *MockStore_GetCustomerByEmail_Call) Run(run func(ctx context.Context, email string)) *MockStore_GetCustomerByEmail_Call {
+func (_c *MockStore_GetCustomerByEmail_Call) Run(run func(ctx context.Context, email sql.NullString)) *MockStore_GetCustomerByEmail_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		run(args[0].(context.Context), args[1].(sql.NullString))
 	})
 	return _c
 }
@@ -4764,7 +4604,7 @@ func (_c *MockStore_GetCustomerByEmail_Call) Return(customer *Customer, err erro
 	return _c
 }
 
-func (_c *MockStore_GetCustomerByEmail_Call) RunAndReturn(run func(ctx context.Context, email string) (*Customer, error)) *MockStore_GetCustomerByEmail_Call {
+func (_c *MockStore_GetCustomerByEmail_Call) RunAndReturn(run func(ctx context.Context, email sql.NullString) (*Customer, error)) *MockStore_GetCustomerByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4822,6 +4662,63 @@ func (_c *MockStore_GetCustomerById_Call) Return(customer *Customer, err error) 
 }
 
 func (_c *MockStore_GetCustomerById_Call) RunAndReturn(run func(ctx context.Context, id int64) (*Customer, error)) *MockStore_GetCustomerById_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetCustomerByNameAndPhone provides a mock function for the type MockStore
+func (_mock *MockStore) GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCustomerByNameAndPhone")
+	}
+
+	var r0 *Customer
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetCustomerByNameAndPhoneParams) (*Customer, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, GetCustomerByNameAndPhoneParams) *Customer); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Customer)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, GetCustomerByNameAndPhoneParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_GetCustomerByNameAndPhone_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCustomerByNameAndPhone'
+type MockStore_GetCustomerByNameAndPhone_Call struct {
+	*mock.Call
+}
+
+// GetCustomerByNameAndPhone is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockStore_Expecter) GetCustomerByNameAndPhone(ctx interface{}, arg interface{}) *MockStore_GetCustomerByNameAndPhone_Call {
+	return &MockStore_GetCustomerByNameAndPhone_Call{Call: _e.mock.On("GetCustomerByNameAndPhone", ctx, arg)}
+}
+
+func (_c *MockStore_GetCustomerByNameAndPhone_Call) Run(run func(ctx context.Context, arg GetCustomerByNameAndPhoneParams)) *MockStore_GetCustomerByNameAndPhone_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(GetCustomerByNameAndPhoneParams))
+	})
+	return _c
+}
+
+func (_c *MockStore_GetCustomerByNameAndPhone_Call) Return(customer *Customer, err error) *MockStore_GetCustomerByNameAndPhone_Call {
+	_c.Call.Return(customer, err)
+	return _c
+}
+
+func (_c *MockStore_GetCustomerByNameAndPhone_Call) RunAndReturn(run func(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error)) *MockStore_GetCustomerByNameAndPhone_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5109,80 +5006,24 @@ func (_c *MockStore_GetUsersByBrand_Call) RunAndReturn(run func(ctx context.Cont
 	return _c
 }
 
-// ListAllBookingStatuses provides a mock function for the type MockStore
-func (_mock *MockStore) ListAllBookingStatuses(ctx context.Context) ([]*BookingStatus, error) {
-	ret := _mock.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListAllBookingStatuses")
-	}
-
-	var r0 []*BookingStatus
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*BookingStatus, error)); ok {
-		return returnFunc(ctx)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context) []*BookingStatus); ok {
-		r0 = returnFunc(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*BookingStatus)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = returnFunc(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockStore_ListAllBookingStatuses_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAllBookingStatuses'
-type MockStore_ListAllBookingStatuses_Call struct {
-	*mock.Call
-}
-
-// ListAllBookingStatuses is a helper method to define mock.On call
-//   - ctx
-func (_e *MockStore_Expecter) ListAllBookingStatuses(ctx interface{}) *MockStore_ListAllBookingStatuses_Call {
-	return &MockStore_ListAllBookingStatuses_Call{Call: _e.mock.On("ListAllBookingStatuses", ctx)}
-}
-
-func (_c *MockStore_ListAllBookingStatuses_Call) Run(run func(ctx context.Context)) *MockStore_ListAllBookingStatuses_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockStore_ListAllBookingStatuses_Call) Return(bookingStatuss []*BookingStatus, err error) *MockStore_ListAllBookingStatuses_Call {
-	_c.Call.Return(bookingStatuss, err)
-	return _c
-}
-
-func (_c *MockStore_ListAllBookingStatuses_Call) RunAndReturn(run func(ctx context.Context) ([]*BookingStatus, error)) *MockStore_ListAllBookingStatuses_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // ListBookingsByBrand provides a mock function for the type MockStore
-func (_mock *MockStore) ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error) {
+func (_mock *MockStore) ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListBookingsByBrand")
 	}
 
-	var r0 []*ListBookingsByBrandRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByBrandParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByBrandParams) []*ListBookingsByBrandRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByBrandParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ListBookingsByBrandRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, ListBookingsByBrandParams) error); ok {
@@ -5212,34 +5053,34 @@ func (_c *MockStore_ListBookingsByBrand_Call) Run(run func(ctx context.Context, 
 	return _c
 }
 
-func (_c *MockStore_ListBookingsByBrand_Call) Return(listBookingsByBrandRows []*ListBookingsByBrandRow, err error) *MockStore_ListBookingsByBrand_Call {
-	_c.Call.Return(listBookingsByBrandRows, err)
+func (_c *MockStore_ListBookingsByBrand_Call) Return(bookings []*Booking, err error) *MockStore_ListBookingsByBrand_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockStore_ListBookingsByBrand_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error)) *MockStore_ListBookingsByBrand_Call {
+func (_c *MockStore_ListBookingsByBrand_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByBrandParams) ([]*Booking, error)) *MockStore_ListBookingsByBrand_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListBookingsByCustomer provides a mock function for the type MockStore
-func (_mock *MockStore) ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error) {
+func (_mock *MockStore) ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListBookingsByCustomer")
 	}
 
-	var r0 []*ListBookingsByCustomerRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByCustomerParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByCustomerParams) []*ListBookingsByCustomerRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByCustomerParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ListBookingsByCustomerRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, ListBookingsByCustomerParams) error); ok {
@@ -5269,34 +5110,34 @@ func (_c *MockStore_ListBookingsByCustomer_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MockStore_ListBookingsByCustomer_Call) Return(listBookingsByCustomerRows []*ListBookingsByCustomerRow, err error) *MockStore_ListBookingsByCustomer_Call {
-	_c.Call.Return(listBookingsByCustomerRows, err)
+func (_c *MockStore_ListBookingsByCustomer_Call) Return(bookings []*Booking, err error) *MockStore_ListBookingsByCustomer_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockStore_ListBookingsByCustomer_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error)) *MockStore_ListBookingsByCustomer_Call {
+func (_c *MockStore_ListBookingsByCustomer_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByCustomerParams) ([]*Booking, error)) *MockStore_ListBookingsByCustomer_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListBookingsByUser provides a mock function for the type MockStore
-func (_mock *MockStore) ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*ListBookingsByUserRow, error) {
+func (_mock *MockStore) ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*Booking, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListBookingsByUser")
 	}
 
-	var r0 []*ListBookingsByUserRow
+	var r0 []*Booking
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByUserParams) ([]*ListBookingsByUserRow, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByUserParams) ([]*Booking, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByUserParams) []*ListBookingsByUserRow); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, ListBookingsByUserParams) []*Booking); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ListBookingsByUserRow)
+			r0 = ret.Get(0).([]*Booking)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, ListBookingsByUserParams) error); ok {
@@ -5326,12 +5167,12 @@ func (_c *MockStore_ListBookingsByUser_Call) Run(run func(ctx context.Context, a
 	return _c
 }
 
-func (_c *MockStore_ListBookingsByUser_Call) Return(listBookingsByUserRows []*ListBookingsByUserRow, err error) *MockStore_ListBookingsByUser_Call {
-	_c.Call.Return(listBookingsByUserRows, err)
+func (_c *MockStore_ListBookingsByUser_Call) Return(bookings []*Booking, err error) *MockStore_ListBookingsByUser_Call {
+	_c.Call.Return(bookings, err)
 	return _c
 }
 
-func (_c *MockStore_ListBookingsByUser_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByUserParams) ([]*ListBookingsByUserRow, error)) *MockStore_ListBookingsByUser_Call {
+func (_c *MockStore_ListBookingsByUser_Call) RunAndReturn(run func(ctx context.Context, arg ListBookingsByUserParams) ([]*Booking, error)) *MockStore_ListBookingsByUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5389,63 +5230,6 @@ func (_c *MockStore_ListServices_Call) Return(services []*Service, err error) *M
 }
 
 func (_c *MockStore_ListServices_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*Service, error)) *MockStore_ListServices_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ListUpcomingBookings provides a mock function for the type MockStore
-func (_mock *MockStore) ListUpcomingBookings(ctx context.Context, arg ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error) {
-	ret := _mock.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListUpcomingBookings")
-	}
-
-	var r0 []*ListUpcomingBookingsRow
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error)); ok {
-		return returnFunc(ctx, arg)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, ListUpcomingBookingsParams) []*ListUpcomingBookingsRow); ok {
-		r0 = returnFunc(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*ListUpcomingBookingsRow)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, ListUpcomingBookingsParams) error); ok {
-		r1 = returnFunc(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockStore_ListUpcomingBookings_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListUpcomingBookings'
-type MockStore_ListUpcomingBookings_Call struct {
-	*mock.Call
-}
-
-// ListUpcomingBookings is a helper method to define mock.On call
-//   - ctx
-//   - arg
-func (_e *MockStore_Expecter) ListUpcomingBookings(ctx interface{}, arg interface{}) *MockStore_ListUpcomingBookings_Call {
-	return &MockStore_ListUpcomingBookings_Call{Call: _e.mock.On("ListUpcomingBookings", ctx, arg)}
-}
-
-func (_c *MockStore_ListUpcomingBookings_Call) Run(run func(ctx context.Context, arg ListUpcomingBookingsParams)) *MockStore_ListUpcomingBookings_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(ListUpcomingBookingsParams))
-	})
-	return _c
-}
-
-func (_c *MockStore_ListUpcomingBookings_Call) Return(listUpcomingBookingsRows []*ListUpcomingBookingsRow, err error) *MockStore_ListUpcomingBookings_Call {
-	_c.Call.Return(listUpcomingBookingsRows, err)
-	return _c
-}
-
-func (_c *MockStore_ListUpcomingBookings_Call) RunAndReturn(run func(ctx context.Context, arg ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error)) *MockStore_ListUpcomingBookings_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5663,63 +5447,6 @@ func (_c *MockStore_UpdateBookingDetails_Call) Return(booking *Booking, err erro
 }
 
 func (_c *MockStore_UpdateBookingDetails_Call) RunAndReturn(run func(ctx context.Context, arg UpdateBookingDetailsParams) (*Booking, error)) *MockStore_UpdateBookingDetails_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// UpdateBookingStatus provides a mock function for the type MockStore
-func (_mock *MockStore) UpdateBookingStatus(ctx context.Context, arg UpdateBookingStatusParams) (*Booking, error) {
-	ret := _mock.Called(ctx, arg)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdateBookingStatus")
-	}
-
-	var r0 *Booking
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateBookingStatusParams) (*Booking, error)); ok {
-		return returnFunc(ctx, arg)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateBookingStatusParams) *Booking); ok {
-		r0 = returnFunc(ctx, arg)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*Booking)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, UpdateBookingStatusParams) error); ok {
-		r1 = returnFunc(ctx, arg)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockStore_UpdateBookingStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateBookingStatus'
-type MockStore_UpdateBookingStatus_Call struct {
-	*mock.Call
-}
-
-// UpdateBookingStatus is a helper method to define mock.On call
-//   - ctx
-//   - arg
-func (_e *MockStore_Expecter) UpdateBookingStatus(ctx interface{}, arg interface{}) *MockStore_UpdateBookingStatus_Call {
-	return &MockStore_UpdateBookingStatus_Call{Call: _e.mock.On("UpdateBookingStatus", ctx, arg)}
-}
-
-func (_c *MockStore_UpdateBookingStatus_Call) Run(run func(ctx context.Context, arg UpdateBookingStatusParams)) *MockStore_UpdateBookingStatus_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(UpdateBookingStatusParams))
-	})
-	return _c
-}
-
-func (_c *MockStore_UpdateBookingStatus_Call) Return(booking *Booking, err error) *MockStore_UpdateBookingStatus_Call {
-	_c.Call.Return(booking, err)
-	return _c
-}
-
-func (_c *MockStore_UpdateBookingStatus_Call) RunAndReturn(run func(ctx context.Context, arg UpdateBookingStatusParams) (*Booking, error)) *MockStore_UpdateBookingStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }

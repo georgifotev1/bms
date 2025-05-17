@@ -1,47 +1,24 @@
 -- name: GetBookingByID :one
-SELECT b.*, bs.status_name
-FROM bookings b
-JOIN booking_status bs ON b.status_id = bs.status_id
-WHERE b.id = $1;
+SELECT * FROM bookings b WHERE id = $1;
 
 -- name: ListBookingsByBrand :many
-SELECT b.*, bs.status_name
-FROM bookings b
-JOIN booking_status bs ON b.status_id = bs.status_id
-WHERE b.brand_id = $1
-ORDER BY b.start_time
+SELECT * FROM bookings
+WHERE brand_id = $1
+ORDER BY start_time
 LIMIT $2
 OFFSET $3;
 
 -- name: ListBookingsByCustomer :many
-SELECT b.*, bs.status_name
-FROM bookings b
-JOIN booking_status bs ON b.status_id = bs.status_id
-WHERE b.customer_id = $1
-ORDER BY b.start_time
+SELECT * FROM bookings
+WHERE customer_id = $1
+ORDER BY start_time
 LIMIT $2
 OFFSET $3;
 
 -- name: ListBookingsByUser :many
-SELECT b.*, bs.status_name
-FROM bookings b
-JOIN booking_status bs ON b.status_id = bs.status_id
-WHERE b.user_id = $1
-ORDER BY b.start_time
-LIMIT $2
-OFFSET $3;
-
--- name: ListUpcomingBookings :many
-SELECT b.*, bs.status_name
-FROM bookings b
-JOIN booking_status bs ON b.status_id = bs.status_id
-WHERE b.brand_id = $1
-  AND b.start_time > NOW()
-  AND b.status_id IN (
-    SELECT bs.status_id FROM booking_status bs
-    WHERE bs.status_name IN ('pending', 'confirmed')
-  )
-ORDER BY b.start_time
+SELECT * FROM bookings
+WHERE user_id = $1
+ORDER BY start_time
 LIMIT $2
 OFFSET $3;
 
@@ -53,22 +30,12 @@ INSERT INTO bookings (
   brand_id,
   start_time,
   end_time,
-  status_id,
   comment,
   created_at,
   updated_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6,
-  (SELECT status_id FROM booking_status WHERE status_name = $7),
-  $8, NOW(), NOW()
+  $1, $2, $3, $4, $5, $6, $7, NOW(), NOW()
 ) RETURNING *;
-
--- name: UpdateBookingStatus :one
-UPDATE bookings
-SET status_id = (SELECT status_id FROM booking_status WHERE status_name = $2),
-    updated_at = NOW()
-WHERE id = $1
-RETURNING *;
 
 -- name: UpdateBookingDetails :one
 UPDATE bookings
@@ -85,41 +52,19 @@ RETURNING *;
 DELETE FROM bookings
 WHERE id = $1;
 
--- name: GetBookingStatusByName :one
-SELECT status_id
-FROM booking_status
-WHERE status_name = $1;
-
--- name: ListAllBookingStatuses :many
-SELECT *
-FROM booking_status
-ORDER BY status_id;
-
 -- name: GetBookingsByTimeRange :many
-SELECT b.*, bs.status_name
-FROM bookings b
-JOIN booking_status bs ON b.status_id = bs.status_id
-WHERE b.brand_id = $1
-  AND b.start_time >= $2
-  AND b.end_time <= $3
-ORDER BY b.start_time;
-
--- name: GetBookingsByDate :many
-SELECT b.*, bs.status_name
-FROM bookings b
-JOIN booking_status bs ON b.status_id = bs.status_id
-WHERE b.brand_id = $1
-  AND DATE(b.start_time) = $2
-ORDER BY b.start_time;
+SELECT * FROM bookings
+WHERE brand_id = $1
+  AND start_time >= $2
+  AND end_time <= $3
+ORDER BY start_time;
 
 -- name: GetActiveBookingsForUser :many
-SELECT b.*, bs.status_name
-FROM bookings b
-JOIN booking_status bs ON b.status_id = bs.status_id
-WHERE b.user_id = $1
-  AND b.start_time <= $2
-  AND b.end_time >= $2
-  AND bs.status_name IN ('pending', 'confirmed');
+SELECT *
+FROM bookings
+WHERE user_id = $1
+  AND start_time <= $2
+  AND end_time >= $2;
 
 -- name: GetAvailableTimeslots :many
 WITH
@@ -135,10 +80,6 @@ daily_bookings AS (
     FROM bookings b
     WHERE b.brand_id = sqlc.arg(brand_id)
       AND DATE(b.start_time) = sqlc.arg(date)
-      AND b.status_id IN (
-        SELECT bs.status_id FROM booking_status bs
-        WHERE bs.status_name IN ('pending', 'confirmed')
-      )
 ),
 -- Get all users (staff) for the brand
 staff AS (
@@ -208,10 +149,6 @@ SELECT
             SELECT 1
             FROM bookings b
             WHERE b.user_id = sqlc.arg(user_id)
-              AND b.status_id IN (
-                SELECT bs.status_id FROM booking_status bs
-                WHERE bs.status_name IN ('pending', 'confirmed')
-              )
               AND (
                   (b.start_time < sqlc.arg(end_time) AND b.end_time > sqlc.arg(start_time))
                   OR (b.start_time < (sqlc.arg(end_time) + (INTERVAL '1 minute' * si.buffer_time))

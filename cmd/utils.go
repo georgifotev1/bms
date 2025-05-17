@@ -130,7 +130,7 @@ func customerResponseMapper(customer *store.Customer, token string) CustomerResp
 	return CustomerResponse{
 		ID:          customer.ID,
 		Name:        customer.Name,
-		Email:       customer.Email,
+		Email:       customer.Email.String,
 		BrandId:     customer.BrandID,
 		Token:       token,
 		PhoneNumber: customer.PhoneNumber,
@@ -146,7 +146,6 @@ func bookingResponseMapper(booking *store.Booking) BookingResponse {
 		BrandID:    booking.BrandID,
 		StartTime:  booking.StartTime,
 		EndTime:    booking.EndTime,
-		StatusID:   booking.StatusID,
 		Comment:    booking.Comment.String,
 		CreatedAt:  booking.CreatedAt,
 		UpdatedAt:  booking.UpdatedAt,

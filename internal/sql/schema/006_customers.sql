@@ -2,8 +2,8 @@
 CREATE TABLE customers (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password BYTEA NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    password BYTEA,
     phone_number VARCHAR(20) NOT NULL,
     brand_id INTEGER NOT NULL REFERENCES brand (id),
     created_at TIMESTAMP(0) NOT NULL DEFAULT NOW (),

@@ -19,15 +19,9 @@ type Booking struct {
 	BrandID    int32          `json:"brandId"`
 	StartTime  time.Time      `json:"startTime"`
 	EndTime    time.Time      `json:"endTime"`
-	StatusID   int32          `json:"statusId"`
 	Comment    sql.NullString `json:"comment"`
 	CreatedAt  time.Time      `json:"createdAt"`
 	UpdatedAt  time.Time      `json:"updatedAt"`
-}
-
-type BookingStatus struct {
-	StatusID   int32  `json:"statusId"`
-	StatusName string `json:"statusName"`
 }
 
 type Brand struct {
@@ -71,14 +65,14 @@ type BrandWorkingHour struct {
 }
 
 type Customer struct {
-	ID          int64     `json:"id"`
-	Name        string    `json:"name"`
-	Email       string    `json:"email"`
-	Password    []byte    `json:"password"`
-	PhoneNumber string    `json:"phoneNumber"`
-	BrandID     int32     `json:"brandId"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID          int64          `json:"id"`
+	Name        string         `json:"name"`
+	Email       sql.NullString `json:"email"`
+	Password    []byte         `json:"password"`
+	PhoneNumber string         `json:"phoneNumber"`
+	BrandID     int32          `json:"brandId"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
 }
 
 type Role struct {

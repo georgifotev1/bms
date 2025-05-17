@@ -10,14 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	statusPending   = "pending"
-	statusConfirmed = "confirmed"
-	statusCompleted = "completed"
-	statusCancelled = "cancelled"
-	statusNoShow    = "no_show"
-)
-
 type CreateBookingPayload struct {
 	CustomerID int64     `json:"customerId" validate:"required,min=0"`
 	ServiceID  uuid.UUID `json:"serviceId" validate:"required"`
@@ -36,7 +28,6 @@ type BookingResponse struct {
 	BrandID    int32     `json:"brandId"`
 	StartTime  time.Time `json:"startTime"`
 	EndTime    time.Time `json:"endTime"`
-	StatusID   int32     `json:"statusId"`
 	Comment    string    `json:"comment"`
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
@@ -67,7 +58,6 @@ func (app *application) createBooking(w http.ResponseWriter, r *http.Request, pa
 		BrandID:    payload.BrandID,
 		StartTime:  payload.StartTime,
 		EndTime:    payload.EndTime,
-		StatusName: statusPending,
 		Comment: sql.NullString{
 			String: payload.Comment,
 			Valid:  payload.Comment != "",

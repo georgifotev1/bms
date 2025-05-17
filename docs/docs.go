@@ -289,7 +289,7 @@ const docTemplate = `{
                 "summary": "Login a customer",
                 "parameters": [
                     {
-                        "description": "User credentials",
+                        "description": "customer credentials",
                         "name": "payload",
                         "in": "body",
                         "required": true,
@@ -307,7 +307,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "User logged in",
+                        "description": "customer logged in",
                         "schema": {
                             "$ref": "#/definitions/main.CustomerResponse"
                         }
@@ -325,14 +325,14 @@ const docTemplate = `{
         },
         "/customers/auth/logout": {
             "post": {
-                "description": "Clears the refresh token cookie to log out the user",
+                "description": "Clears the refresh token cookie to log out the customer",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "customers"
                 ],
-                "summary": "Logs out a user",
+                "summary": "Logs out a customer",
                 "responses": {
                     "200": {
                         "description": "Logged out successfully",
@@ -390,7 +390,7 @@ const docTemplate = `{
                 "summary": "Registers a customer",
                 "parameters": [
                     {
-                        "description": "User credentials",
+                        "description": "customer credentials",
                         "name": "payload",
                         "in": "body",
                         "required": true,
@@ -408,7 +408,120 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "User registered",
+                        "description": "customer registered",
+                        "schema": {
+                            "$ref": "#/definitions/main.CustomerResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/customers/bookings": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a new booking with validation for timeslot availability",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookings"
+                ],
+                "summary": "Create a new custostomer booking",
+                "parameters": [
+                    {
+                        "description": "Booking details",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateBookingPayload"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "Brand ID header for development. In production this header is ignored",
+                        "name": "X-Brand-ID",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Booking created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.BookingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid input",
+                        "schema": {}
+                    },
+                    "409": {
+                        "description": "Conflict - timeslot already booked",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/customers/guest": {
+            "post": {
+                "description": "Create or get a guest",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
+                "summary": "Create or get a guest (customer without session)",
+                "parameters": [
+                    {
+                        "description": "guest credentials",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateGuestCustomerPayload"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "Brand ID header for development. In production this header is ignored",
+                        "name": "X-Brand-ID",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "guest already exists",
+                        "schema": {
+                            "$ref": "#/definitions/main.CustomerResponse"
+                        }
+                    },
+                    "201": {
+                        "description": "guest created",
                         "schema": {
                             "$ref": "#/definitions/main.CustomerResponse"
                         }
@@ -712,9 +825,6 @@ const docTemplate = `{
                 "startTime": {
                     "type": "string"
                 },
-                "statusId": {
-                    "type": "integer"
-                },
                 "updatedAt": {
                     "type": "string"
                 },
@@ -770,6 +880,26 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 3
+                }
+            }
+        },
+        "main.CreateGuestCustomerPayload": {
+            "type": "object",
+            "required": [
+                "name",
+                "phoneNumber"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
+                },
+                "phoneNumber": {
+                    "type": "string"
                 }
             }
         },
@@ -896,12 +1026,18 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
+                "name",
                 "password",
-                "username"
+                "phoneNumber"
             ],
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
                 },
                 "password": {
                     "type": "string",
@@ -910,11 +1046,6 @@ const docTemplate = `{
                 },
                 "phoneNumber": {
                     "type": "string"
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 2
                 }
             }
         },

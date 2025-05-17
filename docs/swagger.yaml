@@ -18,8 +18,6 @@ definitions:
         type: string
       startTime:
         type: string
-      statusId:
-        type: integer
       updatedAt:
         type: string
       userId:
@@ -60,6 +58,20 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  main.CreateGuestCustomerPayload:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      phoneNumber:
+        type: string
+    required:
+    - name
+    - phoneNumber
     type: object
   main.CreateServicePayload:
     properties:
@@ -147,20 +159,21 @@ definitions:
     properties:
       email:
         type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
       password:
         maxLength: 72
         minLength: 3
         type: string
       phoneNumber:
         type: string
-      username:
-        maxLength: 100
-        minLength: 2
-        type: string
     required:
     - email
+    - name
     - password
-    - username
+    - phoneNumber
     type: object
   main.RegisterUserPayload:
     properties:
@@ -515,7 +528,7 @@ paths:
       - application/json
       description: Login a customer
       parameters:
-      - description: User credentials
+      - description: customer credentials
         in: body
         name: payload
         required: true
@@ -531,7 +544,7 @@ paths:
       - application/json
       responses:
         "201":
-          description: User logged in
+          description: customer logged in
           schema:
             $ref: '#/definitions/main.CustomerResponse'
         "400":
@@ -545,7 +558,7 @@ paths:
       - customers
   /customers/auth/logout:
     post:
-      description: Clears the refresh token cookie to log out the user
+      description: Clears the refresh token cookie to log out the customer
       produces:
       - application/json
       responses:
@@ -556,7 +569,7 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: Logs out a user
+      summary: Logs out a customer
       tags:
       - customers
   /customers/auth/refresh:
@@ -584,7 +597,7 @@ paths:
       - application/json
       description: Registers a customer
       parameters:
-      - description: User credentials
+      - description: customer credentials
         in: body
         name: payload
         required: true
@@ -600,7 +613,7 @@ paths:
       - application/json
       responses:
         "201":
-          description: User registered
+          description: customer registered
           schema:
             $ref: '#/definitions/main.CustomerResponse'
         "400":
@@ -610,6 +623,83 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: Registers a customer
+      tags:
+      - customers
+  /customers/bookings:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new booking with validation for timeslot availability
+      parameters:
+      - description: Booking details
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateBookingPayload'
+      - default: "1"
+        description: Brand ID header for development. In production this header is
+          ignored
+        in: header
+        name: X-Brand-ID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Booking created successfully
+          schema:
+            $ref: '#/definitions/main.BookingResponse'
+        "400":
+          description: Bad request - invalid input
+          schema: {}
+        "409":
+          description: Conflict - timeslot already booked
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new custostomer booking
+      tags:
+      - bookings
+  /customers/guest:
+    post:
+      consumes:
+      - application/json
+      description: Create or get a guest
+      parameters:
+      - description: guest credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateGuestCustomerPayload'
+      - default: "1"
+        description: Brand ID header for development. In production this header is
+          ignored
+        in: header
+        name: X-Brand-ID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: guest already exists
+          schema:
+            $ref: '#/definitions/main.CustomerResponse'
+        "201":
+          description: guest created
+          schema:
+            $ref: '#/definitions/main.CustomerResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create or get a guest (customer without session)
       tags:
       - customers
   /health:

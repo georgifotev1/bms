@@ -19,6 +19,7 @@ type Querier interface {
 	CreateBooking(ctx context.Context, arg CreateBookingParams) (*Booking, error)
 	CreateBrand(ctx context.Context, arg CreateBrandParams) (*Brand, error)
 	CreateCustomer(ctx context.Context, arg CreateCustomerParams) (*Customer, error)
+	CreateGuestCustomer(ctx context.Context, arg CreateGuestCustomerParams) (*Customer, error)
 	CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
@@ -28,7 +29,7 @@ type Querier interface {
 	DeleteService(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
-	GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*GetActiveBookingsForUserRow, error)
+	GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*Booking, error)
 	// Parameters: brand_id, date, service_id
 	// Get all bookings for the given date and brand
 	// Get all users (staff) for the brand
@@ -37,33 +38,29 @@ type Querier interface {
 	// Check availability for each staff member and time slot
 	// Final available time slots with at least one available staff
 	GetAvailableTimeslots(ctx context.Context, arg GetAvailableTimeslotsParams) ([]*GetAvailableTimeslotsRow, error)
-	GetBookingByID(ctx context.Context, id int64) (*GetBookingByIDRow, error)
-	GetBookingStatusByName(ctx context.Context, statusName string) (int32, error)
-	GetBookingsByDate(ctx context.Context, arg GetBookingsByDateParams) ([]*GetBookingsByDateRow, error)
-	GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*GetBookingsByTimeRangeRow, error)
+	GetBookingByID(ctx context.Context, id int64) (*Booking, error)
+	GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*Booking, error)
 	GetBrandById(ctx context.Context, id int32) (*Brand, error)
 	GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error)
 	GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error)
 	GetBrandUsers(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
 	GetBrandWorkingHours(ctx context.Context, brandID int32) ([]*BrandWorkingHour, error)
-	GetCustomerByEmail(ctx context.Context, email string) (*Customer, error)
+	GetCustomerByEmail(ctx context.Context, email sql.NullString) (*Customer, error)
 	GetCustomerById(ctx context.Context, id int64) (*Customer, error)
+	GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error)
 	GetService(ctx context.Context, id uuid.UUID) (*Service, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)
 	GetUserFromInvitation(ctx context.Context, token string) (int64, error)
 	GetUsersByBrand(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
-	ListAllBookingStatuses(ctx context.Context) ([]*BookingStatus, error)
-	ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*ListBookingsByBrandRow, error)
-	ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*ListBookingsByCustomerRow, error)
-	ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*ListBookingsByUserRow, error)
+	ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*Booking, error)
+	ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*Booking, error)
+	ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*Booking, error)
 	ListServices(ctx context.Context, brandID int32) ([]*Service, error)
-	ListUpcomingBookings(ctx context.Context, arg ListUpcomingBookingsParams) ([]*ListUpcomingBookingsRow, error)
 	ListUserServices(ctx context.Context, userID int64) ([]*Service, error)
 	ListVisibleServices(ctx context.Context, brandID int32) ([]*Service, error)
 	RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error
 	UpdateBookingDetails(ctx context.Context, arg UpdateBookingDetailsParams) (*Booking, error)
-	UpdateBookingStatus(ctx context.Context, arg UpdateBookingStatusParams) (*Booking, error)
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) (*Brand, error)
 	UpdateBrandPartial(ctx context.Context, arg UpdateBrandPartialParams) (*Brand, error)
 	UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error)

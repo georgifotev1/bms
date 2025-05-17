@@ -11,6 +11,7 @@ type Store interface {
 	CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (*CreateServiceTxResult, error)
 	ActivateUserTx(ctx context.Context, arg ActivateUserTxParams) error
 	CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, error)
+	CreateGuestTx(ctx context.Context, arg CreateGuestTxParams) (*Customer, bool, error)
 }
 
 type SQLStore struct {

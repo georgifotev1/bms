@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createCustomer = `-- name: CreateCustomer :one
@@ -15,11 +16,11 @@ RETURNING id, name, email, password, phone_number, brand_id, created_at, updated
 `
 
 type CreateCustomerParams struct {
-	Name        string `json:"name"`
-	Email       string `json:"email"`
-	Password    []byte `json:"password"`
-	PhoneNumber string `json:"phoneNumber"`
-	BrandID     int32  `json:"brandId"`
+	Name        string         `json:"name"`
+	Email       sql.NullString `json:"email"`
+	Password    []byte         `json:"password"`
+	PhoneNumber string         `json:"phoneNumber"`
+	BrandID     int32          `json:"brandId"`
 }
 
 func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) (*Customer, error) {
@@ -27,6 +28,39 @@ func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) 
 		arg.Name,
 		arg.Email,
 		arg.Password,
+		arg.PhoneNumber,
+		arg.BrandID,
+	)
+	var i Customer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.PhoneNumber,
+		&i.BrandID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const createGuestCustomer = `-- name: CreateGuestCustomer :one
+INSERT INTO customers (name, email, phone_number, brand_id) VALUES ($1, $2, $3, $4)
+RETURNING id, name, email, password, phone_number, brand_id, created_at, updated_at
+`
+
+type CreateGuestCustomerParams struct {
+	Name        string         `json:"name"`
+	Email       sql.NullString `json:"email"`
+	PhoneNumber string         `json:"phoneNumber"`
+	BrandID     int32          `json:"brandId"`
+}
+
+func (q *Queries) CreateGuestCustomer(ctx context.Context, arg CreateGuestCustomerParams) (*Customer, error) {
+	row := q.db.QueryRowContext(ctx, createGuestCustomer,
+		arg.Name,
+		arg.Email,
 		arg.PhoneNumber,
 		arg.BrandID,
 	)
@@ -57,7 +91,7 @@ const getCustomerByEmail = `-- name: GetCustomerByEmail :one
 SELECT id, name, email, password, phone_number, brand_id, created_at, updated_at FROM customers WHERE email = $1
 `
 
-func (q *Queries) GetCustomerByEmail(ctx context.Context, email string) (*Customer, error) {
+func (q *Queries) GetCustomerByEmail(ctx context.Context, email sql.NullString) (*Customer, error) {
 	row := q.db.QueryRowContext(ctx, getCustomerByEmail, email)
 	var i Customer
 	err := row.Scan(
@@ -79,6 +113,31 @@ SELECT id, name, email, password, phone_number, brand_id, created_at, updated_at
 
 func (q *Queries) GetCustomerById(ctx context.Context, id int64) (*Customer, error) {
 	row := q.db.QueryRowContext(ctx, getCustomerById, id)
+	var i Customer
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.PhoneNumber,
+		&i.BrandID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const getCustomerByNameAndPhone = `-- name: GetCustomerByNameAndPhone :one
+SELECT id, name, email, password, phone_number, brand_id, created_at, updated_at FROM customers WHERE name = $1 AND phone_number = $2
+`
+
+type GetCustomerByNameAndPhoneParams struct {
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phoneNumber"`
+}
+
+func (q *Queries) GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error) {
+	row := q.db.QueryRowContext(ctx, getCustomerByNameAndPhone, arg.Name, arg.PhoneNumber)
 	var i Customer
 	err := row.Scan(
 		&i.ID,
