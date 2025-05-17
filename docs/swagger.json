@@ -443,13 +443,6 @@
                         "schema": {
                             "$ref": "#/definitions/main.CreateBookingPayload"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "default": "1",
-                        "description": "Brand ID header for development. In production this header is ignored",
-                        "name": "X-Brand-ID",
-                        "in": "header"
                     }
                 ],
                 "responses": {

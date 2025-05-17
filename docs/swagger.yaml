@@ -637,12 +637,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/main.CreateBookingPayload'
-      - default: "1"
-        description: Brand ID header for development. In production this header is
-          ignored
-        in: header
-        name: X-Brand-ID
-        type: string
       produces:
       - application/json
       responses:

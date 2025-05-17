@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type CreateBookingPayload struct {
@@ -65,6 +67,24 @@ func (app *application) createBooking(w http.ResponseWriter, r *http.Request, pa
 	})
 
 	if err != nil {
+		if pgError, ok := err.(*pq.Error); ok {
+			// PostgreSQL error code 23503 is "foreign_key_violation"
+			if isPgError(err, foreignKeyViolation) {
+				switch {
+				case strings.Contains(pgError.Message, "bookings_customer_id_fkey"):
+					app.badRequestResponse(w, r, errors.New("invalid customer"))
+				case strings.Contains(pgError.Message, "bookings_service_id_fkey"):
+					app.badRequestResponse(w, r, errors.New("invalid service"))
+				case strings.Contains(pgError.Message, "bookings_user_id_fkey"):
+					app.badRequestResponse(w, r, errors.New("invalid user"))
+				case strings.Contains(pgError.Message, "bookings_brand_id_fkey"):
+					app.badRequestResponse(w, r, errors.New("invalid brand"))
+				default:
+					app.badRequestResponse(w, r, errors.New("one or more referenced entities not found"))
+				}
+				return
+			}
+		}
 		app.internalServerError(w, r, err)
 		return
 	}

@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	uniqueViolation = "23505"
+	uniqueViolation     = "23505"
+	foreignKeyViolation = "23503"
 )
 
 var ErrAccessDenied = errors.New("access denied")
