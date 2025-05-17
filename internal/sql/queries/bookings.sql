@@ -92,9 +92,9 @@ staff AS (
 time_slots AS (
     SELECT
         generate_series(
-            sqlc.arg(date)::date + '09:00:00'::time,
-            sqlc.arg(date)::date + '17:00:00'::time,
-            '15 minutes'::interval
+            sqlc.arg(date)::date + sqlc.arg(start_time)::time,
+            sqlc.arg(date)::date + sqlc.arg(end_time)::time,
+            (INTERVAL '1 minute' * (SELECT duration FROM service_info))
         ) AS slot_start
 ),
 -- Apply service duration to get slot end times

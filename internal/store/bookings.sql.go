@@ -186,9 +186,9 @@ staff AS (
 time_slots AS (
     SELECT
         generate_series(
-            $3::date + '09:00:00'::time,
-            $3::date + '17:00:00'::time,
-            '15 minutes'::interval
+            $3::date + $4::time,
+            $3::date + $5::time,
+            (INTERVAL '1 minute' * (SELECT duration FROM service_info))
         ) AS slot_start
 ),
 service_slots AS (
@@ -233,6 +233,8 @@ type GetAvailableTimeslotsParams struct {
 	ServiceID uuid.UUID `json:"serviceId"`
 	BrandID   int32     `json:"brandId"`
 	Date      time.Time `json:"date"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
 }
 
 type GetAvailableTimeslotsRow struct {
@@ -250,7 +252,13 @@ type GetAvailableTimeslotsRow struct {
 // Check availability for each staff member and time slot
 // Final available time slots with at least one available staff
 func (q *Queries) GetAvailableTimeslots(ctx context.Context, arg GetAvailableTimeslotsParams) ([]*GetAvailableTimeslotsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAvailableTimeslots, arg.ServiceID, arg.BrandID, arg.Date)
+	rows, err := q.db.QueryContext(ctx, getAvailableTimeslots,
+		arg.ServiceID,
+		arg.BrandID,
+		arg.Date,
+		arg.StartTime,
+		arg.EndTime,
+	)
 	if err != nil {
 		return nil, err
 	}
