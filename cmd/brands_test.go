@@ -42,7 +42,7 @@ func TestCreateBrandsHandler(t *testing.T) {
 
 		mockStore := app.store.(*store.MockStore)
 		mockStore.On("GetUserById", mock.Anything, mockUser.ID).Return(mockUser, nil)
-		mockStore.On("GetBrandByUrl", mock.Anything, "testbrand").Return("", sql.ErrNoRows)
+		mockStore.On("GetBrandByUrl", mock.Anything, "testbrand").Return(int32(0), sql.ErrNoRows)
 		mockStore.On("CreateBrandTx", mock.Anything, store.CreateBrandTxParams{
 			Name:    "Test Brand",
 			PageUrl: "testbrand",
