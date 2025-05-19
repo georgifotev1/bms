@@ -625,39 +625,6 @@ paths:
       summary: Registers a customer
       tags:
       - customers
-  /customers/bookings:
-    post:
-      consumes:
-      - application/json
-      description: Creates a new booking with validation for timeslot availability
-      parameters:
-      - description: Booking details
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/main.CreateBookingPayload'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Booking created successfully
-          schema:
-            $ref: '#/definitions/main.BookingResponse'
-        "400":
-          description: Bad request - invalid input
-          schema: {}
-        "409":
-          description: Conflict - timeslot already booked
-          schema: {}
-        "500":
-          description: Internal server error
-          schema: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Create a new custostomer booking
-      tags:
-      - bookings
   /customers/guest:
     post:
       consumes:

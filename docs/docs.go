@@ -424,57 +424,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/customers/bookings": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Creates a new booking with validation for timeslot availability",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "bookings"
-                ],
-                "summary": "Create a new custostomer booking",
-                "parameters": [
-                    {
-                        "description": "Booking details",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.CreateBookingPayload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Booking created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/main.BookingResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - invalid input",
-                        "schema": {}
-                    },
-                    "409": {
-                        "description": "Conflict - timeslot already booked",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
         "/customers/guest": {
             "post": {
                 "description": "Create or get a guest",
