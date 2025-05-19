@@ -137,6 +137,8 @@ func (app *application) mount() http.Handler {
 
 		r.Route("/bookings", func(r chi.Router) {
 			r.Post("/", app.createBookingHandler)
+			r.With(app.AuthTokenMiddleware).Get("/day", app.getBookingsByDayHandler)
+			r.With(app.AuthTokenMiddleware).Get("/week", app.getBookingsByWeekHandler)
 		})
 
 		r.Route("/auth", func(r chi.Router) {

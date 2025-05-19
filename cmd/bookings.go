@@ -4,12 +4,17 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+)
+
+const (
+	dateLayout = "2006-01-02"
 )
 
 type CreateBookingPayload struct {
@@ -42,7 +47,6 @@ type BookingResponse struct {
 //	@Tags			bookings
 //	@Accept			json
 //	@Produce		json
-//	@Security		ApiKeyAuth
 //	@Param			payload	body		CreateBookingPayload	true	"Booking details"
 //	@Success		201		{object}	BookingResponse			"Booking created successfully"
 //	@Failure		400		{object}	error					"Bad request - invalid input"
@@ -113,6 +117,67 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err = writeJSON(w, http.StatusCreated, bookingResponseMapper(booking)); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
+func (app *application) getBookingsByDayHandler(w http.ResponseWriter, r *http.Request) {}
+
+// getBookingsByWeekHandler List all bookings of a brand in a specific week
+//
+//	@Summary		List all bookings of a brand in a specific week
+//	@Description	List all bookings of a brand in a specific week and validate the user input
+//	@Tags			bookings
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			startDate	query		string				true	"Start date in YYYY-MM-DD format"	example(2025-05-19)
+//	@Param			endDate		query		string				true	"End date in YYYY-MM-DD format"		example(2025-05-20)
+//	@Param			brandId		query		integer				true	"Brand ID"							minimum(1)	example(1)
+//	@Success		200			{array}		[]BookingResponse	"List of brands"
+//	@Failure		400			{object}	error				"Bad request - invalid input"
+//	@Failure		409			{object}	error				"Conflict - timeslot already booked"
+//	@Failure		500			{object}	error				"Internal server error"
+//	@Router			/bookings/week [get]
+func (app *application) getBookingsByWeekHandler(w http.ResponseWriter, r *http.Request) {
+	startDate := r.URL.Query().Get("startDate")
+	endDate := r.URL.Query().Get("endDate")
+	brandID := r.URL.Query().Get("brandId")
+
+	startDateTime, err := time.Parse(dateLayout, startDate)
+	if err != nil {
+		app.badRequestResponse(w, r, errors.New("Invalid startDate format. Must be YYYY-MM-DD"))
+		return
+	}
+
+	endDateTime, err := time.Parse(dateLayout, endDate)
+	if err != nil {
+		app.badRequestResponse(w, r, errors.New("Invalid endDate format. Must be YYYY-MM-DD"))
+		return
+	}
+
+	parsedBrandId, err := strconv.Atoi(brandID)
+	if err != nil {
+		app.badRequestResponse(w, r, errors.New("invalid brandId"))
+		return
+	}
+
+	bookings, err := app.store.GetBookingsByWeek(r.Context(), store.GetBookingsByWeekParams{
+		StartDate: startDateTime,
+		EndDate:   endDateTime,
+		BrandID:   int32(parsedBrandId),
+	})
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	var result []BookingResponse
+	for _, v := range bookings {
+		result = append(result, bookingResponseMapper(v))
+	}
+
+	if err = writeJSON(w, http.StatusOK, result); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }

@@ -29,7 +29,6 @@ type Querier interface {
 	DeleteService(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
-	GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*Booking, error)
 	// Parameters: brand_id, date, service_id
 	// Get all bookings for the given date and brand
 	// Get all users (staff) for the brand
@@ -39,7 +38,8 @@ type Querier interface {
 	// Final available time slots with at least one available staff
 	GetAvailableTimeslots(ctx context.Context, arg GetAvailableTimeslotsParams) ([]*GetAvailableTimeslotsRow, error)
 	GetBookingByID(ctx context.Context, id int64) (*Booking, error)
-	GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*Booking, error)
+	GetBookingsByDay(ctx context.Context, arg GetBookingsByDayParams) ([]*Booking, error)
+	GetBookingsByWeek(ctx context.Context, arg GetBookingsByWeekParams) ([]*Booking, error)
 	GetBrandById(ctx context.Context, id int32) (*Brand, error)
 	GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error)
 	GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error)
@@ -49,6 +49,8 @@ type Querier interface {
 	GetCustomerById(ctx context.Context, id int64) (*Customer, error)
 	GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error)
 	GetService(ctx context.Context, id uuid.UUID) (*Service, error)
+	GetUserBookingsByDay(ctx context.Context, arg GetUserBookingsByDayParams) ([]*Booking, error)
+	GetUserBookingsByWeek(ctx context.Context, arg GetUserBookingsByWeekParams) ([]*Booking, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)
 	GetUserFromInvitation(ctx context.Context, token string) (int64, error)

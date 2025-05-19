@@ -478,9 +478,58 @@ paths:
         "500":
           description: Internal server error
           schema: {}
+      summary: Create a new booking
+      tags:
+      - bookings
+  /bookings/week:
+    get:
+      consumes:
+      - application/json
+      description: List all bookings of a brand in a specific week and validate the
+        user input
+      parameters:
+      - description: Start date in YYYY-MM-DD format
+        example: "2025-05-19"
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: End date in YYYY-MM-DD format
+        example: "2025-05-20"
+        in: query
+        name: endDate
+        required: true
+        type: string
+      - description: Brand ID
+        example: 1
+        in: query
+        minimum: 1
+        name: brandId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of brands
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/main.BookingResponse'
+              type: array
+            type: array
+        "400":
+          description: Bad request - invalid input
+          schema: {}
+        "409":
+          description: Conflict - timeslot already booked
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
       security:
       - ApiKeyAuth: []
-      summary: Create a new booking
+      summary: List all bookings of a brand in a specific week
       tags:
       - bookings
   /brand:

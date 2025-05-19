@@ -158,11 +158,6 @@
         },
         "/bookings": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Creates a new booking with validation for timeslot availability",
                 "consumes": [
                     "application/json"
@@ -190,6 +185,79 @@
                         "description": "Booking created successfully",
                         "schema": {
                             "$ref": "#/definitions/main.BookingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid input",
+                        "schema": {}
+                    },
+                    "409": {
+                        "description": "Conflict - timeslot already booked",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/bookings/week": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "List all bookings of a brand in a specific week and validate the user input",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookings"
+                ],
+                "summary": "List all bookings of a brand in a specific week",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "2025-05-19",
+                        "description": "Start date in YYYY-MM-DD format",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "2025-05-20",
+                        "description": "End date in YYYY-MM-DD format",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "example": 1,
+                        "description": "Brand ID",
+                        "name": "brandId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of brands",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/main.BookingResponse"
+                                }
+                            }
                         }
                     },
                     "400": {

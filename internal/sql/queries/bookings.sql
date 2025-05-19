@@ -52,19 +52,35 @@ RETURNING *;
 DELETE FROM bookings
 WHERE id = $1;
 
--- name: GetBookingsByTimeRange :many
-SELECT * FROM bookings
-WHERE brand_id = $1
-  AND start_time >= $2
-  AND end_time <= $3
-ORDER BY start_time;
-
--- name: GetActiveBookingsForUser :many
+-- name: GetBookingsByWeek :many
 SELECT *
 FROM bookings
-WHERE user_id = $1
-  AND start_time <= $2
-  AND end_time >= $2;
+WHERE DATE(start_time) BETWEEN sqlc.arg(start_date) AND sqlc.arg(end_date)
+AND brand_id = sqlc.arg(brand_id)
+ORDER BY start_time ASC;
+
+-- name: GetBookingsByDay :many
+SELECT *
+FROM bookings
+WHERE DATE(start_time) = $1
+AND brand_id = $2
+ORDER BY start_time ASC;
+
+-- name: GetUserBookingsByWeek :many
+SELECT *
+FROM bookings
+WHERE DATE(start_time) BETWEEN sqlc.arg(start_date) AND sqlc.arg(end_date)
+AND brand_id = sqlc.arg(brand_id)
+AND user_id = sqlc.arg(user_id)
+ORDER BY start_time ASC;
+
+-- name: GetUserBookingsByDay :many
+SELECT *
+FROM bookings
+WHERE DATE(start_time) = $1
+AND brand_id = $2
+AND user_id = $3
+ORDER BY start_time ASC;
 
 -- name: GetAvailableTimeslots :many
 WITH

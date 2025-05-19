@@ -117,53 +117,6 @@ func (q *Queries) DeleteBooking(ctx context.Context, id int64) error {
 	return err
 }
 
-const getActiveBookingsForUser = `-- name: GetActiveBookingsForUser :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
-FROM bookings
-WHERE user_id = $1
-  AND start_time <= $2
-  AND end_time >= $2
-`
-
-type GetActiveBookingsForUserParams struct {
-	UserID    int64     `json:"userId"`
-	StartTime time.Time `json:"startTime"`
-}
-
-func (q *Queries) GetActiveBookingsForUser(ctx context.Context, arg GetActiveBookingsForUserParams) ([]*Booking, error) {
-	rows, err := q.db.QueryContext(ctx, getActiveBookingsForUser, arg.UserID, arg.StartTime)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []*Booking
-	for rows.Next() {
-		var i Booking
-		if err := rows.Scan(
-			&i.ID,
-			&i.CustomerID,
-			&i.ServiceID,
-			&i.UserID,
-			&i.BrandID,
-			&i.StartTime,
-			&i.EndTime,
-			&i.Comment,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, &i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getAvailableTimeslots = `-- name: GetAvailableTimeslots :many
 WITH
 service_info AS (
@@ -307,22 +260,173 @@ func (q *Queries) GetBookingByID(ctx context.Context, id int64) (*Booking, error
 	return &i, err
 }
 
-const getBookingsByTimeRange = `-- name: GetBookingsByTimeRange :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at FROM bookings
-WHERE brand_id = $1
-  AND start_time >= $2
-  AND end_time <= $3
-ORDER BY start_time
+const getBookingsByDay = `-- name: GetBookingsByDay :many
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+FROM bookings
+WHERE DATE(start_time) = $1
+AND brand_id = $2
+ORDER BY start_time ASC
 `
 
-type GetBookingsByTimeRangeParams struct {
-	BrandID   int32     `json:"brandId"`
+type GetBookingsByDayParams struct {
 	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
+	BrandID   int32     `json:"brandId"`
 }
 
-func (q *Queries) GetBookingsByTimeRange(ctx context.Context, arg GetBookingsByTimeRangeParams) ([]*Booking, error) {
-	rows, err := q.db.QueryContext(ctx, getBookingsByTimeRange, arg.BrandID, arg.StartTime, arg.EndTime)
+func (q *Queries) GetBookingsByDay(ctx context.Context, arg GetBookingsByDayParams) ([]*Booking, error) {
+	rows, err := q.db.QueryContext(ctx, getBookingsByDay, arg.StartTime, arg.BrandID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Booking
+	for rows.Next() {
+		var i Booking
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.ServiceID,
+			&i.UserID,
+			&i.BrandID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.Comment,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getBookingsByWeek = `-- name: GetBookingsByWeek :many
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+FROM bookings
+WHERE DATE(start_time) BETWEEN $1 AND $2
+AND brand_id = $3
+ORDER BY start_time ASC
+`
+
+type GetBookingsByWeekParams struct {
+	StartDate time.Time `json:"startDate"`
+	EndDate   time.Time `json:"endDate"`
+	BrandID   int32     `json:"brandId"`
+}
+
+func (q *Queries) GetBookingsByWeek(ctx context.Context, arg GetBookingsByWeekParams) ([]*Booking, error) {
+	rows, err := q.db.QueryContext(ctx, getBookingsByWeek, arg.StartDate, arg.EndDate, arg.BrandID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Booking
+	for rows.Next() {
+		var i Booking
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.ServiceID,
+			&i.UserID,
+			&i.BrandID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.Comment,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserBookingsByDay = `-- name: GetUserBookingsByDay :many
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+FROM bookings
+WHERE DATE(start_time) = $1
+AND brand_id = $2
+AND user_id = $3
+ORDER BY start_time ASC
+`
+
+type GetUserBookingsByDayParams struct {
+	StartTime time.Time `json:"startTime"`
+	BrandID   int32     `json:"brandId"`
+	UserID    int64     `json:"userId"`
+}
+
+func (q *Queries) GetUserBookingsByDay(ctx context.Context, arg GetUserBookingsByDayParams) ([]*Booking, error) {
+	rows, err := q.db.QueryContext(ctx, getUserBookingsByDay, arg.StartTime, arg.BrandID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Booking
+	for rows.Next() {
+		var i Booking
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.ServiceID,
+			&i.UserID,
+			&i.BrandID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.Comment,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserBookingsByWeek = `-- name: GetUserBookingsByWeek :many
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+FROM bookings
+WHERE DATE(start_time) BETWEEN $1 AND $2
+AND brand_id = $3
+AND user_id = $4
+ORDER BY start_time ASC
+`
+
+type GetUserBookingsByWeekParams struct {
+	StartDate time.Time `json:"startDate"`
+	EndDate   time.Time `json:"endDate"`
+	BrandID   int32     `json:"brandId"`
+	UserID    int64     `json:"userId"`
+}
+
+func (q *Queries) GetUserBookingsByWeek(ctx context.Context, arg GetUserBookingsByWeekParams) ([]*Booking, error) {
+	rows, err := q.db.QueryContext(ctx, getUserBookingsByWeek,
+		arg.StartDate,
+		arg.EndDate,
+		arg.BrandID,
+		arg.UserID,
+	)
 	if err != nil {
 		return nil, err
 	}
