@@ -129,6 +129,7 @@ func (app *application) mount() http.Handler {
 
 		r.Route("/brand", func(r chi.Router) {
 			r.With(app.AuthTokenMiddleware).Post("/", app.createBrandHandler)
+			r.Get("/{id}", app.getBrandHandler)
 		})
 
 		r.Route("/service", func(r chi.Router) {

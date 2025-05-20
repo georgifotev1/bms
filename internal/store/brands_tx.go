@@ -41,8 +41,8 @@ type WorkingHour struct {
 	ID        int32     `json:"id"`
 	BrandID   int32     `json:"brandId"`
 	DayOfWeek int32     `json:"dayOfWeek"`
-	OpenTime  time.Time `json:"openTime"`
-	CloseTime time.Time `json:"closeTime"`
+	OpenTime  string    `json:"openTime"`
+	CloseTime string    `json:"closeTime"`
 	IsClosed  bool      `json:"isClosed"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
@@ -82,4 +82,31 @@ func (s *SQLStore) CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (
 	})
 
 	return &result, err
+}
+func (s *SQLStore) GetBrandProfileTx(ctx context.Context, brandID int32) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error) {
+	var brand *Brand
+	var socialLinks []*BrandSocialLink
+	var workingHours []*BrandWorkingHour
+
+	err := s.execTx(ctx, func(q Querier) error {
+		var err error
+		brand, err = q.GetBrand(ctx, brandID)
+		if err != nil {
+			return err
+		}
+
+		socialLinks, err = q.GetBrandSocialLinks(ctx, brandID)
+		if err != nil {
+			return err
+		}
+
+		workingHours, err = q.GetBrandWorkingHours(ctx, brandID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return brand, socialLinks, workingHours, err
 }

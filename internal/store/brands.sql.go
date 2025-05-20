@@ -107,6 +107,34 @@ func (q *Queries) DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSoci
 	return err
 }
 
+const getBrand = `-- name: GetBrand :one
+SELECT id, name, page_url, description, email, phone, country, state, zip_code, city, address, logo_url, banner_url, currency, created_at, updated_at FROM brand WHERE id = $1
+`
+
+func (q *Queries) GetBrand(ctx context.Context, id int32) (*Brand, error) {
+	row := q.db.QueryRowContext(ctx, getBrand, id)
+	var i Brand
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.PageUrl,
+		&i.Description,
+		&i.Email,
+		&i.Phone,
+		&i.Country,
+		&i.State,
+		&i.ZipCode,
+		&i.City,
+		&i.Address,
+		&i.LogoUrl,
+		&i.BannerUrl,
+		&i.Currency,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
 const getBrandById = `-- name: GetBrandById :one
 SELECT id, name, page_url, description, email, phone, country, state, zip_code, city, address, logo_url, banner_url, currency, created_at, updated_at FROM brand WHERE id = $1
 `
@@ -146,51 +174,40 @@ func (q *Queries) GetBrandByUrl(ctx context.Context, pageUrl string) (int32, err
 	return id, err
 }
 
-const getBrandProfile = `-- name: GetBrandProfile :one
-SELECT
-    b.id, b.name, b.page_url, b.description, b.email, b.phone, b.country, b.state, b.zip_code, b.city, b.address, b.logo_url, b.banner_url, b.currency, b.created_at, b.updated_at,
-    COALESCE(
-        (SELECT json_agg(sl) FROM brand_social_link sl WHERE sl.brand_id = b.id),
-        '[]'
-    ) AS social_links,
-    COALESCE(
-        (SELECT json_agg(wh) FROM brand_working_hours wh WHERE wh.brand_id = b.id),
-        '[]'
-    ) AS working_hours
-FROM brand b
-WHERE b.id = $1
+const getBrandSocialLinks = `-- name: GetBrandSocialLinks :many
+SELECT id, brand_id, platform, url, display_name, created_at, updated_at FROM brand_social_link
+WHERE brand_id = $1
 `
 
-type GetBrandProfileRow struct {
-	Brand        Brand       `json:"brand"`
-	SocialLinks  interface{} `json:"socialLinks"`
-	WorkingHours interface{} `json:"workingHours"`
-}
-
-func (q *Queries) GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error) {
-	row := q.db.QueryRowContext(ctx, getBrandProfile, id)
-	var i GetBrandProfileRow
-	err := row.Scan(
-		&i.Brand.ID,
-		&i.Brand.Name,
-		&i.Brand.PageUrl,
-		&i.Brand.Description,
-		&i.Brand.Email,
-		&i.Brand.Phone,
-		&i.Brand.Country,
-		&i.Brand.State,
-		&i.Brand.ZipCode,
-		&i.Brand.City,
-		&i.Brand.Address,
-		&i.Brand.LogoUrl,
-		&i.Brand.BannerUrl,
-		&i.Brand.Currency,
-		&i.Brand.CreatedAt,
-		&i.Brand.UpdatedAt,
-		&i.SocialLinks,
-		&i.WorkingHours,
-	)
-	return &i, err
+func (q *Queries) GetBrandSocialLinks(ctx context.Context, brandID int32) ([]*BrandSocialLink, error) {
+	rows, err := q.db.QueryContext(ctx, getBrandSocialLinks, brandID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*BrandSocialLink
+	for rows.Next() {
+		var i BrandSocialLink
+		if err := rows.Scan(
+			&i.ID,
+			&i.BrandID,
+			&i.Platform,
+			&i.Url,
+			&i.DisplayName,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getBrandUsers = `-- name: GetBrandUsers :many

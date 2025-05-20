@@ -78,13 +78,41 @@ func userResponseMapper(user *store.User) UserResponse {
 		UpdatedAt: user.UpdatedAt,
 	}
 }
-func brandResponseMapper(brand *store.Brand, links []store.SocialLink, workingHours []store.WorkingHour) store.BrandResponse {
-	if links == nil {
-		links = []store.SocialLink{}
+func brandResponseMapper(brand *store.Brand, links []*store.BrandSocialLink, hours []*store.BrandWorkingHour) store.BrandResponse {
+	socialLinks := []store.SocialLink{}
+	workingHours := []store.WorkingHour{}
+
+	if links != nil {
+		for _, link := range links {
+			socialLinks = append(socialLinks, store.SocialLink{
+				ID:          link.ID,
+				BrandID:     link.BrandID,
+				Platform:    link.Platform,
+				Url:         link.Url,
+				DisplayName: link.DisplayName.String,
+				CreatedAt:   link.CreatedAt,
+				UpdatedAt:   link.UpdatedAt,
+			})
+		}
 	}
 
-	if workingHours == nil {
-		workingHours = []store.WorkingHour{}
+	if hours != nil {
+		for _, hour := range hours {
+			openTime := hour.OpenTime.Time.Format("15:04")
+			closeTime := hour.CloseTime.Time.Format("15:04")
+
+			workingHour := store.WorkingHour{
+				ID:        hour.ID,
+				BrandID:   hour.BrandID,
+				DayOfWeek: hour.DayOfWeek,
+				OpenTime:  openTime,
+				CloseTime: closeTime,
+				IsClosed:  hour.IsClosed.Bool,
+				CreatedAt: hour.CreatedAt,
+				UpdatedAt: hour.UpdatedAt,
+			}
+			workingHours = append(workingHours, workingHour)
+		}
 	}
 
 	return store.BrandResponse{
@@ -104,7 +132,7 @@ func brandResponseMapper(brand *store.Brand, links []store.SocialLink, workingHo
 		Currency:     brand.Currency.String,
 		CreatedAt:    brand.CreatedAt,
 		UpdatedAt:    brand.UpdatedAt,
-		SocialLinks:  links,
+		SocialLinks:  socialLinks,
 		WorkingHours: workingHours,
 	}
 }

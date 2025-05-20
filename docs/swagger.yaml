@@ -571,6 +571,31 @@ paths:
       summary: Create a new brand
       tags:
       - brand
+  /brand/{id}:
+    get:
+      description: Retrieves a brand's details by its unique ID
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Brand details
+          schema:
+            $ref: '#/definitions/store.BrandResponse'
+        "400":
+          description: Bad request - Invalid brand ID
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      summary: Get brand by ID
+      tags:
+      - brand
   /customers/auth/login:
     post:
       consumes:

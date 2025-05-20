@@ -1410,6 +1410,63 @@ func (_c *MockQuerier_GetBookingsByWeek_Call) RunAndReturn(run func(ctx context.
 	return _c
 }
 
+// GetBrand provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) GetBrand(ctx context.Context, id int32) (*Brand, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBrand")
+	}
+
+	var r0 *Brand
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) (*Brand, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) *Brand); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Brand)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_GetBrand_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBrand'
+type MockQuerier_GetBrand_Call struct {
+	*mock.Call
+}
+
+// GetBrand is a helper method to define mock.On call
+//   - ctx
+//   - id
+func (_e *MockQuerier_Expecter) GetBrand(ctx interface{}, id interface{}) *MockQuerier_GetBrand_Call {
+	return &MockQuerier_GetBrand_Call{Call: _e.mock.On("GetBrand", ctx, id)}
+}
+
+func (_c *MockQuerier_GetBrand_Call) Run(run func(ctx context.Context, id int32)) *MockQuerier_GetBrand_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetBrand_Call) Return(brand *Brand, err error) *MockQuerier_GetBrand_Call {
+	_c.Call.Return(brand, err)
+	return _c
+}
+
+func (_c *MockQuerier_GetBrand_Call) RunAndReturn(run func(ctx context.Context, id int32) (*Brand, error)) *MockQuerier_GetBrand_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetBrandById provides a mock function for the type MockQuerier
 func (_mock *MockQuerier) GetBrandById(ctx context.Context, id int32) (*Brand, error) {
 	ret := _mock.Called(ctx, id)
@@ -1522,59 +1579,59 @@ func (_c *MockQuerier_GetBrandByUrl_Call) RunAndReturn(run func(ctx context.Cont
 	return _c
 }
 
-// GetBrandProfile provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error) {
-	ret := _mock.Called(ctx, id)
+// GetBrandSocialLinks provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) GetBrandSocialLinks(ctx context.Context, brandID int32) ([]*BrandSocialLink, error) {
+	ret := _mock.Called(ctx, brandID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetBrandProfile")
+		panic("no return value specified for GetBrandSocialLinks")
 	}
 
-	var r0 *GetBrandProfileRow
+	var r0 []*BrandSocialLink
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) (*GetBrandProfileRow, error)); ok {
-		return returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*BrandSocialLink, error)); ok {
+		return returnFunc(ctx, brandID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) *GetBrandProfileRow); ok {
-		r0 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*BrandSocialLink); ok {
+		r0 = returnFunc(ctx, brandID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*GetBrandProfileRow)
+			r0 = ret.Get(0).([]*BrandSocialLink)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
-		r1 = returnFunc(ctx, id)
+		r1 = returnFunc(ctx, brandID)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockQuerier_GetBrandProfile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBrandProfile'
-type MockQuerier_GetBrandProfile_Call struct {
+// MockQuerier_GetBrandSocialLinks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBrandSocialLinks'
+type MockQuerier_GetBrandSocialLinks_Call struct {
 	*mock.Call
 }
 
-// GetBrandProfile is a helper method to define mock.On call
+// GetBrandSocialLinks is a helper method to define mock.On call
 //   - ctx
-//   - id
-func (_e *MockQuerier_Expecter) GetBrandProfile(ctx interface{}, id interface{}) *MockQuerier_GetBrandProfile_Call {
-	return &MockQuerier_GetBrandProfile_Call{Call: _e.mock.On("GetBrandProfile", ctx, id)}
+//   - brandID
+func (_e *MockQuerier_Expecter) GetBrandSocialLinks(ctx interface{}, brandID interface{}) *MockQuerier_GetBrandSocialLinks_Call {
+	return &MockQuerier_GetBrandSocialLinks_Call{Call: _e.mock.On("GetBrandSocialLinks", ctx, brandID)}
 }
 
-func (_c *MockQuerier_GetBrandProfile_Call) Run(run func(ctx context.Context, id int32)) *MockQuerier_GetBrandProfile_Call {
+func (_c *MockQuerier_GetBrandSocialLinks_Call) Run(run func(ctx context.Context, brandID int32)) *MockQuerier_GetBrandSocialLinks_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(int32))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_GetBrandProfile_Call) Return(getBrandProfileRow *GetBrandProfileRow, err error) *MockQuerier_GetBrandProfile_Call {
-	_c.Call.Return(getBrandProfileRow, err)
+func (_c *MockQuerier_GetBrandSocialLinks_Call) Return(brandSocialLinks []*BrandSocialLink, err error) *MockQuerier_GetBrandSocialLinks_Call {
+	_c.Call.Return(brandSocialLinks, err)
 	return _c
 }
 
-func (_c *MockQuerier_GetBrandProfile_Call) RunAndReturn(run func(ctx context.Context, id int32) (*GetBrandProfileRow, error)) *MockQuerier_GetBrandProfile_Call {
+func (_c *MockQuerier_GetBrandSocialLinks_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*BrandSocialLink, error)) *MockQuerier_GetBrandSocialLinks_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -4383,6 +4440,63 @@ func (_c *MockStore_GetBookingsByWeek_Call) RunAndReturn(run func(ctx context.Co
 	return _c
 }
 
+// GetBrand provides a mock function for the type MockStore
+func (_mock *MockStore) GetBrand(ctx context.Context, id int32) (*Brand, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBrand")
+	}
+
+	var r0 *Brand
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) (*Brand, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) *Brand); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Brand)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_GetBrand_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBrand'
+type MockStore_GetBrand_Call struct {
+	*mock.Call
+}
+
+// GetBrand is a helper method to define mock.On call
+//   - ctx
+//   - id
+func (_e *MockStore_Expecter) GetBrand(ctx interface{}, id interface{}) *MockStore_GetBrand_Call {
+	return &MockStore_GetBrand_Call{Call: _e.mock.On("GetBrand", ctx, id)}
+}
+
+func (_c *MockStore_GetBrand_Call) Run(run func(ctx context.Context, id int32)) *MockStore_GetBrand_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *MockStore_GetBrand_Call) Return(brand *Brand, err error) *MockStore_GetBrand_Call {
+	_c.Call.Return(brand, err)
+	return _c
+}
+
+func (_c *MockStore_GetBrand_Call) RunAndReturn(run func(ctx context.Context, id int32) (*Brand, error)) *MockStore_GetBrand_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetBrandById provides a mock function for the type MockStore
 func (_mock *MockStore) GetBrandById(ctx context.Context, id int32) (*Brand, error) {
 	ret := _mock.Called(ctx, id)
@@ -4495,59 +4609,132 @@ func (_c *MockStore_GetBrandByUrl_Call) RunAndReturn(run func(ctx context.Contex
 	return _c
 }
 
-// GetBrandProfile provides a mock function for the type MockStore
-func (_mock *MockStore) GetBrandProfile(ctx context.Context, id int32) (*GetBrandProfileRow, error) {
-	ret := _mock.Called(ctx, id)
+// GetBrandProfileTx provides a mock function for the type MockStore
+func (_mock *MockStore) GetBrandProfileTx(ctx context.Context, brandID int32) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error) {
+	ret := _mock.Called(ctx, brandID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetBrandProfile")
+		panic("no return value specified for GetBrandProfileTx")
 	}
 
-	var r0 *GetBrandProfileRow
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) (*GetBrandProfileRow, error)); ok {
-		return returnFunc(ctx, id)
+	var r0 *Brand
+	var r1 []*BrandSocialLink
+	var r2 []*BrandWorkingHour
+	var r3 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error)); ok {
+		return returnFunc(ctx, brandID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) *GetBrandProfileRow); ok {
-		r0 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) *Brand); ok {
+		r0 = returnFunc(ctx, brandID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*GetBrandProfileRow)
+			r0 = ret.Get(0).(*Brand)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
-		r1 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) []*BrandSocialLink); ok {
+		r1 = returnFunc(ctx, brandID)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]*BrandSocialLink)
+		}
 	}
-	return r0, r1
+	if returnFunc, ok := ret.Get(2).(func(context.Context, int32) []*BrandWorkingHour); ok {
+		r2 = returnFunc(ctx, brandID)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).([]*BrandWorkingHour)
+		}
+	}
+	if returnFunc, ok := ret.Get(3).(func(context.Context, int32) error); ok {
+		r3 = returnFunc(ctx, brandID)
+	} else {
+		r3 = ret.Error(3)
+	}
+	return r0, r1, r2, r3
 }
 
-// MockStore_GetBrandProfile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBrandProfile'
-type MockStore_GetBrandProfile_Call struct {
+// MockStore_GetBrandProfileTx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBrandProfileTx'
+type MockStore_GetBrandProfileTx_Call struct {
 	*mock.Call
 }
 
-// GetBrandProfile is a helper method to define mock.On call
+// GetBrandProfileTx is a helper method to define mock.On call
 //   - ctx
-//   - id
-func (_e *MockStore_Expecter) GetBrandProfile(ctx interface{}, id interface{}) *MockStore_GetBrandProfile_Call {
-	return &MockStore_GetBrandProfile_Call{Call: _e.mock.On("GetBrandProfile", ctx, id)}
+//   - brandID
+func (_e *MockStore_Expecter) GetBrandProfileTx(ctx interface{}, brandID interface{}) *MockStore_GetBrandProfileTx_Call {
+	return &MockStore_GetBrandProfileTx_Call{Call: _e.mock.On("GetBrandProfileTx", ctx, brandID)}
 }
 
-func (_c *MockStore_GetBrandProfile_Call) Run(run func(ctx context.Context, id int32)) *MockStore_GetBrandProfile_Call {
+func (_c *MockStore_GetBrandProfileTx_Call) Run(run func(ctx context.Context, brandID int32)) *MockStore_GetBrandProfileTx_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(int32))
 	})
 	return _c
 }
 
-func (_c *MockStore_GetBrandProfile_Call) Return(getBrandProfileRow *GetBrandProfileRow, err error) *MockStore_GetBrandProfile_Call {
-	_c.Call.Return(getBrandProfileRow, err)
+func (_c *MockStore_GetBrandProfileTx_Call) Return(brand *Brand, brandSocialLinks []*BrandSocialLink, brandWorkingHours []*BrandWorkingHour, err error) *MockStore_GetBrandProfileTx_Call {
+	_c.Call.Return(brand, brandSocialLinks, brandWorkingHours, err)
 	return _c
 }
 
-func (_c *MockStore_GetBrandProfile_Call) RunAndReturn(run func(ctx context.Context, id int32) (*GetBrandProfileRow, error)) *MockStore_GetBrandProfile_Call {
+func (_c *MockStore_GetBrandProfileTx_Call) RunAndReturn(run func(ctx context.Context, brandID int32) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error)) *MockStore_GetBrandProfileTx_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetBrandSocialLinks provides a mock function for the type MockStore
+func (_mock *MockStore) GetBrandSocialLinks(ctx context.Context, brandID int32) ([]*BrandSocialLink, error) {
+	ret := _mock.Called(ctx, brandID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBrandSocialLinks")
+	}
+
+	var r0 []*BrandSocialLink
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*BrandSocialLink, error)); ok {
+		return returnFunc(ctx, brandID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*BrandSocialLink); ok {
+		r0 = returnFunc(ctx, brandID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*BrandSocialLink)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = returnFunc(ctx, brandID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_GetBrandSocialLinks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBrandSocialLinks'
+type MockStore_GetBrandSocialLinks_Call struct {
+	*mock.Call
+}
+
+// GetBrandSocialLinks is a helper method to define mock.On call
+//   - ctx
+//   - brandID
+func (_e *MockStore_Expecter) GetBrandSocialLinks(ctx interface{}, brandID interface{}) *MockStore_GetBrandSocialLinks_Call {
+	return &MockStore_GetBrandSocialLinks_Call{Call: _e.mock.On("GetBrandSocialLinks", ctx, brandID)}
+}
+
+func (_c *MockStore_GetBrandSocialLinks_Call) Run(run func(ctx context.Context, brandID int32)) *MockStore_GetBrandSocialLinks_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *MockStore_GetBrandSocialLinks_Call) Return(brandSocialLinks []*BrandSocialLink, err error) *MockStore_GetBrandSocialLinks_Call {
+	_c.Call.Return(brandSocialLinks, err)
+	return _c
+}
+
+func (_c *MockStore_GetBrandSocialLinks_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*BrandSocialLink, error)) *MockStore_GetBrandSocialLinks_Call {
 	_c.Call.Return(run)
 	return _c
 }

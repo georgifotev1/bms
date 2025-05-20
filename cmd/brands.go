@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/georgifotev1/bms/internal/store"
+	"github.com/go-chi/chi/v5"
 )
 
 type brandKey string
@@ -26,9 +27,7 @@ type CreateBrandPayload struct {
 // @Tags			brand
 // @Accept			json
 // @Produce		json
-//
 // @Security		ApiKeyAuth
-//
 // @Param			payload	body		CreateBrandPayload	true	"Brand creation data"
 // @Success		201		{object}	store.BrandResponse	"Created brand"
 // @Failure		400		{object}	error				"Bad request - Invalid input"
@@ -93,26 +92,46 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+// @Summary		Get brand by ID
+// @Description	Retrieves a brand's details by its unique ID
+// @Tags			brand
+// @Produce		json
+// @Param			id	path		int					true	"Brand ID"
+// @Success		200	{object}	store.BrandResponse	"Brand details"
+// @Failure		400	{object}	error				"Bad request - Invalid brand ID"
+// @Failure		500	{object}	error				"Internal server error"
+// @Router			/brand/{id} [get]
+func (app *application) getBrandHandler(w http.ResponseWriter, r *http.Request) {
+	brandId, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	brandResponse, err := app.getBrand(r.Context(), int32(brandId))
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			app.badRequestResponse(w, r, errors.New("brand does not exist"))
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	if err := writeJSON(w, http.StatusOK, brandResponse); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
 // Get brand profile helper/mapper
 func (app *application) getBrandProfile(ctx context.Context, brandID int32) (*store.BrandResponse, error) {
-	profile, err := app.store.GetBrandProfile(ctx, brandID)
+	brand, sl, wh, err := app.store.GetBrandProfileTx(ctx, brandID)
 	if err != nil {
 		return nil, err
 	}
 
-	var wh []store.WorkingHour
-	err = json.Unmarshal(profile.WorkingHours.([]byte), &wh)
-	if err != nil {
-		return nil, err
-	}
-
-	var sl []store.SocialLink
-	err = json.Unmarshal(profile.SocialLinks.([]byte), &sl)
-	if err != nil {
-		return nil, err
-	}
-
-	br := brandResponseMapper(&profile.Brand, sl, wh)
+	br := brandResponseMapper(brand, sl, wh)
 	return &br, nil
 }
 

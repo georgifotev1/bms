@@ -334,6 +334,43 @@
                 }
             }
         },
+        "/brand/{id}": {
+            "get": {
+                "description": "Retrieves a brand's details by its unique ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
+                "summary": "Get brand by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Brand details",
+                        "schema": {
+                            "$ref": "#/definitions/store.BrandResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid brand ID",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/customers/auth/login": {
             "post": {
                 "description": "Login a customer",

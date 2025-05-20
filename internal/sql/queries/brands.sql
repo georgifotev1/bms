@@ -44,24 +44,17 @@ SET open_time = EXCLUDED.open_time,
     updated_at = NOW()
 RETURNING *;
 
+-- name: GetBrand :one
+SELECT * FROM brand WHERE id = $1;
+
 -- name: GetBrandWorkingHours :many
 SELECT * FROM brand_working_hours
 WHERE brand_id = $1
 ORDER BY day_of_week;
 
--- name: GetBrandProfile :one
-SELECT
-    sqlc.embed(b),
-    COALESCE(
-        (SELECT json_agg(sl) FROM brand_social_link sl WHERE sl.brand_id = b.id),
-        '[]'
-    ) AS social_links,
-    COALESCE(
-        (SELECT json_agg(wh) FROM brand_working_hours wh WHERE wh.brand_id = b.id),
-        '[]'
-    ) AS working_hours
-FROM brand b
-WHERE b.id = $1;
+-- name: GetBrandSocialLinks :many
+SELECT * FROM brand_social_link
+WHERE brand_id = $1;
 
 -- name: UpdateBrandPartial :one
 UPDATE brand
