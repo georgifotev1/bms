@@ -86,6 +86,12 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	ctxUser.BrandID = sql.NullInt32{Int32: brand.ID, Valid: true}
+	if err := app.cache.Users.Set(ctx, ctxUser); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
 	brandResponse := brandResponseMapper(brand, nil, nil)
 	if err := writeJSON(w, http.StatusCreated, brandResponse); err != nil {
 		app.internalServerError(w, r, err)

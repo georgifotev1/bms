@@ -25,7 +25,7 @@ type RegisterUserPayload struct {
 //	@Accept			json
 //	@Produce		json
 //	@Param			payload	body		RegisterUserPayload	true	"User credentials"
-//	@Success		201		{object}	UserResponse		"User registered"
+//	@Success		201		{object}	UserWithToken		"User registered"
 //	@Failure		400		{object}	error
 //	@Failure		500		{object}	error
 //	@Router			/auth/register [post]
@@ -92,8 +92,22 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.logger.Infow("Email sent", "status code", status)
 
+	accessToken, refreshToken, err := app.auth.GenerateTokens(user.ID)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	app.SetCookie(w, REFRESH_TOKEN, refreshToken)
+
 	userResponse := userResponseMapper(user)
-	if err := writeJSON(w, http.StatusCreated, userResponse); err != nil {
+
+	response := UserWithToken{
+		UserResponse: userResponse,
+		Token:        accessToken,
+	}
+
+	if err := writeJSON(w, http.StatusCreated, response); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
