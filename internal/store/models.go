@@ -12,16 +12,19 @@ import (
 )
 
 type Booking struct {
-	ID         int64          `json:"id"`
-	CustomerID int64          `json:"customerId"`
-	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     int64          `json:"userId"`
-	BrandID    int32          `json:"brandId"`
-	StartTime  time.Time      `json:"startTime"`
-	EndTime    time.Time      `json:"endTime"`
-	Comment    sql.NullString `json:"comment"`
-	CreatedAt  time.Time      `json:"createdAt"`
-	UpdatedAt  time.Time      `json:"updatedAt"`
+	ID           int64          `json:"id"`
+	CustomerID   int64          `json:"customerId"`
+	ServiceID    uuid.UUID      `json:"serviceId"`
+	UserID       int64          `json:"userId"`
+	BrandID      int32          `json:"brandId"`
+	StartTime    time.Time      `json:"startTime"`
+	EndTime      time.Time      `json:"endTime"`
+	CustomerName string         `json:"customerName"`
+	ServiceName  string         `json:"serviceName"`
+	UserName     string         `json:"userName"`
+	Comment      sql.NullString `json:"comment"`
+	CreatedAt    time.Time      `json:"createdAt"`
+	UpdatedAt    time.Time      `json:"updatedAt"`
 }
 
 type Brand struct {

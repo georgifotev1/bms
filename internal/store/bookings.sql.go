@@ -64,21 +64,27 @@ INSERT INTO bookings (
   start_time,
   end_time,
   comment,
+  customer_name,
+  service_name,
+  user_name,
   created_at,
   updated_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, NOW(), NOW()
-) RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()
+) RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
 `
 
 type CreateBookingParams struct {
-	CustomerID int64          `json:"customerId"`
-	ServiceID  uuid.UUID      `json:"serviceId"`
-	UserID     int64          `json:"userId"`
-	BrandID    int32          `json:"brandId"`
-	StartTime  time.Time      `json:"startTime"`
-	EndTime    time.Time      `json:"endTime"`
-	Comment    sql.NullString `json:"comment"`
+	CustomerID   int64          `json:"customerId"`
+	ServiceID    uuid.UUID      `json:"serviceId"`
+	UserID       int64          `json:"userId"`
+	BrandID      int32          `json:"brandId"`
+	StartTime    time.Time      `json:"startTime"`
+	EndTime      time.Time      `json:"endTime"`
+	Comment      sql.NullString `json:"comment"`
+	CustomerName string         `json:"customerName"`
+	ServiceName  string         `json:"serviceName"`
+	UserName     string         `json:"userName"`
 }
 
 func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (*Booking, error) {
@@ -90,6 +96,9 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (*
 		arg.StartTime,
 		arg.EndTime,
 		arg.Comment,
+		arg.CustomerName,
+		arg.ServiceName,
+		arg.UserName,
 	)
 	var i Booking
 	err := row.Scan(
@@ -100,6 +109,9 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (*
 		&i.BrandID,
 		&i.StartTime,
 		&i.EndTime,
+		&i.CustomerName,
+		&i.ServiceName,
+		&i.UserName,
 		&i.Comment,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -239,7 +251,7 @@ func (q *Queries) GetAvailableTimeslots(ctx context.Context, arg GetAvailableTim
 }
 
 const getBookingByID = `-- name: GetBookingByID :one
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at FROM bookings b WHERE id = $1
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at FROM bookings b WHERE id = $1
 `
 
 func (q *Queries) GetBookingByID(ctx context.Context, id int64) (*Booking, error) {
@@ -253,6 +265,9 @@ func (q *Queries) GetBookingByID(ctx context.Context, id int64) (*Booking, error
 		&i.BrandID,
 		&i.StartTime,
 		&i.EndTime,
+		&i.CustomerName,
+		&i.ServiceName,
+		&i.UserName,
 		&i.Comment,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -261,7 +276,7 @@ func (q *Queries) GetBookingByID(ctx context.Context, id int64) (*Booking, error
 }
 
 const getBookingsByDay = `-- name: GetBookingsByDay :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
 FROM bookings
 WHERE DATE(start_time) = $1
 AND brand_id = $2
@@ -290,6 +305,9 @@ func (q *Queries) GetBookingsByDay(ctx context.Context, arg GetBookingsByDayPara
 			&i.BrandID,
 			&i.StartTime,
 			&i.EndTime,
+			&i.CustomerName,
+			&i.ServiceName,
+			&i.UserName,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -308,7 +326,7 @@ func (q *Queries) GetBookingsByDay(ctx context.Context, arg GetBookingsByDayPara
 }
 
 const getBookingsByWeek = `-- name: GetBookingsByWeek :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
 FROM bookings
 WHERE DATE(start_time) BETWEEN $1 AND $2
 AND brand_id = $3
@@ -338,6 +356,9 @@ func (q *Queries) GetBookingsByWeek(ctx context.Context, arg GetBookingsByWeekPa
 			&i.BrandID,
 			&i.StartTime,
 			&i.EndTime,
+			&i.CustomerName,
+			&i.ServiceName,
+			&i.UserName,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -356,7 +377,7 @@ func (q *Queries) GetBookingsByWeek(ctx context.Context, arg GetBookingsByWeekPa
 }
 
 const getUserBookingsByDay = `-- name: GetUserBookingsByDay :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
 FROM bookings
 WHERE DATE(start_time) = $1
 AND brand_id = $2
@@ -387,6 +408,9 @@ func (q *Queries) GetUserBookingsByDay(ctx context.Context, arg GetUserBookingsB
 			&i.BrandID,
 			&i.StartTime,
 			&i.EndTime,
+			&i.CustomerName,
+			&i.ServiceName,
+			&i.UserName,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -405,7 +429,7 @@ func (q *Queries) GetUserBookingsByDay(ctx context.Context, arg GetUserBookingsB
 }
 
 const getUserBookingsByWeek = `-- name: GetUserBookingsByWeek :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
 FROM bookings
 WHERE DATE(start_time) BETWEEN $1 AND $2
 AND brand_id = $3
@@ -442,6 +466,9 @@ func (q *Queries) GetUserBookingsByWeek(ctx context.Context, arg GetUserBookings
 			&i.BrandID,
 			&i.StartTime,
 			&i.EndTime,
+			&i.CustomerName,
+			&i.ServiceName,
+			&i.UserName,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -460,7 +487,7 @@ func (q *Queries) GetUserBookingsByWeek(ctx context.Context, arg GetUserBookings
 }
 
 const listBookingsByBrand = `-- name: ListBookingsByBrand :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at FROM bookings
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at FROM bookings
 WHERE brand_id = $1
 ORDER BY start_time
 LIMIT $2
@@ -490,6 +517,9 @@ func (q *Queries) ListBookingsByBrand(ctx context.Context, arg ListBookingsByBra
 			&i.BrandID,
 			&i.StartTime,
 			&i.EndTime,
+			&i.CustomerName,
+			&i.ServiceName,
+			&i.UserName,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -508,7 +538,7 @@ func (q *Queries) ListBookingsByBrand(ctx context.Context, arg ListBookingsByBra
 }
 
 const listBookingsByCustomer = `-- name: ListBookingsByCustomer :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at FROM bookings
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at FROM bookings
 WHERE customer_id = $1
 ORDER BY start_time
 LIMIT $2
@@ -538,6 +568,9 @@ func (q *Queries) ListBookingsByCustomer(ctx context.Context, arg ListBookingsBy
 			&i.BrandID,
 			&i.StartTime,
 			&i.EndTime,
+			&i.CustomerName,
+			&i.ServiceName,
+			&i.UserName,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -556,7 +589,7 @@ func (q *Queries) ListBookingsByCustomer(ctx context.Context, arg ListBookingsBy
 }
 
 const listBookingsByUser = `-- name: ListBookingsByUser :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at FROM bookings
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at FROM bookings
 WHERE user_id = $1
 ORDER BY start_time
 LIMIT $2
@@ -586,6 +619,9 @@ func (q *Queries) ListBookingsByUser(ctx context.Context, arg ListBookingsByUser
 			&i.BrandID,
 			&i.StartTime,
 			&i.EndTime,
+			&i.CustomerName,
+			&i.ServiceName,
+			&i.UserName,
 			&i.Comment,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -612,7 +648,7 @@ SET service_id = $2,
     comment = $6,
     updated_at = NOW()
 WHERE id = $1
-RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, comment, created_at, updated_at
+RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
 `
 
 type UpdateBookingDetailsParams struct {
@@ -642,6 +678,9 @@ func (q *Queries) UpdateBookingDetails(ctx context.Context, arg UpdateBookingDet
 		&i.BrandID,
 		&i.StartTime,
 		&i.EndTime,
+		&i.CustomerName,
+		&i.ServiceName,
+		&i.UserName,
 		&i.Comment,
 		&i.CreatedAt,
 		&i.UpdatedAt,

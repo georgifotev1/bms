@@ -7,6 +7,9 @@ CREATE TABLE bookings (
     brand_id INTEGER NOT NULL REFERENCES brand (id),
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP NOT NULL,
+    customer_name VARCHAR(50) NOT NULL,
+    service_name VARCHAR(50) NOT NULL,
+    user_name VARCHAR(50) NOT NULL,
     comment TEXT,
     created_at TIMESTAMP(0) NOT NULL DEFAULT NOW (),
     updated_at TIMESTAMP(0) NOT NULL DEFAULT NOW ()

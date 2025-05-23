@@ -28,16 +28,19 @@ type CreateBookingPayload struct {
 }
 
 type BookingResponse struct {
-	ID         int64     `json:"id"`
-	CustomerID int64     `json:"customerId"`
-	ServiceID  uuid.UUID `json:"serviceId"`
-	UserID     int64     `json:"userId"`
-	BrandID    int32     `json:"brandId"`
-	StartTime  time.Time `json:"startTime"`
-	EndTime    time.Time `json:"endTime"`
-	Comment    string    `json:"comment"`
-	CreatedAt  time.Time `json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt"`
+	ID           int64     `json:"id"`
+	CustomerID   int64     `json:"customerId"`
+	ServiceID    uuid.UUID `json:"serviceId"`
+	UserID       int64     `json:"userId"`
+	BrandID      int32     `json:"brandId"`
+	StartTime    time.Time `json:"startTime"`
+	EndTime      time.Time `json:"endTime"`
+	CustomerName string    `json:"customerName"`
+	ServiceName  string    `json:"serviceName"`
+	UserName     string    `json:"userName"`
+	Comment      string    `json:"comment"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 // createBookingHandler creates a new booking in the system
@@ -64,8 +67,8 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 		app.badRequestResponse(w, r, err)
 		return
 	}
-
-	isAvailable, err := app.store.CheckSpecificTimeslotAvailability(r.Context(), store.CheckSpecificTimeslotAvailabilityParams{
+	ctx := r.Context()
+	isAvailable, err := app.store.CheckSpecificTimeslotAvailability(ctx, store.CheckSpecificTimeslotAvailabilityParams{
 		UserID:    payload.UserID,
 		ServiceID: payload.ServiceID,
 		StartTime: payload.StartTime,
@@ -81,7 +84,25 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	booking, err := app.store.CreateBooking(r.Context(), store.CreateBookingParams{
+	user, err := app.getUser(ctx, payload.UserID)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	customer, err := app.getCustomer(ctx, payload.CustomerID)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	service, err := app.store.GetService(ctx, payload.ServiceID)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	booking, err := app.store.CreateBooking(ctx, store.CreateBookingParams{
 		CustomerID: payload.CustomerID,
 		ServiceID:  payload.ServiceID,
 		UserID:     payload.UserID,
@@ -92,6 +113,9 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 			String: payload.Comment,
 			Valid:  payload.Comment != "",
 		},
+		CustomerName: customer.Name,
+		UserName:     user.Name,
+		ServiceName:  service.Title,
 	})
 
 	if err != nil {

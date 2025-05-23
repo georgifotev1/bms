@@ -31,10 +31,13 @@ INSERT INTO bookings (
   start_time,
   end_time,
   comment,
+  customer_name,
+  service_name,
+  user_name,
   created_at,
   updated_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, NOW(), NOW()
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()
 ) RETURNING *;
 
 -- name: UpdateBookingDetails :one

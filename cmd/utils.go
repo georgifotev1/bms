@@ -167,16 +167,19 @@ func customerResponseMapper(customer *store.Customer, token string) CustomerResp
 
 func bookingResponseMapper(booking *store.Booking) BookingResponse {
 	return BookingResponse{
-		ID:         booking.ID,
-		CustomerID: booking.CustomerID,
-		ServiceID:  booking.ServiceID,
-		UserID:     booking.UserID,
-		BrandID:    booking.BrandID,
-		StartTime:  booking.StartTime,
-		EndTime:    booking.EndTime,
-		Comment:    booking.Comment.String,
-		CreatedAt:  booking.CreatedAt,
-		UpdatedAt:  booking.UpdatedAt,
+		ID:           booking.ID,
+		CustomerID:   booking.CustomerID,
+		ServiceID:    booking.ServiceID,
+		UserID:       booking.UserID,
+		BrandID:      booking.BrandID,
+		StartTime:    booking.StartTime,
+		EndTime:      booking.EndTime,
+		CustomerName: booking.CustomerName,
+		UserName:     booking.UserName,
+		ServiceName:  booking.ServiceName,
+		Comment:      booking.Comment.String,
+		CreatedAt:    booking.CreatedAt,
+		UpdatedAt:    booking.UpdatedAt,
 	}
 }
 
