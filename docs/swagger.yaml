@@ -409,7 +409,7 @@ paths:
         "201":
           description: User registered
           schema:
-            $ref: '#/definitions/main.UserResponse'
+            $ref: '#/definitions/main.UserWithToken'
         "400":
           description: Bad Request
           schema: {}
@@ -789,6 +789,34 @@ paths:
       summary: Create a new service
       tags:
       - service
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all users of a brand
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.UserResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get users by brand
+      tags:
+      - users
   /users/{id}:
     get:
       consumes:

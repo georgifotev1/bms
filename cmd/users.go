@@ -273,6 +273,44 @@ func (app *application) getUserProfile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary		Get users by brand
+// @Description	Fetches all users of a brand
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	[]UserResponse
+// @Failure		400	{object}	error
+// @Failure		404	{object}	error
+// @Failure		500	{object}	error
+// @Security		ApiKeyAuth
+// @Router			/users [get]
+func (app *application) getUsersHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	ctxUser := ctx.Value(userCtx).(*store.User)
+	if ctxUser.BrandID.Int32 == 0 || !ctxUser.BrandID.Valid {
+		app.forbiddenResponse(w, r, errors.New("access denied"))
+		return
+	}
+
+	users, err := app.store.GetUsersByBrand(ctx, sql.NullInt32{
+		Valid: true,
+		Int32: ctxUser.BrandID.Int32,
+	})
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	var result []UserResponse
+	for _, v := range users {
+		result = append(result, userResponseMapper(v))
+	}
+
+	if err = writeJSON(w, http.StatusOK, result); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
 func (app *application) getUser(ctx context.Context, userID int64) (*store.User, error) {
 	if !app.config.cache.enabled {
 		return app.store.GetUserById(ctx, userID)

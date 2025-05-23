@@ -121,6 +121,7 @@ func (app *application) mount() http.Handler {
 
 			r.Route("/", func(r chi.Router) {
 				r.Use(app.AuthTokenMiddleware)
+				r.Get("/", app.getUsersHandler)
 				r.Get("/me", app.getUserProfile)
 				r.Post("/invite", app.inviteUserHandler)
 				r.Get("/{id}", app.getUserHandler)
