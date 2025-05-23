@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -164,9 +163,10 @@ func (app *application) getBookingsByDayHandler(w http.ResponseWriter, r *http.R
 //	@Failure		500			{object}	error				"Internal server error"
 //	@Router			/bookings/week [get]
 func (app *application) getBookingsByWeekHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	ctxUser := ctx.Value(userCtx).(*store.User)
 	startDate := r.URL.Query().Get("startDate")
 	endDate := r.URL.Query().Get("endDate")
-	brandID := r.URL.Query().Get("brandId")
 
 	startDateTime, err := time.Parse(dateLayout, startDate)
 	if err != nil {
@@ -180,16 +180,10 @@ func (app *application) getBookingsByWeekHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	parsedBrandId, err := strconv.Atoi(brandID)
-	if err != nil {
-		app.badRequestResponse(w, r, errors.New("invalid brandId"))
-		return
-	}
-
 	bookings, err := app.store.GetBookingsByWeek(r.Context(), store.GetBookingsByWeekParams{
 		StartDate: startDateTime,
 		EndDate:   endDateTime,
-		BrandID:   int32(parsedBrandId),
+		BrandID:   ctxUser.BrandID.Int32,
 	})
 	if err != nil {
 		app.internalServerError(w, r, err)
