@@ -10,11 +10,15 @@ definitions:
         type: string
       customerId:
         type: integer
+      customerName:
+        type: string
       endTime:
         type: string
       id:
         type: integer
       serviceId:
+        type: string
+      serviceName:
         type: string
       startTime:
         type: string
@@ -22,6 +26,8 @@ definitions:
         type: string
       userId:
         type: integer
+      userName:
+        type: string
     type: object
   main.CreateBookingPayload:
     properties:
@@ -596,6 +602,34 @@ paths:
       summary: Get brand by ID
       tags:
       - brand
+  /customers:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all customers of a brand
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.CustomerResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Get customers by brand
+      tags:
+      - customers
   /customers/auth/login:
     post:
       consumes:

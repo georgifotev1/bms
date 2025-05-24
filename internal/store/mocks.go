@@ -1921,6 +1921,63 @@ func (_c *MockQuerier_GetCustomerByNameAndPhone_Call) RunAndReturn(run func(ctx 
 	return _c
 }
 
+// GetCustomersByBrand provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) GetCustomersByBrand(ctx context.Context, brandID int32) ([]*Customer, error) {
+	ret := _mock.Called(ctx, brandID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCustomersByBrand")
+	}
+
+	var r0 []*Customer
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*Customer, error)); ok {
+		return returnFunc(ctx, brandID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*Customer); ok {
+		r0 = returnFunc(ctx, brandID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Customer)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = returnFunc(ctx, brandID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_GetCustomersByBrand_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCustomersByBrand'
+type MockQuerier_GetCustomersByBrand_Call struct {
+	*mock.Call
+}
+
+// GetCustomersByBrand is a helper method to define mock.On call
+//   - ctx
+//   - brandID
+func (_e *MockQuerier_Expecter) GetCustomersByBrand(ctx interface{}, brandID interface{}) *MockQuerier_GetCustomersByBrand_Call {
+	return &MockQuerier_GetCustomersByBrand_Call{Call: _e.mock.On("GetCustomersByBrand", ctx, brandID)}
+}
+
+func (_c *MockQuerier_GetCustomersByBrand_Call) Run(run func(ctx context.Context, brandID int32)) *MockQuerier_GetCustomersByBrand_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *MockQuerier_GetCustomersByBrand_Call) Return(customers []*Customer, err error) *MockQuerier_GetCustomersByBrand_Call {
+	_c.Call.Return(customers, err)
+	return _c
+}
+
+func (_c *MockQuerier_GetCustomersByBrand_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*Customer, error)) *MockQuerier_GetCustomersByBrand_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetService provides a mock function for the type MockQuerier
 func (_mock *MockQuerier) GetService(ctx context.Context, id uuid.UUID) (*Service, error) {
 	ret := _mock.Called(ctx, id)
@@ -5020,6 +5077,63 @@ func (_c *MockStore_GetCustomerByNameAndPhone_Call) Return(customer *Customer, e
 }
 
 func (_c *MockStore_GetCustomerByNameAndPhone_Call) RunAndReturn(run func(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error)) *MockStore_GetCustomerByNameAndPhone_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetCustomersByBrand provides a mock function for the type MockStore
+func (_mock *MockStore) GetCustomersByBrand(ctx context.Context, brandID int32) ([]*Customer, error) {
+	ret := _mock.Called(ctx, brandID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCustomersByBrand")
+	}
+
+	var r0 []*Customer
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*Customer, error)); ok {
+		return returnFunc(ctx, brandID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*Customer); ok {
+		r0 = returnFunc(ctx, brandID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*Customer)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
+		r1 = returnFunc(ctx, brandID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_GetCustomersByBrand_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCustomersByBrand'
+type MockStore_GetCustomersByBrand_Call struct {
+	*mock.Call
+}
+
+// GetCustomersByBrand is a helper method to define mock.On call
+//   - ctx
+//   - brandID
+func (_e *MockStore_Expecter) GetCustomersByBrand(ctx interface{}, brandID interface{}) *MockStore_GetCustomersByBrand_Call {
+	return &MockStore_GetCustomersByBrand_Call{Call: _e.mock.On("GetCustomersByBrand", ctx, brandID)}
+}
+
+func (_c *MockStore_GetCustomersByBrand_Call) Run(run func(ctx context.Context, brandID int32)) *MockStore_GetCustomersByBrand_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int32))
+	})
+	return _c
+}
+
+func (_c *MockStore_GetCustomersByBrand_Call) Return(customers []*Customer, err error) *MockStore_GetCustomersByBrand_Call {
+	_c.Call.Return(customers, err)
+	return _c
+}
+
+func (_c *MockStore_GetCustomersByBrand_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*Customer, error)) *MockStore_GetCustomersByBrand_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -151,3 +151,39 @@ func (q *Queries) GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomer
 	)
 	return &i, err
 }
+
+const getCustomersByBrand = `-- name: GetCustomersByBrand :many
+SELECT id, name, email, password, phone_number, brand_id, created_at, updated_at FROM customers WHERE brand_id = $1
+`
+
+func (q *Queries) GetCustomersByBrand(ctx context.Context, brandID int32) ([]*Customer, error) {
+	rows, err := q.db.QueryContext(ctx, getCustomersByBrand, brandID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*Customer
+	for rows.Next() {
+		var i Customer
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Password,
+			&i.PhoneNumber,
+			&i.BrandID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

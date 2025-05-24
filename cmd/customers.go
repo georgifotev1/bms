@@ -295,6 +295,41 @@ func (app *application) createGuestCustomerHandler(w http.ResponseWriter, r *htt
 	}
 }
 
+// @Summary		Get customers by brand
+// @Description	Fetches all customers of a brand
+// @Tags			customers
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	[]CustomerResponse
+// @Failure		400	{object}	error
+// @Failure		404	{object}	error
+// @Failure		500	{object}	error
+// @Security		ApiKeyAuth
+// @Router			/customers [get]
+func (app *application) getCustomersHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	ctxUser := ctx.Value(userCtx).(*store.User)
+	if ctxUser.BrandID.Int32 == 0 || !ctxUser.BrandID.Valid {
+		app.forbiddenResponse(w, r, errors.New("access denied"))
+		return
+	}
+
+	customers, err := app.store.GetCustomersByBrand(ctx, ctxUser.BrandID.Int32)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	var result []CustomerResponse
+	for _, v := range customers {
+		result = append(result, customersResponseMapper(v))
+	}
+
+	if err = writeJSON(w, http.StatusOK, result); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
 func (app *application) getCustomer(ctx context.Context, customerID int64) (*store.Customer, error) {
 	if !app.config.cache.enabled {
 		return app.store.GetCustomerById(ctx, customerID)

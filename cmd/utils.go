@@ -165,6 +165,16 @@ func customerResponseMapper(customer *store.Customer, token string) CustomerResp
 	}
 }
 
+func customersResponseMapper(customer *store.Customer) CustomerResponse {
+	return CustomerResponse{
+		ID:          customer.ID,
+		Name:        customer.Name,
+		Email:       customer.Email.String,
+		BrandId:     customer.BrandID,
+		PhoneNumber: customer.PhoneNumber,
+	}
+}
+
 func bookingResponseMapper(booking *store.Booking) BookingResponse {
 	return BookingResponse{
 		ID:           booking.ID,

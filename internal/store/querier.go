@@ -49,6 +49,7 @@ type Querier interface {
 	GetCustomerByEmail(ctx context.Context, email sql.NullString) (*Customer, error)
 	GetCustomerById(ctx context.Context, id int64) (*Customer, error)
 	GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error)
+	GetCustomersByBrand(ctx context.Context, brandID int32) ([]*Customer, error)
 	GetService(ctx context.Context, id uuid.UUID) (*Service, error)
 	GetUserBookingsByDay(ctx context.Context, arg GetUserBookingsByDayParams) ([]*Booking, error)
 	GetUserBookingsByWeek(ctx context.Context, arg GetUserBookingsByWeekParams) ([]*Booking, error)

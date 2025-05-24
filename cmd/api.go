@@ -151,9 +151,10 @@ func (app *application) mount() http.Handler {
 		})
 
 		r.Route("/customers", func(r chi.Router) {
-			r.Use(app.BrandMiddleware)
+			r.With(app.AuthTokenMiddleware).Get("/", app.getCustomersHandler)
 			r.Post("/guest", app.createGuestCustomerHandler)
 			r.Route("/auth", func(r chi.Router) {
+				r.Use(app.BrandMiddleware)
 				r.Post("/register", app.registerCustomerHandler)
 				r.Post("/login", app.loginCustomerHandler)
 				r.Get("/refresh", app.refreshCustomerTokenHandler)

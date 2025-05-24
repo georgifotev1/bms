@@ -17,3 +17,6 @@ SELECT * FROM customers WHERE id = $1;
 
 -- name: GetCustomerByNameAndPhone :one
 SELECT * FROM customers WHERE name = $1 AND phone_number = $2;
+
+-- name: GetCustomersByBrand :many
+SELECT * FROM customers WHERE brand_id = $1;

@@ -379,6 +379,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/customers": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Fetches all customers of a brand",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
+                "summary": "Get customers by brand",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.CustomerResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/customers/auth/login": {
             "post": {
                 "description": "Login a customer",
@@ -903,6 +946,9 @@ const docTemplate = `{
                 "customerId": {
                     "type": "integer"
                 },
+                "customerName": {
+                    "type": "string"
+                },
                 "endTime": {
                     "type": "string"
                 },
@@ -910,6 +956,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "serviceId": {
+                    "type": "string"
+                },
+                "serviceName": {
                     "type": "string"
                 },
                 "startTime": {
@@ -920,6 +969,9 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
                 }
             }
         },
