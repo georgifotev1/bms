@@ -16,10 +16,25 @@ INSERT INTO services (
 SELECT * FROM services
 WHERE id = $1;
 
--- name: ListServices :many
-SELECT * FROM services
-WHERE brand_id = $1
-ORDER BY created_at DESC;
+-- name: ListServicesWithProviders :many
+SELECT
+    services.id,
+    services.title,
+    services.description,
+    services.duration,
+    services.buffer_time,
+    services.cost,
+    services.is_visible,
+    services.image_url,
+    services.brand_id,
+    services.created_at,
+    services.updated_at,
+    users.id as provider_id
+FROM services
+LEFT JOIN user_services us ON services.id = us.service_id
+LEFT JOIN users ON us.user_id = users.id
+WHERE services.brand_id = $1
+ORDER BY services.title, users.name;
 
 -- name: ListVisibleServices :many
 SELECT * FROM services

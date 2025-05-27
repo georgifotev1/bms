@@ -8,6 +8,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -119,21 +120,51 @@ func (q *Queries) GetService(ctx context.Context, id uuid.UUID) (*Service, error
 	return &i, err
 }
 
-const listServices = `-- name: ListServices :many
-SELECT id, title, description, duration, buffer_time, cost, is_visible, image_url, brand_id, created_at, updated_at FROM services
-WHERE brand_id = $1
-ORDER BY created_at DESC
+const listServicesWithProviders = `-- name: ListServicesWithProviders :many
+SELECT
+    services.id,
+    services.title,
+    services.description,
+    services.duration,
+    services.buffer_time,
+    services.cost,
+    services.is_visible,
+    services.image_url,
+    services.brand_id,
+    services.created_at,
+    services.updated_at,
+    users.id as provider_id
+FROM services
+LEFT JOIN user_services us ON services.id = us.service_id
+LEFT JOIN users ON us.user_id = users.id
+WHERE services.brand_id = $1
+ORDER BY services.title, users.name
 `
 
-func (q *Queries) ListServices(ctx context.Context, brandID int32) ([]*Service, error) {
-	rows, err := q.db.QueryContext(ctx, listServices, brandID)
+type ListServicesWithProvidersRow struct {
+	ID          uuid.UUID      `json:"id"`
+	Title       string         `json:"title"`
+	Description sql.NullString `json:"description"`
+	Duration    int32          `json:"duration"`
+	BufferTime  sql.NullInt32  `json:"bufferTime"`
+	Cost        sql.NullString `json:"cost"`
+	IsVisible   bool           `json:"isVisible"`
+	ImageUrl    sql.NullString `json:"imageUrl"`
+	BrandID     int32          `json:"brandId"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	ProviderID  sql.NullInt64  `json:"providerId"`
+}
+
+func (q *Queries) ListServicesWithProviders(ctx context.Context, brandID int32) ([]*ListServicesWithProvidersRow, error) {
+	rows, err := q.db.QueryContext(ctx, listServicesWithProviders, brandID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Service
+	var items []*ListServicesWithProvidersRow
 	for rows.Next() {
-		var i Service
+		var i ListServicesWithProvidersRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
@@ -146,6 +177,7 @@ func (q *Queries) ListServices(ctx context.Context, brandID int32) ([]*Service, 
 			&i.BrandID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.ProviderID,
 		); err != nil {
 			return nil, err
 		}

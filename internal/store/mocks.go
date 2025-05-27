@@ -2546,24 +2546,24 @@ func (_c *MockQuerier_ListBookingsByUser_Call) RunAndReturn(run func(ctx context
 	return _c
 }
 
-// ListServices provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) ListServices(ctx context.Context, brandID int32) ([]*Service, error) {
+// ListServicesWithProviders provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) ListServicesWithProviders(ctx context.Context, brandID int32) ([]*ListServicesWithProvidersRow, error) {
 	ret := _mock.Called(ctx, brandID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ListServices")
+		panic("no return value specified for ListServicesWithProviders")
 	}
 
-	var r0 []*Service
+	var r0 []*ListServicesWithProvidersRow
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*Service, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*ListServicesWithProvidersRow, error)); ok {
 		return returnFunc(ctx, brandID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*Service); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*ListServicesWithProvidersRow); ok {
 		r0 = returnFunc(ctx, brandID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Service)
+			r0 = ret.Get(0).([]*ListServicesWithProvidersRow)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
@@ -2574,31 +2574,31 @@ func (_mock *MockQuerier) ListServices(ctx context.Context, brandID int32) ([]*S
 	return r0, r1
 }
 
-// MockQuerier_ListServices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListServices'
-type MockQuerier_ListServices_Call struct {
+// MockQuerier_ListServicesWithProviders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListServicesWithProviders'
+type MockQuerier_ListServicesWithProviders_Call struct {
 	*mock.Call
 }
 
-// ListServices is a helper method to define mock.On call
+// ListServicesWithProviders is a helper method to define mock.On call
 //   - ctx
 //   - brandID
-func (_e *MockQuerier_Expecter) ListServices(ctx interface{}, brandID interface{}) *MockQuerier_ListServices_Call {
-	return &MockQuerier_ListServices_Call{Call: _e.mock.On("ListServices", ctx, brandID)}
+func (_e *MockQuerier_Expecter) ListServicesWithProviders(ctx interface{}, brandID interface{}) *MockQuerier_ListServicesWithProviders_Call {
+	return &MockQuerier_ListServicesWithProviders_Call{Call: _e.mock.On("ListServicesWithProviders", ctx, brandID)}
 }
 
-func (_c *MockQuerier_ListServices_Call) Run(run func(ctx context.Context, brandID int32)) *MockQuerier_ListServices_Call {
+func (_c *MockQuerier_ListServicesWithProviders_Call) Run(run func(ctx context.Context, brandID int32)) *MockQuerier_ListServicesWithProviders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(int32))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_ListServices_Call) Return(services []*Service, err error) *MockQuerier_ListServices_Call {
-	_c.Call.Return(services, err)
+func (_c *MockQuerier_ListServicesWithProviders_Call) Return(listServicesWithProvidersRows []*ListServicesWithProvidersRow, err error) *MockQuerier_ListServicesWithProviders_Call {
+	_c.Call.Return(listServicesWithProvidersRows, err)
 	return _c
 }
 
-func (_c *MockQuerier_ListServices_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*Service, error)) *MockQuerier_ListServices_Call {
+func (_c *MockQuerier_ListServicesWithProviders_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*ListServicesWithProvidersRow, error)) *MockQuerier_ListServicesWithProviders_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5706,24 +5706,24 @@ func (_c *MockStore_ListBookingsByUser_Call) RunAndReturn(run func(ctx context.C
 	return _c
 }
 
-// ListServices provides a mock function for the type MockStore
-func (_mock *MockStore) ListServices(ctx context.Context, brandID int32) ([]*Service, error) {
+// ListServicesWithProviders provides a mock function for the type MockStore
+func (_mock *MockStore) ListServicesWithProviders(ctx context.Context, brandID int32) ([]*ListServicesWithProvidersRow, error) {
 	ret := _mock.Called(ctx, brandID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ListServices")
+		panic("no return value specified for ListServicesWithProviders")
 	}
 
-	var r0 []*Service
+	var r0 []*ListServicesWithProvidersRow
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*Service, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) ([]*ListServicesWithProvidersRow, error)); ok {
 		return returnFunc(ctx, brandID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*Service); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int32) []*ListServicesWithProvidersRow); ok {
 		r0 = returnFunc(ctx, brandID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*Service)
+			r0 = ret.Get(0).([]*ListServicesWithProvidersRow)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, int32) error); ok {
@@ -5734,31 +5734,31 @@ func (_mock *MockStore) ListServices(ctx context.Context, brandID int32) ([]*Ser
 	return r0, r1
 }
 
-// MockStore_ListServices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListServices'
-type MockStore_ListServices_Call struct {
+// MockStore_ListServicesWithProviders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListServicesWithProviders'
+type MockStore_ListServicesWithProviders_Call struct {
 	*mock.Call
 }
 
-// ListServices is a helper method to define mock.On call
+// ListServicesWithProviders is a helper method to define mock.On call
 //   - ctx
 //   - brandID
-func (_e *MockStore_Expecter) ListServices(ctx interface{}, brandID interface{}) *MockStore_ListServices_Call {
-	return &MockStore_ListServices_Call{Call: _e.mock.On("ListServices", ctx, brandID)}
+func (_e *MockStore_Expecter) ListServicesWithProviders(ctx interface{}, brandID interface{}) *MockStore_ListServicesWithProviders_Call {
+	return &MockStore_ListServicesWithProviders_Call{Call: _e.mock.On("ListServicesWithProviders", ctx, brandID)}
 }
 
-func (_c *MockStore_ListServices_Call) Run(run func(ctx context.Context, brandID int32)) *MockStore_ListServices_Call {
+func (_c *MockStore_ListServicesWithProviders_Call) Run(run func(ctx context.Context, brandID int32)) *MockStore_ListServicesWithProviders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(int32))
 	})
 	return _c
 }
 
-func (_c *MockStore_ListServices_Call) Return(services []*Service, err error) *MockStore_ListServices_Call {
-	_c.Call.Return(services, err)
+func (_c *MockStore_ListServicesWithProviders_Call) Return(listServicesWithProvidersRows []*ListServicesWithProvidersRow, err error) *MockStore_ListServicesWithProviders_Call {
+	_c.Call.Return(listServicesWithProvidersRows, err)
 	return _c
 }
 
-func (_c *MockStore_ListServices_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*Service, error)) *MockStore_ListServices_Call {
+func (_c *MockStore_ListServicesWithProviders_Call) RunAndReturn(run func(ctx context.Context, brandID int32) ([]*ListServicesWithProvidersRow, error)) *MockStore_ListServicesWithProviders_Call {
 	_c.Call.Return(run)
 	return _c
 }

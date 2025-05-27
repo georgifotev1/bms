@@ -60,7 +60,7 @@ type Querier interface {
 	ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*Booking, error)
 	ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*Booking, error)
 	ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*Booking, error)
-	ListServices(ctx context.Context, brandID int32) ([]*Service, error)
+	ListServicesWithProviders(ctx context.Context, brandID int32) ([]*ListServicesWithProvidersRow, error)
 	ListUserServices(ctx context.Context, userID int64) ([]*Service, error)
 	ListVisibleServices(ctx context.Context, brandID int32) ([]*Service, error)
 	RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error

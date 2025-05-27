@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/georgifotev1/bms/internal/store"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
@@ -93,6 +96,82 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 
 	response := serviceResponseMapper(result.Service, result.Providers)
 	if err := writeJSON(w, http.StatusCreated, response); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
+// @Summary		Get services by brand
+// @Description	Fetches all services of a brand
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Param			brandId	path		int	true	"BrandId ID"
+// @Success		200		{object}	[]ServiceResponse
+// @Failure		400		{object}	error
+// @Failure		404		{object}	error
+// @Failure		500		{object}	error
+// @Router			/service/{brandId} [get]
+func (app *application) getServicesHandler(w http.ResponseWriter, r *http.Request) {
+	brandIDStr := chi.URLParam(r, "brandId")
+	if brandIDStr == "" {
+		app.badRequestResponse(w, r, errors.New("brand ID is required"))
+		return
+	}
+
+	brandId, err := strconv.Atoi(brandIDStr)
+	if err != nil || brandId <= 0 {
+		app.badRequestResponse(w, r, errors.New("invalid brand ID format"))
+		return
+	}
+
+	ctx := r.Context()
+
+	servicesWithProviders, err := app.store.ListServicesWithProviders(ctx, int32(brandId))
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			if err := writeJSON(w, http.StatusOK, []ServiceResponse{}); err != nil {
+				app.internalServerError(w, r, err)
+			}
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	serviceMap := make(map[uuid.UUID]*ServiceResponse)
+
+	for _, row := range servicesWithProviders {
+		serviceID := row.ID
+
+		if _, exists := serviceMap[serviceID]; !exists {
+			serviceMap[serviceID] = &ServiceResponse{
+				ID:          row.ID,
+				Title:       row.Title,
+				Description: row.Description.String,
+				Duration:    row.Duration,
+				BufferTime:  row.BufferTime.Int32,
+				Cost:        row.Cost.String,
+				IsVisible:   row.IsVisible,
+				ImageUrl:    row.ImageUrl.String,
+				BrandID:     row.BrandID,
+				CreatedAt:   row.CreatedAt,
+				UpdatedAt:   row.UpdatedAt,
+				Providers:   []int64{},
+			}
+		}
+
+		if row.ProviderID.Valid {
+			serviceMap[serviceID].Providers = append(serviceMap[serviceID].Providers, row.ProviderID.Int64)
+		}
+	}
+
+	result := make([]ServiceResponse, 0, len(serviceMap))
+	for _, service := range serviceMap {
+		result = append(result, *service)
+	}
+
+	if err := writeJSON(w, http.StatusOK, result); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }

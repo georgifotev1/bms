@@ -823,6 +823,38 @@ paths:
       summary: Create a new service
       tags:
       - service
+  /service/{brandId}:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all services of a brand
+      parameters:
+      - description: BrandId ID
+        in: path
+        name: brandId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.ServiceResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get services by brand
+      tags:
+      - service
   /users:
     get:
       consumes:
