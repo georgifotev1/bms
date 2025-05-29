@@ -70,8 +70,8 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 	isAvailable, err := app.store.CheckSpecificTimeslotAvailability(ctx, store.CheckSpecificTimeslotAvailabilityParams{
 		UserID:    payload.UserID,
 		ServiceID: payload.ServiceID,
-		StartTime: payload.StartTime,
-		EndTime:   payload.EndTime,
+		StartTime: payload.StartTime.UTC(),
+		EndTime:   payload.EndTime.UTC(),
 	})
 	if err != nil {
 		app.internalServerError(w, r, err)
@@ -106,8 +106,8 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 		ServiceID:  payload.ServiceID,
 		UserID:     payload.UserID,
 		BrandID:    payload.BrandID,
-		StartTime:  payload.StartTime,
-		EndTime:    payload.EndTime,
+		StartTime:  payload.StartTime.UTC(),
+		EndTime:    payload.EndTime.UTC(),
 		Comment: sql.NullString{
 			String: payload.Comment,
 			Valid:  payload.Comment != "",
