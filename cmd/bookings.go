@@ -195,6 +195,10 @@ func (app *application) getBookingsByWeekHandler(w http.ResponseWriter, r *http.
 		result = append(result, bookingResponseMapper(v))
 	}
 
+	if len(result) == 0 {
+		result = []BookingResponse{}
+	}
+
 	if err = writeJSON(w, http.StatusOK, result); err != nil {
 		app.internalServerError(w, r, err)
 	}
