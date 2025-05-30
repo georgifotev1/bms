@@ -144,8 +144,6 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (app *application) getBookingsByDayHandler(w http.ResponseWriter, r *http.Request) {}
-
 // getBookingsByWeekHandler List all bookings of a brand in a specific week
 //
 //	@Summary		List all bookings of a brand in a specific week
@@ -162,7 +160,7 @@ func (app *application) getBookingsByDayHandler(w http.ResponseWriter, r *http.R
 //	@Failure		409			{object}	error				"Conflict - timeslot already booked"
 //	@Failure		500			{object}	error				"Internal server error"
 //	@Router			/bookings/week [get]
-func (app *application) getBookingsByWeekHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) getBookingsByTimeStampHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctxUser := ctx.Value(userCtx).(*store.User)
 	startDate := r.URL.Query().Get("startDate")
