@@ -164,125 +164,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/bookings": {
-            "post": {
-                "description": "Creates a new booking with validation for timeslot availability",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "bookings"
-                ],
-                "summary": "Create a new booking",
-                "parameters": [
-                    {
-                        "description": "Booking details",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.CreateBookingPayload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Booking created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/main.BookingResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - invalid input",
-                        "schema": {}
-                    },
-                    "409": {
-                        "description": "Conflict - timeslot already booked",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/bookings/week": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "List all bookings of a brand in a specific week and validate the user input",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "bookings"
-                ],
-                "summary": "List all bookings of a brand in a specific week",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "2025-05-19",
-                        "description": "Start date in YYYY-MM-DD format",
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "example": "2025-05-20",
-                        "description": "End date in YYYY-MM-DD format",
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "example": 1,
-                        "description": "Brand ID",
-                        "name": "brandId",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of brands",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/main.BookingResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - invalid input",
-                        "schema": {}
-                    },
-                    "409": {
-                        "description": "Conflict - timeslot already booked",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
         "/brand": {
             "post": {
                 "security": [
@@ -622,6 +503,125 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/events": {
+            "post": {
+                "description": "Creates a new event with validation for timeslot availability",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "description": "Event details",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateEventPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Event created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/main.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid input",
+                        "schema": {}
+                    },
+                    "409": {
+                        "description": "Conflict - timeslot already booked",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/events/week": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "List all events of a brand in a specific week and validate the user input",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "List all events of a brand in a specific week",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "2025-05-19",
+                        "description": "Start date in YYYY-MM-DD format",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "2025-05-20",
+                        "description": "End date in YYYY-MM-DD format",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "example": 1,
+                        "description": "Brand ID",
+                        "name": "brandId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of brands",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/main.EventResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid input",
+                        "schema": {}
+                    },
+                    "409": {
+                        "description": "Conflict - timeslot already booked",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {}
                     }
                 }
@@ -978,51 +978,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "main.BookingResponse": {
+        "main.CreateBrandPayload": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
-                "brandId": {
-                    "type": "integer"
-                },
-                "comment": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "customerId": {
-                    "type": "integer"
-                },
-                "customerName": {
-                    "type": "string"
-                },
-                "endTime": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "serviceId": {
-                    "type": "string"
-                },
-                "serviceName": {
-                    "type": "string"
-                },
-                "startTime": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
-                },
-                "userName": {
-                    "type": "string"
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
                 }
             }
         },
-        "main.CreateBookingPayload": {
+        "main.CreateEventPayload": {
             "type": "object",
             "required": [
                 "brandId",
@@ -1056,19 +1025,6 @@ const docTemplate = `{
                 "userId": {
                     "type": "integer",
                     "minimum": 0
-                }
-            }
-        },
-        "main.CreateBrandPayload": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 3
                 }
             }
         },
@@ -1173,6 +1129,50 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.EventResponse": {
+            "type": "object",
+            "properties": {
+                "brandId": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "customerId": {
+                    "type": "integer"
+                },
+                "customerName": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "serviceId": {
+                    "type": "string"
+                },
+                "serviceName": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                },
+                "userName": {
                     "type": "string"
                 }
             }

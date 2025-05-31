@@ -1,29 +1,29 @@
--- name: GetBookingByID :one
-SELECT * FROM bookings b WHERE id = $1;
+-- name: GetEventByID :one
+SELECT * FROM events b WHERE id = $1;
 
--- name: ListBookingsByBrand :many
-SELECT * FROM bookings
+-- name: ListEventsByBrand :many
+SELECT * FROM events
 WHERE brand_id = $1
 ORDER BY start_time
 LIMIT $2
 OFFSET $3;
 
--- name: ListBookingsByCustomer :many
-SELECT * FROM bookings
+-- name: ListEventsByCustomer :many
+SELECT * FROM events
 WHERE customer_id = $1
 ORDER BY start_time
 LIMIT $2
 OFFSET $3;
 
--- name: ListBookingsByUser :many
-SELECT * FROM bookings
+-- name: ListEventsByUser :many
+SELECT * FROM events
 WHERE user_id = $1
 ORDER BY start_time
 LIMIT $2
 OFFSET $3;
 
--- name: CreateBooking :one
-INSERT INTO bookings (
+-- name: CreateEvent :one
+INSERT INTO events (
   customer_id,
   service_id,
   user_id,
@@ -40,8 +40,8 @@ INSERT INTO bookings (
   $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()
 ) RETURNING *;
 
--- name: UpdateBookingDetails :one
-UPDATE bookings
+-- name: UpdateEventDetails :one
+UPDATE events
 SET service_id = $2,
     user_id = $3,
     start_time = $4,
@@ -51,35 +51,35 @@ SET service_id = $2,
 WHERE id = $1
 RETURNING *;
 
--- name: DeleteBooking :exec
-DELETE FROM bookings
+-- name: DeleteEvent :exec
+DELETE FROM events
 WHERE id = $1;
 
--- name: GetBookingsByWeek :many
+-- name: GetEventsByWeek :many
 SELECT *
-FROM bookings
+FROM events
 WHERE DATE(start_time) BETWEEN sqlc.arg(start_date) AND sqlc.arg(end_date)
 AND brand_id = sqlc.arg(brand_id)
 ORDER BY start_time ASC;
 
--- name: GetBookingsByDay :many
+-- name: GetEventsByDay :many
 SELECT *
-FROM bookings
+FROM events
 WHERE DATE(start_time) = $1
 AND brand_id = $2
 ORDER BY start_time ASC;
 
--- name: GetUserBookingsByWeek :many
+-- name: GetUserEventsByWeek :many
 SELECT *
-FROM bookings
+FROM events
 WHERE DATE(start_time) BETWEEN sqlc.arg(start_date) AND sqlc.arg(end_date)
 AND brand_id = sqlc.arg(brand_id)
 AND user_id = sqlc.arg(user_id)
 ORDER BY start_time ASC;
 
--- name: GetUserBookingsByDay :many
+-- name: GetUserEventsByDay :many
 SELECT *
-FROM bookings
+FROM events
 WHERE DATE(start_time) = $1
 AND brand_id = $2
 AND user_id = $3
@@ -93,10 +93,10 @@ service_info AS (
     FROM services s
     WHERE s.id = sqlc.arg(service_id)
 ),
--- Get all bookings for the given date and brand
-daily_bookings AS (
+-- Get all events for the given date and brand
+daily_events AS (
     SELECT b.start_time, b.end_time, b.user_id
-    FROM bookings b
+    FROM events b
     WHERE b.brand_id = sqlc.arg(brand_id)
       AND DATE(b.start_time) = sqlc.arg(date)
 ),
@@ -131,7 +131,7 @@ staff_availability AS (
         ss.slot_start,
         ss.slot_end,
         CASE WHEN EXISTS (
-            SELECT 1 FROM daily_bookings db
+            SELECT 1 FROM daily_events db
             WHERE db.user_id = s.id
               AND (
                   -- Overlapping condition
@@ -166,7 +166,7 @@ SELECT
     COALESCE(
         NOT EXISTS (
             SELECT 1
-            FROM bookings b
+            FROM events b
             WHERE b.user_id = sqlc.arg(user_id)
               AND (
                   (b.start_time < sqlc.arg(end_time) AND b.end_time > sqlc.arg(start_time))

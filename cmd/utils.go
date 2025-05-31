@@ -175,21 +175,21 @@ func customersResponseMapper(customer *store.Customer) CustomerResponse {
 	}
 }
 
-func bookingResponseMapper(booking *store.Booking) BookingResponse {
-	return BookingResponse{
-		ID:           booking.ID,
-		CustomerID:   booking.CustomerID,
-		ServiceID:    booking.ServiceID,
-		UserID:       booking.UserID,
-		BrandID:      booking.BrandID,
-		StartTime:    booking.StartTime,
-		EndTime:      booking.EndTime,
-		CustomerName: booking.CustomerName,
-		UserName:     booking.UserName,
-		ServiceName:  booking.ServiceName,
-		Comment:      booking.Comment.String,
-		CreatedAt:    booking.CreatedAt,
-		UpdatedAt:    booking.UpdatedAt,
+func eventResponseMapper(event *store.Event) EventResponse {
+	return EventResponse{
+		ID:           event.ID,
+		CustomerID:   event.CustomerID,
+		ServiceID:    event.ServiceID,
+		UserID:       event.UserID,
+		BrandID:      event.BrandID,
+		StartTime:    event.StartTime,
+		EndTime:      event.EndTime,
+		CustomerName: event.CustomerName,
+		UserName:     event.UserName,
+		ServiceName:  event.ServiceName,
+		Comment:      event.Comment.String,
+		CreatedAt:    event.CreatedAt,
+		UpdatedAt:    event.UpdatedAt,
 	}
 }
 

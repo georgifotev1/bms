@@ -140,9 +140,9 @@ func (app *application) mount() http.Handler {
 			})
 		})
 
-		r.Route("/bookings", func(r chi.Router) {
-			r.Post("/", app.createBookingHandler)
-			r.With(app.AuthTokenMiddleware).Get("/timestamp", app.getBookingsByTimeStampHandler)
+		r.Route("/events", func(r chi.Router) {
+			r.Post("/", app.createEventHandler)
+			r.With(app.AuthTokenMiddleware).Get("/timestamp", app.getEventsByTimeStampHandler)
 		})
 
 		r.Route("/auth", func(r chi.Router) {

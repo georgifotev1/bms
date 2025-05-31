@@ -16,7 +16,7 @@ const (
 	dateLayout = "2006-01-02"
 )
 
-type CreateBookingPayload struct {
+type CreateEventPayload struct {
 	CustomerID int64     `json:"customerId" validate:"required,min=0"`
 	ServiceID  uuid.UUID `json:"serviceId" validate:"required"`
 	UserID     int64     `json:"userId" validate:"required,min=0"`
@@ -26,7 +26,7 @@ type CreateBookingPayload struct {
 	Comment    string    `json:"comment"`
 }
 
-type BookingResponse struct {
+type EventResponse struct {
 	ID           int64     `json:"id"`
 	CustomerID   int64     `json:"customerId"`
 	ServiceID    uuid.UUID `json:"serviceId"`
@@ -42,21 +42,21 @@ type BookingResponse struct {
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
-// createBookingHandler creates a new booking in the system
+// createEventHandler creates a new event in the system
 //
-//	@Summary		Create a new booking
-//	@Description	Creates a new booking with validation for timeslot availability
-//	@Tags			bookings
+//	@Summary		Create a new event
+//	@Description	Creates a new event with validation for timeslot availability
+//	@Tags			events
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		CreateBookingPayload	true	"Booking details"
-//	@Success		201		{object}	BookingResponse			"Booking created successfully"
-//	@Failure		400		{object}	error					"Bad request - invalid input"
-//	@Failure		409		{object}	error					"Conflict - timeslot already booked"
-//	@Failure		500		{object}	error					"Internal server error"
-//	@Router			/bookings [post]
-func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Request) {
-	var payload CreateBookingPayload
+//	@Param			payload	body		CreateEventPayload	true	"Event details"
+//	@Success		201		{object}	EventResponse		"Event created successfully"
+//	@Failure		400		{object}	error				"Bad request - invalid input"
+//	@Failure		409		{object}	error				"Conflict - timeslot already booked"
+//	@Failure		500		{object}	error				"Internal server error"
+//	@Router			/events [post]
+func (app *application) createEventHandler(w http.ResponseWriter, r *http.Request) {
+	var payload CreateEventPayload
 	if err := readJSON(w, r, &payload); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -79,7 +79,7 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if isAvailable == false {
-		app.conflictRespone(w, r, errors.New("The requested timeslot is not available for booking"))
+		app.conflictRespone(w, r, errors.New("The requested timeslot is not available for event"))
 		return
 	}
 
@@ -101,7 +101,7 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	booking, err := app.store.CreateBooking(ctx, store.CreateBookingParams{
+	event, err := app.store.CreateEvent(ctx, store.CreateEventParams{
 		CustomerID: payload.CustomerID,
 		ServiceID:  payload.ServiceID,
 		UserID:     payload.UserID,
@@ -121,13 +121,13 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 		if pgError, ok := err.(*pq.Error); ok {
 			if isPgError(err, foreignKeyViolation) {
 				switch {
-				case strings.Contains(pgError.Message, "bookings_customer_id_fkey"):
+				case strings.Contains(pgError.Message, "events_customer_id_fkey"):
 					app.badRequestResponse(w, r, errors.New("invalid customer"))
-				case strings.Contains(pgError.Message, "bookings_service_id_fkey"):
+				case strings.Contains(pgError.Message, "events_service_id_fkey"):
 					app.badRequestResponse(w, r, errors.New("invalid service"))
-				case strings.Contains(pgError.Message, "bookings_user_id_fkey"):
+				case strings.Contains(pgError.Message, "events_user_id_fkey"):
 					app.badRequestResponse(w, r, errors.New("invalid user"))
-				case strings.Contains(pgError.Message, "bookings_brand_id_fkey"):
+				case strings.Contains(pgError.Message, "events_brand_id_fkey"):
 					app.badRequestResponse(w, r, errors.New("invalid brand"))
 				default:
 					app.badRequestResponse(w, r, errors.New("one or more referenced entities not found"))
@@ -139,28 +139,28 @@ func (app *application) createBookingHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err = writeJSON(w, http.StatusCreated, bookingResponseMapper(booking)); err != nil {
+	if err = writeJSON(w, http.StatusCreated, eventResponseMapper(event)); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
 
-// getBookingsByWeekHandler List all bookings of a brand in a specific week
+// getEventsByWeekHandler List all events of a brand in a specific week
 //
-//	@Summary		List all bookings of a brand in a specific week
-//	@Description	List all bookings of a brand in a specific week and validate the user input
-//	@Tags			bookings
+//	@Summary		List all events of a brand in a specific week
+//	@Description	List all events of a brand in a specific week and validate the user input
+//	@Tags			events
 //	@Accept			json
 //	@Produce		json
 //	@Security		ApiKeyAuth
-//	@Param			startDate	query		string				true	"Start date in YYYY-MM-DD format"	example(2025-05-19)
-//	@Param			endDate		query		string				true	"End date in YYYY-MM-DD format"		example(2025-05-20)
-//	@Param			brandId		query		integer				true	"Brand ID"							minimum(1)	example(1)
-//	@Success		200			{array}		[]BookingResponse	"List of brands"
-//	@Failure		400			{object}	error				"Bad request - invalid input"
-//	@Failure		409			{object}	error				"Conflict - timeslot already booked"
-//	@Failure		500			{object}	error				"Internal server error"
-//	@Router			/bookings/week [get]
-func (app *application) getBookingsByTimeStampHandler(w http.ResponseWriter, r *http.Request) {
+//	@Param			startDate	query		string			true	"Start date in YYYY-MM-DD format"	example(2025-05-19)
+//	@Param			endDate		query		string			true	"End date in YYYY-MM-DD format"		example(2025-05-20)
+//	@Param			brandId		query		integer			true	"Brand ID"							minimum(1)	example(1)
+//	@Success		200			{array}		[]EventResponse	"List of brands"
+//	@Failure		400			{object}	error			"Bad request - invalid input"
+//	@Failure		409			{object}	error			"Conflict - timeslot already booked"
+//	@Failure		500			{object}	error			"Internal server error"
+//	@Router			/events/week [get]
+func (app *application) getEventsByTimeStampHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctxUser := ctx.Value(userCtx).(*store.User)
 	startDate := r.URL.Query().Get("startDate")
@@ -178,7 +178,7 @@ func (app *application) getBookingsByTimeStampHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	bookings, err := app.store.GetBookingsByWeek(r.Context(), store.GetBookingsByWeekParams{
+	events, err := app.store.GetEventsByWeek(r.Context(), store.GetEventsByWeekParams{
 		StartDate: startDateTime,
 		EndDate:   endDateTime,
 		BrandID:   ctxUser.BrandID.Int32,
@@ -188,13 +188,13 @@ func (app *application) getBookingsByTimeStampHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	var result []BookingResponse
-	for _, v := range bookings {
-		result = append(result, bookingResponseMapper(v))
+	var result []EventResponse
+	for _, v := range events {
+		result = append(result, eventResponseMapper(v))
 	}
 
 	if len(result) == 0 {
-		result = []BookingResponse{}
+		result = []EventResponse{}
 	}
 
 	if err = writeJSON(w, http.StatusOK, result); err != nil {

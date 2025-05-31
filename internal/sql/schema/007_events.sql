@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE bookings (
+CREATE TABLE events (
     id BIGSERIAL PRIMARY KEY,
     customer_id BIGINT NOT NULL REFERENCES customers (id),
     service_id UUID NOT NULL REFERENCES services (id),
@@ -16,24 +16,24 @@ CREATE TABLE bookings (
 );
 
 -- Add constraint to ensure end_time is after start_time
-ALTER TABLE bookings ADD CONSTRAINT valid_booking_timespan CHECK (end_time > start_time);
+ALTER TABLE events ADD CONSTRAINT valid_event_timespan CHECK (end_time > start_time);
 
 -- Create indices
-CREATE INDEX idx_bookings_brand_id ON bookings (brand_id);
+CREATE INDEX idx_events_brand_id ON events (brand_id);
 
-CREATE INDEX idx_bookings_start_time ON bookings (start_time);
+CREATE INDEX idx_events_start_time ON events (start_time);
 
-CREATE INDEX idx_bookings_end_time ON bookings (end_time);
+CREATE INDEX idx_events_end_time ON events (end_time);
 
-CREATE INDEX idx_bookings_user_id ON bookings (user_id);
+CREATE INDEX idx_events_user_id ON events (user_id);
 
 -- +goose Down
-DROP INDEX idx_bookings_user_id;
+DROP INDEX idx_events_user_id;
 
-DROP INDEX idx_bookings_end_time;
+DROP INDEX idx_events_end_time;
 
-DROP INDEX idx_bookings_start_time;
+DROP INDEX idx_events_start_time;
 
-DROP INDEX idx_bookings_brand_id;
+DROP INDEX idx_events_brand_id;
 
-DROP TABLE bookings;
+DROP TABLE events;

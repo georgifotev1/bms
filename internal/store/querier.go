@@ -16,30 +16,27 @@ type Querier interface {
 	AssignServiceToUser(ctx context.Context, arg AssignServiceToUserParams) error
 	AssociateUserWithBrand(ctx context.Context, arg AssociateUserWithBrandParams) error
 	CheckSpecificTimeslotAvailability(ctx context.Context, arg CheckSpecificTimeslotAvailabilityParams) (interface{}, error)
-	CreateBooking(ctx context.Context, arg CreateBookingParams) (*Booking, error)
 	CreateBrand(ctx context.Context, arg CreateBrandParams) (*Brand, error)
 	CreateCustomer(ctx context.Context, arg CreateCustomerParams) (*Customer, error)
+	CreateEvent(ctx context.Context, arg CreateEventParams) (*Event, error)
 	CreateGuestCustomer(ctx context.Context, arg CreateGuestCustomerParams) (*Customer, error)
 	CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
-	DeleteBooking(ctx context.Context, id int64) error
 	DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error
 	DeleteCustomer(ctx context.Context, id int64) error
+	DeleteEvent(ctx context.Context, id int64) error
 	DeleteService(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
 	// Parameters: brand_id, date, service_id
-	// Get all bookings for the given date and brand
+	// Get all events for the given date and brand
 	// Get all users (staff) for the brand
 	// Generate time slots for the day (e.g., every 15 min from 9am to 5pm)
 	// Apply service duration to get slot end times
 	// Check availability for each staff member and time slot
 	// Final available time slots with at least one available staff
 	GetAvailableTimeslots(ctx context.Context, arg GetAvailableTimeslotsParams) ([]*GetAvailableTimeslotsRow, error)
-	GetBookingByID(ctx context.Context, id int64) (*Booking, error)
-	GetBookingsByDay(ctx context.Context, arg GetBookingsByDayParams) ([]*Booking, error)
-	GetBookingsByWeek(ctx context.Context, arg GetBookingsByWeekParams) ([]*Booking, error)
 	GetBrand(ctx context.Context, id int32) (*Brand, error)
 	GetBrandById(ctx context.Context, id int32) (*Brand, error)
 	GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error)
@@ -50,24 +47,27 @@ type Querier interface {
 	GetCustomerById(ctx context.Context, id int64) (*Customer, error)
 	GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error)
 	GetCustomersByBrand(ctx context.Context, brandID int32) ([]*Customer, error)
+	GetEventByID(ctx context.Context, id int64) (*Event, error)
+	GetEventsByDay(ctx context.Context, arg GetEventsByDayParams) ([]*Event, error)
+	GetEventsByWeek(ctx context.Context, arg GetEventsByWeekParams) ([]*Event, error)
 	GetService(ctx context.Context, id uuid.UUID) (*Service, error)
-	GetUserBookingsByDay(ctx context.Context, arg GetUserBookingsByDayParams) ([]*Booking, error)
-	GetUserBookingsByWeek(ctx context.Context, arg GetUserBookingsByWeekParams) ([]*Booking, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)
+	GetUserEventsByDay(ctx context.Context, arg GetUserEventsByDayParams) ([]*Event, error)
+	GetUserEventsByWeek(ctx context.Context, arg GetUserEventsByWeekParams) ([]*Event, error)
 	GetUserFromInvitation(ctx context.Context, token string) (int64, error)
 	GetUsersByBrand(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
-	ListBookingsByBrand(ctx context.Context, arg ListBookingsByBrandParams) ([]*Booking, error)
-	ListBookingsByCustomer(ctx context.Context, arg ListBookingsByCustomerParams) ([]*Booking, error)
-	ListBookingsByUser(ctx context.Context, arg ListBookingsByUserParams) ([]*Booking, error)
+	ListEventsByBrand(ctx context.Context, arg ListEventsByBrandParams) ([]*Event, error)
+	ListEventsByCustomer(ctx context.Context, arg ListEventsByCustomerParams) ([]*Event, error)
+	ListEventsByUser(ctx context.Context, arg ListEventsByUserParams) ([]*Event, error)
 	ListServicesWithProviders(ctx context.Context, brandID int32) ([]*ListServicesWithProvidersRow, error)
 	ListUserServices(ctx context.Context, userID int64) ([]*Service, error)
 	ListVisibleServices(ctx context.Context, brandID int32) ([]*Service, error)
 	RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error
-	UpdateBookingDetails(ctx context.Context, arg UpdateBookingDetailsParams) (*Booking, error)
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) (*Brand, error)
 	UpdateBrandPartial(ctx context.Context, arg UpdateBrandPartialParams) (*Brand, error)
 	UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error)
+	UpdateEventDetails(ctx context.Context, arg UpdateEventDetailsParams) (*Event, error)
 	UpdateService(ctx context.Context, arg UpdateServiceParams) (*Service, error)
 	ValidateUsersCount(ctx context.Context, arg ValidateUsersCountParams) (int64, error)
 	VerifyUser(ctx context.Context, id int64) error
