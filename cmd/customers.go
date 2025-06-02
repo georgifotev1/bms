@@ -332,7 +332,14 @@ func (app *application) getCustomersHandler(w http.ResponseWriter, r *http.Reque
 
 func (app *application) getCustomer(ctx context.Context, customerID int64) (*store.Customer, error) {
 	if !app.config.cache.enabled {
-		return app.store.GetCustomerById(ctx, customerID)
+		customer, err := app.store.GetCustomerById(ctx, customerID)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, ErrCustomerNotFound
+			}
+			return nil, err
+		}
+		return customer, nil
 	}
 
 	customer, err := app.cache.Customers.Get(ctx, customerID)
@@ -343,6 +350,9 @@ func (app *application) getCustomer(ctx context.Context, customerID int64) (*sto
 	if customer == nil {
 		customer, err = app.store.GetCustomerById(ctx, customerID)
 		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, ErrCustomerNotFound
+			}
 			return nil, err
 		}
 

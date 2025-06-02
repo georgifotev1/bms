@@ -2934,27 +2934,27 @@ func (_c *MockQuerier_UpdateBrandWorkingHours_Call) RunAndReturn(run func(ctx co
 	return _c
 }
 
-// UpdateEventDetails provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) UpdateEventDetails(ctx context.Context, arg UpdateEventDetailsParams) (*Event, error) {
+// UpdateEvent provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) UpdateEvent(ctx context.Context, arg UpdateEventParams) (*Event, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateEventDetails")
+		panic("no return value specified for UpdateEvent")
 	}
 
 	var r0 *Event
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateEventDetailsParams) (*Event, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateEventParams) (*Event, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateEventDetailsParams) *Event); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateEventParams) *Event); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Event)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, UpdateEventDetailsParams) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, UpdateEventParams) error); ok {
 		r1 = returnFunc(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
@@ -2962,31 +2962,31 @@ func (_mock *MockQuerier) UpdateEventDetails(ctx context.Context, arg UpdateEven
 	return r0, r1
 }
 
-// MockQuerier_UpdateEventDetails_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateEventDetails'
-type MockQuerier_UpdateEventDetails_Call struct {
+// MockQuerier_UpdateEvent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateEvent'
+type MockQuerier_UpdateEvent_Call struct {
 	*mock.Call
 }
 
-// UpdateEventDetails is a helper method to define mock.On call
+// UpdateEvent is a helper method to define mock.On call
 //   - ctx
 //   - arg
-func (_e *MockQuerier_Expecter) UpdateEventDetails(ctx interface{}, arg interface{}) *MockQuerier_UpdateEventDetails_Call {
-	return &MockQuerier_UpdateEventDetails_Call{Call: _e.mock.On("UpdateEventDetails", ctx, arg)}
+func (_e *MockQuerier_Expecter) UpdateEvent(ctx interface{}, arg interface{}) *MockQuerier_UpdateEvent_Call {
+	return &MockQuerier_UpdateEvent_Call{Call: _e.mock.On("UpdateEvent", ctx, arg)}
 }
 
-func (_c *MockQuerier_UpdateEventDetails_Call) Run(run func(ctx context.Context, arg UpdateEventDetailsParams)) *MockQuerier_UpdateEventDetails_Call {
+func (_c *MockQuerier_UpdateEvent_Call) Run(run func(ctx context.Context, arg UpdateEventParams)) *MockQuerier_UpdateEvent_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(UpdateEventDetailsParams))
+		run(args[0].(context.Context), args[1].(UpdateEventParams))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_UpdateEventDetails_Call) Return(event *Event, err error) *MockQuerier_UpdateEventDetails_Call {
+func (_c *MockQuerier_UpdateEvent_Call) Return(event *Event, err error) *MockQuerier_UpdateEvent_Call {
 	_c.Call.Return(event, err)
 	return _c
 }
 
-func (_c *MockQuerier_UpdateEventDetails_Call) RunAndReturn(run func(ctx context.Context, arg UpdateEventDetailsParams) (*Event, error)) *MockQuerier_UpdateEventDetails_Call {
+func (_c *MockQuerier_UpdateEvent_Call) RunAndReturn(run func(ctx context.Context, arg UpdateEventParams) (*Event, error)) *MockQuerier_UpdateEvent_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -6094,27 +6094,27 @@ func (_c *MockStore_UpdateBrandWorkingHours_Call) RunAndReturn(run func(ctx cont
 	return _c
 }
 
-// UpdateEventDetails provides a mock function for the type MockStore
-func (_mock *MockStore) UpdateEventDetails(ctx context.Context, arg UpdateEventDetailsParams) (*Event, error) {
+// UpdateEvent provides a mock function for the type MockStore
+func (_mock *MockStore) UpdateEvent(ctx context.Context, arg UpdateEventParams) (*Event, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdateEventDetails")
+		panic("no return value specified for UpdateEvent")
 	}
 
 	var r0 *Event
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateEventDetailsParams) (*Event, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateEventParams) (*Event, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateEventDetailsParams) *Event); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateEventParams) *Event); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Event)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, UpdateEventDetailsParams) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, UpdateEventParams) error); ok {
 		r1 = returnFunc(ctx, arg)
 	} else {
 		r1 = ret.Error(1)
@@ -6122,31 +6122,31 @@ func (_mock *MockStore) UpdateEventDetails(ctx context.Context, arg UpdateEventD
 	return r0, r1
 }
 
-// MockStore_UpdateEventDetails_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateEventDetails'
-type MockStore_UpdateEventDetails_Call struct {
+// MockStore_UpdateEvent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateEvent'
+type MockStore_UpdateEvent_Call struct {
 	*mock.Call
 }
 
-// UpdateEventDetails is a helper method to define mock.On call
+// UpdateEvent is a helper method to define mock.On call
 //   - ctx
 //   - arg
-func (_e *MockStore_Expecter) UpdateEventDetails(ctx interface{}, arg interface{}) *MockStore_UpdateEventDetails_Call {
-	return &MockStore_UpdateEventDetails_Call{Call: _e.mock.On("UpdateEventDetails", ctx, arg)}
+func (_e *MockStore_Expecter) UpdateEvent(ctx interface{}, arg interface{}) *MockStore_UpdateEvent_Call {
+	return &MockStore_UpdateEvent_Call{Call: _e.mock.On("UpdateEvent", ctx, arg)}
 }
 
-func (_c *MockStore_UpdateEventDetails_Call) Run(run func(ctx context.Context, arg UpdateEventDetailsParams)) *MockStore_UpdateEventDetails_Call {
+func (_c *MockStore_UpdateEvent_Call) Run(run func(ctx context.Context, arg UpdateEventParams)) *MockStore_UpdateEvent_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(UpdateEventDetailsParams))
+		run(args[0].(context.Context), args[1].(UpdateEventParams))
 	})
 	return _c
 }
 
-func (_c *MockStore_UpdateEventDetails_Call) Return(event *Event, err error) *MockStore_UpdateEventDetails_Call {
+func (_c *MockStore_UpdateEvent_Call) Return(event *Event, err error) *MockStore_UpdateEvent_Call {
 	_c.Call.Return(event, err)
 	return _c
 }
 
-func (_c *MockStore_UpdateEventDetails_Call) RunAndReturn(run func(ctx context.Context, arg UpdateEventDetailsParams) (*Event, error)) *MockStore_UpdateEventDetails_Call {
+func (_c *MockStore_UpdateEvent_Call) RunAndReturn(run func(ctx context.Context, arg UpdateEventParams) (*Event, error)) *MockStore_UpdateEvent_Call {
 	_c.Call.Return(run)
 	return _c
 }

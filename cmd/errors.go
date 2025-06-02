@@ -12,7 +12,13 @@ const (
 	foreignKeyViolation = "23503"
 )
 
-var ErrAccessDenied = errors.New("access denied")
+var (
+	ErrAccessDenied         = errors.New("access denied")
+	ErrTimeslotNotAvailable = errors.New("The requested timeslot is not available for event")
+	ErrUserNotFound         = errors.New("user not found")
+	ErrCustomerNotFound     = errors.New("customer not found")
+	ErrServiceNotFound      = errors.New("service not found")
+)
 
 func (app *application) internalServerError(w http.ResponseWriter, r *http.Request, err error) {
 	app.logger.Errorw("internal server error", "method", r.Method, "path", r.URL.Path, "error", err.Error())
@@ -68,4 +74,19 @@ func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http
 func isPgError(err error, code pq.ErrorCode) bool {
 	pgErr, ok := err.(*pq.Error)
 	return ok && pgErr.Code == code
+}
+
+func (app *application) hadleEventValidationError(w http.ResponseWriter, r *http.Request, err error) {
+	switch {
+	case errors.Is(err, ErrTimeslotNotAvailable):
+		app.conflictRespone(w, r, err)
+	case errors.Is(err, ErrUserNotFound):
+		app.badRequestResponse(w, r, err)
+	case errors.Is(err, ErrCustomerNotFound):
+		app.badRequestResponse(w, r, err)
+	case errors.Is(err, ErrServiceNotFound):
+		app.badRequestResponse(w, r, err)
+	default:
+		app.internalServerError(w, r, err)
+	}
 }

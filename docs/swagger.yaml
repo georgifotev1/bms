@@ -720,6 +720,44 @@ paths:
       summary: Create a new event
       tags:
       - events
+  /events/{eventId}:
+    put:
+      consumes:
+      - application/json
+      description: Updates an event with validation for timeslot availability
+      parameters:
+      - description: Event details
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateEventPayload'
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event updated successfully
+          schema:
+            $ref: '#/definitions/main.EventResponse'
+        "400":
+          description: Bad request - invalid input
+          schema: {}
+        "409":
+          description: Invalid timeslot
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update an event
+      tags:
+      - events
   /events/week:
     get:
       consumes:

@@ -143,6 +143,7 @@ func (app *application) mount() http.Handler {
 		r.Route("/events", func(r chi.Router) {
 			r.Post("/", app.createEventHandler)
 			r.With(app.AuthTokenMiddleware).Get("/timestamp", app.getEventsByTimeStampHandler)
+			r.With(app.AuthTokenMiddleware).Put("/{eventId}", app.updateEventHandler)
 		})
 
 		r.Route("/auth", func(r chi.Router) {

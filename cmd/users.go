@@ -313,7 +313,14 @@ func (app *application) getUsersHandler(w http.ResponseWriter, r *http.Request) 
 
 func (app *application) getUser(ctx context.Context, userID int64) (*store.User, error) {
 	if !app.config.cache.enabled {
-		return app.store.GetUserById(ctx, userID)
+		user, err := app.store.GetUserById(ctx, userID)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		return user, nil
 	}
 
 	user, err := app.cache.Users.Get(ctx, userID)
@@ -324,9 +331,11 @@ func (app *application) getUser(ctx context.Context, userID int64) (*store.User,
 	if user == nil {
 		user, err = app.store.GetUserById(ctx, userID)
 		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, ErrUserNotFound
+			}
 			return nil, err
 		}
-
 		if err := app.cache.Users.Set(ctx, user); err != nil {
 			return nil, err
 		}

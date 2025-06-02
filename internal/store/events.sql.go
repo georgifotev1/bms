@@ -639,35 +639,51 @@ func (q *Queries) ListEventsByUser(ctx context.Context, arg ListEventsByUserPara
 	return items, nil
 }
 
-const updateEventDetails = `-- name: UpdateEventDetails :one
+const updateEvent = `-- name: UpdateEvent :one
 UPDATE events
-SET service_id = $2,
-    user_id = $3,
-    start_time = $4,
-    end_time = $5,
-    comment = $6,
-    updated_at = NOW()
+SET
+  customer_id = $2,
+  service_id = $3,
+  user_id = $4,
+  brand_id = $5,
+  start_time = $6,
+  end_time = $7,
+  comment = $8,
+  customer_name = $9,
+  service_name = $10,
+  user_name = $11,
+  updated_at = NOW()
 WHERE id = $1
 RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
 `
 
-type UpdateEventDetailsParams struct {
-	ID        int64          `json:"id"`
-	ServiceID uuid.UUID      `json:"serviceId"`
-	UserID    int64          `json:"userId"`
-	StartTime time.Time      `json:"startTime"`
-	EndTime   time.Time      `json:"endTime"`
-	Comment   sql.NullString `json:"comment"`
+type UpdateEventParams struct {
+	ID           int64          `json:"id"`
+	CustomerID   int64          `json:"customerId"`
+	ServiceID    uuid.UUID      `json:"serviceId"`
+	UserID       int64          `json:"userId"`
+	BrandID      int32          `json:"brandId"`
+	StartTime    time.Time      `json:"startTime"`
+	EndTime      time.Time      `json:"endTime"`
+	Comment      sql.NullString `json:"comment"`
+	CustomerName string         `json:"customerName"`
+	ServiceName  string         `json:"serviceName"`
+	UserName     string         `json:"userName"`
 }
 
-func (q *Queries) UpdateEventDetails(ctx context.Context, arg UpdateEventDetailsParams) (*Event, error) {
-	row := q.db.QueryRowContext(ctx, updateEventDetails,
+func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (*Event, error) {
+	row := q.db.QueryRowContext(ctx, updateEvent,
 		arg.ID,
+		arg.CustomerID,
 		arg.ServiceID,
 		arg.UserID,
+		arg.BrandID,
 		arg.StartTime,
 		arg.EndTime,
 		arg.Comment,
+		arg.CustomerName,
+		arg.ServiceName,
+		arg.UserName,
 	)
 	var i Event
 	err := row.Scan(

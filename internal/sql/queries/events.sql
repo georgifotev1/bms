@@ -40,14 +40,20 @@ INSERT INTO events (
   $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()
 ) RETURNING *;
 
--- name: UpdateEventDetails :one
+-- name: UpdateEvent :one
 UPDATE events
-SET service_id = $2,
-    user_id = $3,
-    start_time = $4,
-    end_time = $5,
-    comment = $6,
-    updated_at = NOW()
+SET
+  customer_id = $2,
+  service_id = $3,
+  user_id = $4,
+  brand_id = $5,
+  start_time = $6,
+  end_time = $7,
+  comment = $8,
+  customer_name = $9,
+  service_name = $10,
+  user_name = $11,
+  updated_at = NOW()
 WHERE id = $1
 RETURNING *;
 
