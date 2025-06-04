@@ -2,8 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/lib/pq"
 )
 
@@ -88,5 +90,57 @@ func (app *application) hadleEventValidationError(w http.ResponseWriter, r *http
 		app.badRequestResponse(w, r, err)
 	default:
 		app.internalServerError(w, r, err)
+	}
+}
+
+type ValidationError struct {
+	Field   string `json:"field"`
+	Tag     string `json:"tag"`
+	Value   string `json:"value"`
+	Message string `json:"message"`
+}
+
+type ValidationErrors struct {
+	Errors []ValidationError
+}
+
+func handleValidationErrors(err error) ValidationError {
+	var validationErrors ValidationErrors
+
+	if validationErrs, ok := err.(validator.ValidationErrors); ok {
+		for _, validationErr := range validationErrs {
+			validationError := ValidationError{
+				Field:   validationErr.Field(),
+				Tag:     validationErr.Tag(),
+				Value:   fmt.Sprintf("%v", validationErr.Value()),
+				Message: getErrorMessage(validationErr),
+			}
+			validationErrors.Errors = append(validationErrors.Errors, validationError)
+		}
+	}
+
+	return validationErrors.Errors[0]
+}
+
+func getErrorMessage(fe validator.FieldError) string {
+	switch fe.Tag() {
+	case "required":
+		return fmt.Sprintf("%s is required", fe.Field())
+	case "email":
+		return fmt.Sprintf("%s must be a valid email", fe.Field())
+	case "min":
+		return fmt.Sprintf("%s must be at least %s characters", fe.Field(), fe.Param())
+	case "max":
+		return fmt.Sprintf("%s must be at most %s characters", fe.Field(), fe.Param())
+	case "gt":
+		return fmt.Sprintf("%s must be greater than %s", fe.Field(), fe.Param())
+	case "gte":
+		return fmt.Sprintf("%s must be greater than or equal to %s", fe.Field(), fe.Param())
+	case "lt":
+		return fmt.Sprintf("%s must be less than %s", fe.Field(), fe.Param())
+	case "lte":
+		return fmt.Sprintf("%s must be less than or equal to %s", fe.Field(), fe.Param())
+	default:
+		return fmt.Sprintf("%s is invalid", fe.Field())
 	}
 }

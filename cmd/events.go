@@ -86,9 +86,11 @@ func (app *application) createEventHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := Validate.Struct(payload); err != nil {
-		app.badRequestResponse(w, r, err)
+		validationError := handleValidationErrors(err)
+		app.badRequestResponse(w, r, errors.New(validationError.Message))
 		return
 	}
+
 	ctx := r.Context()
 	validationParams := EventValidationParams{
 		UserID:     payload.UserID,
