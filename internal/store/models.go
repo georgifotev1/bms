@@ -74,6 +74,8 @@ type Event struct {
 	ServiceName  string         `json:"serviceName"`
 	UserName     string         `json:"userName"`
 	Comment      sql.NullString `json:"comment"`
+	BufferTime   sql.NullInt32  `json:"bufferTime"`
+	Cost         sql.NullString `json:"cost"`
 	CreatedAt    time.Time      `json:"createdAt"`
 	UpdatedAt    time.Time      `json:"updatedAt"`
 }

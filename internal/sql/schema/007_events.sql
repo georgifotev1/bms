@@ -11,6 +11,8 @@ CREATE TABLE events (
     service_name VARCHAR(50) NOT NULL,
     user_name VARCHAR(50) NOT NULL,
     comment TEXT,
+    buffer_time INTEGER,
+    cost DECIMAL(10, 2),
     created_at TIMESTAMP(0) NOT NULL DEFAULT NOW (),
     updated_at TIMESTAMP(0) NOT NULL DEFAULT NOW ()
 );

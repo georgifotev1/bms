@@ -67,11 +67,13 @@ INSERT INTO events (
   customer_name,
   service_name,
   user_name,
+  cost,
+  buffer_time,
   created_at,
   updated_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()
-) RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW()
+) RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at
 `
 
 type CreateEventParams struct {
@@ -85,6 +87,8 @@ type CreateEventParams struct {
 	CustomerName string         `json:"customerName"`
 	ServiceName  string         `json:"serviceName"`
 	UserName     string         `json:"userName"`
+	Cost         sql.NullString `json:"cost"`
+	BufferTime   sql.NullInt32  `json:"bufferTime"`
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (*Event, error) {
@@ -99,6 +103,8 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (*Even
 		arg.CustomerName,
 		arg.ServiceName,
 		arg.UserName,
+		arg.Cost,
+		arg.BufferTime,
 	)
 	var i Event
 	err := row.Scan(
@@ -113,6 +119,8 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (*Even
 		&i.ServiceName,
 		&i.UserName,
 		&i.Comment,
+		&i.BufferTime,
+		&i.Cost,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -251,7 +259,7 @@ func (q *Queries) GetAvailableTimeslots(ctx context.Context, arg GetAvailableTim
 }
 
 const getEventByID = `-- name: GetEventByID :one
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at FROM events b WHERE id = $1
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at FROM events b WHERE id = $1
 `
 
 func (q *Queries) GetEventByID(ctx context.Context, id int64) (*Event, error) {
@@ -269,6 +277,8 @@ func (q *Queries) GetEventByID(ctx context.Context, id int64) (*Event, error) {
 		&i.ServiceName,
 		&i.UserName,
 		&i.Comment,
+		&i.BufferTime,
+		&i.Cost,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -276,7 +286,7 @@ func (q *Queries) GetEventByID(ctx context.Context, id int64) (*Event, error) {
 }
 
 const getEventsByDay = `-- name: GetEventsByDay :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at
 FROM events
 WHERE DATE(start_time) = $1
 AND brand_id = $2
@@ -309,6 +319,8 @@ func (q *Queries) GetEventsByDay(ctx context.Context, arg GetEventsByDayParams) 
 			&i.ServiceName,
 			&i.UserName,
 			&i.Comment,
+			&i.BufferTime,
+			&i.Cost,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -326,7 +338,7 @@ func (q *Queries) GetEventsByDay(ctx context.Context, arg GetEventsByDayParams) 
 }
 
 const getEventsByWeek = `-- name: GetEventsByWeek :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at
 FROM events
 WHERE DATE(start_time) BETWEEN $1 AND $2
 AND brand_id = $3
@@ -360,6 +372,8 @@ func (q *Queries) GetEventsByWeek(ctx context.Context, arg GetEventsByWeekParams
 			&i.ServiceName,
 			&i.UserName,
 			&i.Comment,
+			&i.BufferTime,
+			&i.Cost,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -377,7 +391,7 @@ func (q *Queries) GetEventsByWeek(ctx context.Context, arg GetEventsByWeekParams
 }
 
 const getUserEventsByDay = `-- name: GetUserEventsByDay :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at
 FROM events
 WHERE DATE(start_time) = $1
 AND brand_id = $2
@@ -412,6 +426,8 @@ func (q *Queries) GetUserEventsByDay(ctx context.Context, arg GetUserEventsByDay
 			&i.ServiceName,
 			&i.UserName,
 			&i.Comment,
+			&i.BufferTime,
+			&i.Cost,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -429,7 +445,7 @@ func (q *Queries) GetUserEventsByDay(ctx context.Context, arg GetUserEventsByDay
 }
 
 const getUserEventsByWeek = `-- name: GetUserEventsByWeek :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at
 FROM events
 WHERE DATE(start_time) BETWEEN $1 AND $2
 AND brand_id = $3
@@ -470,6 +486,8 @@ func (q *Queries) GetUserEventsByWeek(ctx context.Context, arg GetUserEventsByWe
 			&i.ServiceName,
 			&i.UserName,
 			&i.Comment,
+			&i.BufferTime,
+			&i.Cost,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -487,7 +505,7 @@ func (q *Queries) GetUserEventsByWeek(ctx context.Context, arg GetUserEventsByWe
 }
 
 const listEventsByBrand = `-- name: ListEventsByBrand :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at FROM events
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at FROM events
 WHERE brand_id = $1
 ORDER BY start_time
 LIMIT $2
@@ -521,6 +539,8 @@ func (q *Queries) ListEventsByBrand(ctx context.Context, arg ListEventsByBrandPa
 			&i.ServiceName,
 			&i.UserName,
 			&i.Comment,
+			&i.BufferTime,
+			&i.Cost,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -538,7 +558,7 @@ func (q *Queries) ListEventsByBrand(ctx context.Context, arg ListEventsByBrandPa
 }
 
 const listEventsByCustomer = `-- name: ListEventsByCustomer :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at FROM events
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at FROM events
 WHERE customer_id = $1
 ORDER BY start_time
 LIMIT $2
@@ -572,6 +592,8 @@ func (q *Queries) ListEventsByCustomer(ctx context.Context, arg ListEventsByCust
 			&i.ServiceName,
 			&i.UserName,
 			&i.Comment,
+			&i.BufferTime,
+			&i.Cost,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -589,7 +611,7 @@ func (q *Queries) ListEventsByCustomer(ctx context.Context, arg ListEventsByCust
 }
 
 const listEventsByUser = `-- name: ListEventsByUser :many
-SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at FROM events
+SELECT id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at FROM events
 WHERE user_id = $1
 ORDER BY start_time
 LIMIT $2
@@ -623,6 +645,8 @@ func (q *Queries) ListEventsByUser(ctx context.Context, arg ListEventsByUserPara
 			&i.ServiceName,
 			&i.UserName,
 			&i.Comment,
+			&i.BufferTime,
+			&i.Cost,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -652,9 +676,11 @@ SET
   customer_name = $9,
   service_name = $10,
   user_name = $11,
+  cost = $12,
+  buffer_time = $13,
   updated_at = NOW()
 WHERE id = $1
-RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, created_at, updated_at
+RETURNING id, customer_id, service_id, user_id, brand_id, start_time, end_time, customer_name, service_name, user_name, comment, buffer_time, cost, created_at, updated_at
 `
 
 type UpdateEventParams struct {
@@ -669,6 +695,8 @@ type UpdateEventParams struct {
 	CustomerName string         `json:"customerName"`
 	ServiceName  string         `json:"serviceName"`
 	UserName     string         `json:"userName"`
+	Cost         sql.NullString `json:"cost"`
+	BufferTime   sql.NullInt32  `json:"bufferTime"`
 }
 
 func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (*Event, error) {
@@ -684,6 +712,8 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (*Even
 		arg.CustomerName,
 		arg.ServiceName,
 		arg.UserName,
+		arg.Cost,
+		arg.BufferTime,
 	)
 	var i Event
 	err := row.Scan(
@@ -698,6 +728,8 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (*Even
 		&i.ServiceName,
 		&i.UserName,
 		&i.Comment,
+		&i.BufferTime,
+		&i.Cost,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

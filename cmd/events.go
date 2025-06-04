@@ -43,6 +43,8 @@ type EventResponse struct {
 	ServiceName  string    `json:"serviceName"`
 	UserName     string    `json:"userName"`
 	Comment      string    `json:"comment"`
+	BufferTime   int32     `json:"bufferTime"`
+	Cost         string    `json:"cost"`
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
@@ -114,6 +116,8 @@ func (app *application) createEventHandler(w http.ResponseWriter, r *http.Reques
 		Comment:      sql.NullString{String: payload.Comment, Valid: payload.Comment != ""},
 		CustomerName: entities.Customer.Name,
 		UserName:     entities.User.Name,
+		Cost:         entities.Service.Cost,
+		BufferTime:   entities.Service.BufferTime,
 		ServiceName:  entities.Service.Title,
 	})
 
@@ -199,6 +203,8 @@ func (app *application) updateEventHandler(w http.ResponseWriter, r *http.Reques
 		CustomerName: entities.Customer.Name,
 		UserName:     entities.User.Name,
 		ServiceName:  entities.Service.Title,
+		Cost:         entities.Service.Cost,
+		BufferTime:   entities.Service.BufferTime,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

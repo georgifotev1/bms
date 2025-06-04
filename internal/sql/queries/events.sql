@@ -34,10 +34,12 @@ INSERT INTO events (
   customer_name,
   service_name,
   user_name,
+  cost,
+  buffer_time,
   created_at,
   updated_at
 ) VALUES (
-  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()
+  $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW()
 ) RETURNING *;
 
 -- name: UpdateEvent :one
@@ -53,6 +55,8 @@ SET
   customer_name = $9,
   service_name = $10,
   user_name = $11,
+  cost = $12,
+  buffer_time = $13,
   updated_at = NOW()
 WHERE id = $1
 RETURNING *;

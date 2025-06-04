@@ -187,6 +187,8 @@ func eventResponseMapper(event *store.Event) EventResponse {
 		CustomerName: event.CustomerName,
 		UserName:     event.UserName,
 		ServiceName:  event.ServiceName,
+		BufferTime:   event.BufferTime.Int32,
+		Cost:         event.Cost.String,
 		Comment:      event.Comment.String,
 		CreatedAt:    event.CreatedAt,
 		UpdatedAt:    event.UpdatedAt,
