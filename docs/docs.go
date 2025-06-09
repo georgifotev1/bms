@@ -1113,7 +1113,7 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
-                "buffer_time": {
+                "bufferTime": {
                     "type": "integer"
                 },
                 "cost": {
@@ -1125,10 +1125,10 @@ const docTemplate = `{
                 "duration": {
                     "type": "integer"
                 },
-                "image_url": {
+                "imageUrl": {
                     "type": "string"
                 },
-                "is_visible": {
+                "isVisible": {
                     "type": "boolean"
                 },
                 "title": {
@@ -1136,7 +1136,7 @@ const docTemplate = `{
                     "maxLength": 100,
                     "minLength": 3
                 },
-                "user_ids": {
+                "userIds": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -1197,7 +1197,13 @@ const docTemplate = `{
                 "brandId": {
                     "type": "integer"
                 },
+                "bufferTime": {
+                    "type": "integer"
+                },
                 "comment": {
+                    "type": "string"
+                },
+                "cost": {
                     "type": "string"
                 },
                 "createdAt": {

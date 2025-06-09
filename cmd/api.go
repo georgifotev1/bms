@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/georgifotev1/bms/docs"
 	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/mailer"
@@ -33,6 +34,7 @@ type application struct {
 	mailer      mailer.Client
 	auth        auth.Authenticator
 	rateLimiter ratelimiter.Limiter
+	cloudinary  *cloudinary.Cloudinary
 }
 
 type config struct {

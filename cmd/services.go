@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 	"time"
@@ -28,14 +29,14 @@ type ServiceResponse struct {
 }
 
 type CreateServicePayload struct {
-	Title       string  `json:"title" validate:"required,min=3,max=100"`
-	Description string  `json:"description"`
-	Duration    int32   `json:"duration" validate:"required,gt=0"`
-	BufferTime  int32   `json:"buffer_time"`
-	Cost        string  `json:"cost"`
-	IsVisible   bool    `json:"is_visible"`
-	ImageURL    string  `json:"image_url"`
-	UserIDs     []int64 `json:"user_ids"`
+	Title       string                `schema:"title" validate:"required,min=3,max=100"`
+	Description string                `schema:"description"`
+	Duration    int32                 `schema:"duration" validate:"required,gt=0"`
+	BufferTime  int32                 `schema:"bufferTime"`
+	Cost        string                `schema:"cost"`
+	IsVisible   bool                  `schema:"isVisible"`
+	Image       *multipart.FileHeader `schema:"-"`
+	UserIDs     []int64               `schema:"userIds"`
 }
 
 // @Summary		Create a new service
@@ -62,8 +63,14 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	err := r.ParseMultipartForm(20 << 20)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
 	var payload CreateServicePayload
-	if err := readJSON(w, r, &payload); err != nil {
+	if err := Decoder.Decode(&payload, r.PostForm); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
@@ -73,6 +80,18 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	var imageURL string
+	if file, _, err := r.FormFile("image"); err == nil {
+		defer file.Close()
+
+		uploadedURL, uploadErr := app.saveImageToCloudinary(file)
+		if uploadErr != nil {
+			app.badRequestResponse(w, r, uploadErr)
+			return
+		}
+		imageURL = uploadedURL
+	}
+
 	result, err := app.store.CreateServiceTx(ctx, store.CreateServiceTxParams{
 		Title:       payload.Title,
 		Description: payload.Description,
@@ -80,7 +99,7 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		BufferTime:  payload.BufferTime,
 		Cost:        payload.Cost,
 		IsVisible:   payload.IsVisible,
-		ImageURL:    payload.ImageURL,
+		ImageURL:    imageURL,
 		BrandID:     ctxUserBrandId,
 		UserIDs:     payload.UserIDs,
 	})

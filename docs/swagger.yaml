@@ -52,7 +52,7 @@ definitions:
     type: object
   main.CreateServicePayload:
     properties:
-      buffer_time:
+      bufferTime:
         type: integer
       cost:
         type: string
@@ -60,15 +60,15 @@ definitions:
         type: string
       duration:
         type: integer
-      image_url:
+      imageUrl:
         type: string
-      is_visible:
+      isVisible:
         type: boolean
       title:
         maxLength: 100
         minLength: 3
         type: string
-      user_ids:
+      userIds:
         items:
           type: integer
         type: array
@@ -112,7 +112,11 @@ definitions:
     properties:
       brandId:
         type: integer
+      bufferTime:
+        type: integer
       comment:
+        type: string
+      cost:
         type: string
       createdAt:
         type: string

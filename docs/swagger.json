@@ -1105,7 +1105,7 @@
                 "title"
             ],
             "properties": {
-                "buffer_time": {
+                "bufferTime": {
                     "type": "integer"
                 },
                 "cost": {
@@ -1117,10 +1117,10 @@
                 "duration": {
                     "type": "integer"
                 },
-                "image_url": {
+                "imageUrl": {
                     "type": "string"
                 },
-                "is_visible": {
+                "isVisible": {
                     "type": "boolean"
                 },
                 "title": {
@@ -1128,7 +1128,7 @@
                     "maxLength": 100,
                     "minLength": 3
                 },
-                "user_ids": {
+                "userIds": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -1189,7 +1189,13 @@
                 "brandId": {
                     "type": "integer"
                 },
+                "bufferTime": {
+                    "type": "integer"
+                },
                 "comment": {
+                    "type": "string"
+                },
+                "cost": {
                     "type": "string"
                 },
                 "createdAt": {

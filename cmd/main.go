@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/db"
 	"github.com/georgifotev1/bms/internal/env"
@@ -130,6 +131,11 @@ func main() {
 		cfg.rateLimiter.TimeFrame,
 	)
 
+	cld, err := cloudinary.New()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	app := &application{
 		config:      cfg,
 		store:       store,
@@ -138,6 +144,7 @@ func main() {
 		auth:        tokenService,
 		cache:       redisCache,
 		rateLimiter: rateLimiter,
+		cloudinary:  cld,
 	}
 
 	expvar.NewString("version").Set(version)

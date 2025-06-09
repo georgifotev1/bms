@@ -6,16 +6,21 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"math/big"
+	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/go-playground/validator/v10"
+	"github.com/gorilla/schema"
 )
 
 var Validate *validator.Validate
+var Decoder *schema.Decoder
 
 const (
 	REFRESH_TOKEN         string = "refresh_token"
@@ -30,10 +35,10 @@ const (
 )
 
 func init() {
+	Decoder = schema.NewDecoder()
 	Validate = validator.New(validator.WithRequiredStructEnabled())
 }
 
-// JSON helpers
 func writeJSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -278,4 +283,21 @@ func (app *application) ClearCookie(w http.ResponseWriter, name string) {
 func getBrandIDFromCtx(ctx context.Context) int32 {
 	ctxValue := ctx.Value(brandIDCtx)
 	return ctxValue.(int32)
+}
+
+func (app *application) saveImageToCloudinary(file multipart.File) (string, error) {
+	ctx := context.Background()
+	publicID := fmt.Sprintf("bms/%d_%s", time.Now().UnixNano(), generateSubstring(8))
+
+	uploadResult, err := app.cloudinary.Upload.Upload(ctx, file, uploader.UploadParams{
+		PublicID:       publicID,
+		Folder:         "bms",
+		ResourceType:   "image",
+		Transformation: "q_auto,f_auto",
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed to upload image to Cloudinary: %w", err)
+	}
+
+	return uploadResult.SecureURL, nil
 }
