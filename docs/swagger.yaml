@@ -60,15 +60,15 @@ definitions:
         type: string
       duration:
         type: integer
-      imageUrl:
-        type: string
+      image:
+        $ref: '#/definitions/multipart.FileHeader'
       isVisible:
         type: boolean
       title:
         maxLength: 100
         minLength: 3
         type: string
-      userIds:
+      userIDs:
         items:
           type: integer
         type: array
@@ -275,6 +275,15 @@ definitions:
       verified:
         type: boolean
     type: object
+  multipart.FileHeader:
+    properties:
+      filename:
+        type: string
+      header:
+        $ref: '#/definitions/textproto.MIMEHeader'
+      size:
+        type: integer
+    type: object
   store.BrandResponse:
     properties:
       address:
@@ -353,6 +362,12 @@ definitions:
         type: string
       updatedAt:
         type: string
+    type: object
+  textproto.MIMEHeader:
+    additionalProperties:
+      items:
+        type: string
+      type: array
     type: object
 info:
   contact:
@@ -895,6 +910,45 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: Get services by brand
+      tags:
+      - service
+  /service/{serviceId}:
+    put:
+      consumes:
+      - application/json
+      description: Update a service and the users that can provide it
+      parameters:
+      - description: Service update data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateServicePayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Updated service
+          schema:
+            $ref: '#/definitions/main.ServiceResponse'
+        "400":
+          description: Bad request - Invalid input
+          schema: {}
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema: {}
+        "403":
+          description: Forbidden - User does not belong to a brand
+          schema: {}
+        "404":
+          description: Not found - One or more providers not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a service
       tags:
       - service
   /users:

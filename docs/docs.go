@@ -811,6 +811,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/service/{serviceId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a service and the users that can provide it",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "Update a service",
+                "parameters": [
+                    {
+                        "description": "Service update data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateServicePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Updated service",
+                        "schema": {
+                            "$ref": "#/definitions/main.ServiceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid input",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {}
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not belong to a brand",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found - One or more providers not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -1125,8 +1184,8 @@ const docTemplate = `{
                 "duration": {
                     "type": "integer"
                 },
-                "imageUrl": {
-                    "type": "string"
+                "image": {
+                    "$ref": "#/definitions/multipart.FileHeader"
                 },
                 "isVisible": {
                     "type": "boolean"
@@ -1136,7 +1195,7 @@ const docTemplate = `{
                     "maxLength": 100,
                     "minLength": 3
                 },
-                "userIds": {
+                "userIDs": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -1436,6 +1495,20 @@ const docTemplate = `{
                 }
             }
         },
+        "multipart.FileHeader": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string"
+                },
+                "header": {
+                    "$ref": "#/definitions/textproto.MIMEHeader"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
         "store.BrandResponse": {
             "type": "object",
             "properties": {
@@ -1552,6 +1625,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "textproto.MIMEHeader": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
                     "type": "string"
                 }
             }

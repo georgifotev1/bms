@@ -21,8 +21,16 @@ type CreateServiceTxParams struct {
 }
 
 type UpdateServiceTxParams struct {
-	ID uuid.UUID
-	CreateServiceTxParams
+	ID          uuid.UUID
+	Title       string
+	Description string
+	Duration    int32
+	BufferTime  int32
+	Cost        string
+	IsVisible   bool
+	ImageURL    string
+	BrandID     int32
+	UserIDs     []int64
 }
 
 type ServiceTxResult struct {
