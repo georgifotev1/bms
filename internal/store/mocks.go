@@ -2717,48 +2717,48 @@ func (_c *MockQuerier_ListVisibleServices_Call) RunAndReturn(run func(ctx contex
 	return _c
 }
 
-// RemoveServiceFromUser provides a mock function for the type MockQuerier
-func (_mock *MockQuerier) RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error {
-	ret := _mock.Called(ctx, arg)
+// RemoveUsersFromService provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) RemoveUsersFromService(ctx context.Context, serviceID uuid.UUID) error {
+	ret := _mock.Called(ctx, serviceID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RemoveServiceFromUser")
+		panic("no return value specified for RemoveUsersFromService")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, RemoveServiceFromUserParams) error); ok {
-		r0 = returnFunc(ctx, arg)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, serviceID)
 	} else {
 		r0 = ret.Error(0)
 	}
 	return r0
 }
 
-// MockQuerier_RemoveServiceFromUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveServiceFromUser'
-type MockQuerier_RemoveServiceFromUser_Call struct {
+// MockQuerier_RemoveUsersFromService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveUsersFromService'
+type MockQuerier_RemoveUsersFromService_Call struct {
 	*mock.Call
 }
 
-// RemoveServiceFromUser is a helper method to define mock.On call
+// RemoveUsersFromService is a helper method to define mock.On call
 //   - ctx
-//   - arg
-func (_e *MockQuerier_Expecter) RemoveServiceFromUser(ctx interface{}, arg interface{}) *MockQuerier_RemoveServiceFromUser_Call {
-	return &MockQuerier_RemoveServiceFromUser_Call{Call: _e.mock.On("RemoveServiceFromUser", ctx, arg)}
+//   - serviceID
+func (_e *MockQuerier_Expecter) RemoveUsersFromService(ctx interface{}, serviceID interface{}) *MockQuerier_RemoveUsersFromService_Call {
+	return &MockQuerier_RemoveUsersFromService_Call{Call: _e.mock.On("RemoveUsersFromService", ctx, serviceID)}
 }
 
-func (_c *MockQuerier_RemoveServiceFromUser_Call) Run(run func(ctx context.Context, arg RemoveServiceFromUserParams)) *MockQuerier_RemoveServiceFromUser_Call {
+func (_c *MockQuerier_RemoveUsersFromService_Call) Run(run func(ctx context.Context, serviceID uuid.UUID)) *MockQuerier_RemoveUsersFromService_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(RemoveServiceFromUserParams))
+		run(args[0].(context.Context), args[1].(uuid.UUID))
 	})
 	return _c
 }
 
-func (_c *MockQuerier_RemoveServiceFromUser_Call) Return(err error) *MockQuerier_RemoveServiceFromUser_Call {
+func (_c *MockQuerier_RemoveUsersFromService_Call) Return(err error) *MockQuerier_RemoveUsersFromService_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockQuerier_RemoveServiceFromUser_Call) RunAndReturn(run func(ctx context.Context, arg RemoveServiceFromUserParams) error) *MockQuerier_RemoveServiceFromUser_Call {
+func (_c *MockQuerier_RemoveUsersFromService_Call) RunAndReturn(run func(ctx context.Context, serviceID uuid.UUID) error) *MockQuerier_RemoveUsersFromService_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3834,23 +3834,23 @@ func (_c *MockStore_CreateService_Call) RunAndReturn(run func(ctx context.Contex
 }
 
 // CreateServiceTx provides a mock function for the type MockStore
-func (_mock *MockStore) CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (*CreateServiceTxResult, error) {
+func (_mock *MockStore) CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (*ServiceTxResult, error) {
 	ret := _mock.Called(ctx, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateServiceTx")
 	}
 
-	var r0 *CreateServiceTxResult
+	var r0 *ServiceTxResult
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateServiceTxParams) (*CreateServiceTxResult, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateServiceTxParams) (*ServiceTxResult, error)); ok {
 		return returnFunc(ctx, arg)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateServiceTxParams) *CreateServiceTxResult); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, CreateServiceTxParams) *ServiceTxResult); ok {
 		r0 = returnFunc(ctx, arg)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*CreateServiceTxResult)
+			r0 = ret.Get(0).(*ServiceTxResult)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, CreateServiceTxParams) error); ok {
@@ -3880,12 +3880,12 @@ func (_c *MockStore_CreateServiceTx_Call) Run(run func(ctx context.Context, arg 
 	return _c
 }
 
-func (_c *MockStore_CreateServiceTx_Call) Return(createServiceTxResult *CreateServiceTxResult, err error) *MockStore_CreateServiceTx_Call {
-	_c.Call.Return(createServiceTxResult, err)
+func (_c *MockStore_CreateServiceTx_Call) Return(serviceTxResult *ServiceTxResult, err error) *MockStore_CreateServiceTx_Call {
+	_c.Call.Return(serviceTxResult, err)
 	return _c
 }
 
-func (_c *MockStore_CreateServiceTx_Call) RunAndReturn(run func(ctx context.Context, arg CreateServiceTxParams) (*CreateServiceTxResult, error)) *MockStore_CreateServiceTx_Call {
+func (_c *MockStore_CreateServiceTx_Call) RunAndReturn(run func(ctx context.Context, arg CreateServiceTxParams) (*ServiceTxResult, error)) *MockStore_CreateServiceTx_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -5877,48 +5877,48 @@ func (_c *MockStore_ListVisibleServices_Call) RunAndReturn(run func(ctx context.
 	return _c
 }
 
-// RemoveServiceFromUser provides a mock function for the type MockStore
-func (_mock *MockStore) RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error {
-	ret := _mock.Called(ctx, arg)
+// RemoveUsersFromService provides a mock function for the type MockStore
+func (_mock *MockStore) RemoveUsersFromService(ctx context.Context, serviceID uuid.UUID) error {
+	ret := _mock.Called(ctx, serviceID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RemoveServiceFromUser")
+		panic("no return value specified for RemoveUsersFromService")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, RemoveServiceFromUserParams) error); ok {
-		r0 = returnFunc(ctx, arg)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = returnFunc(ctx, serviceID)
 	} else {
 		r0 = ret.Error(0)
 	}
 	return r0
 }
 
-// MockStore_RemoveServiceFromUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveServiceFromUser'
-type MockStore_RemoveServiceFromUser_Call struct {
+// MockStore_RemoveUsersFromService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveUsersFromService'
+type MockStore_RemoveUsersFromService_Call struct {
 	*mock.Call
 }
 
-// RemoveServiceFromUser is a helper method to define mock.On call
+// RemoveUsersFromService is a helper method to define mock.On call
 //   - ctx
-//   - arg
-func (_e *MockStore_Expecter) RemoveServiceFromUser(ctx interface{}, arg interface{}) *MockStore_RemoveServiceFromUser_Call {
-	return &MockStore_RemoveServiceFromUser_Call{Call: _e.mock.On("RemoveServiceFromUser", ctx, arg)}
+//   - serviceID
+func (_e *MockStore_Expecter) RemoveUsersFromService(ctx interface{}, serviceID interface{}) *MockStore_RemoveUsersFromService_Call {
+	return &MockStore_RemoveUsersFromService_Call{Call: _e.mock.On("RemoveUsersFromService", ctx, serviceID)}
 }
 
-func (_c *MockStore_RemoveServiceFromUser_Call) Run(run func(ctx context.Context, arg RemoveServiceFromUserParams)) *MockStore_RemoveServiceFromUser_Call {
+func (_c *MockStore_RemoveUsersFromService_Call) Run(run func(ctx context.Context, serviceID uuid.UUID)) *MockStore_RemoveUsersFromService_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(RemoveServiceFromUserParams))
+		run(args[0].(context.Context), args[1].(uuid.UUID))
 	})
 	return _c
 }
 
-func (_c *MockStore_RemoveServiceFromUser_Call) Return(err error) *MockStore_RemoveServiceFromUser_Call {
+func (_c *MockStore_RemoveUsersFromService_Call) Return(err error) *MockStore_RemoveUsersFromService_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockStore_RemoveServiceFromUser_Call) RunAndReturn(run func(ctx context.Context, arg RemoveServiceFromUserParams) error) *MockStore_RemoveServiceFromUser_Call {
+func (_c *MockStore_RemoveUsersFromService_Call) RunAndReturn(run func(ctx context.Context, serviceID uuid.UUID) error) *MockStore_RemoveUsersFromService_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -6204,6 +6204,63 @@ func (_c *MockStore_UpdateService_Call) Return(service *Service, err error) *Moc
 }
 
 func (_c *MockStore_UpdateService_Call) RunAndReturn(run func(ctx context.Context, arg UpdateServiceParams) (*Service, error)) *MockStore_UpdateService_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateServiceTx provides a mock function for the type MockStore
+func (_mock *MockStore) UpdateServiceTx(ctx context.Context, arg UpdateServiceTxParams) (*ServiceTxResult, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateServiceTx")
+	}
+
+	var r0 *ServiceTxResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateServiceTxParams) (*ServiceTxResult, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, UpdateServiceTxParams) *ServiceTxResult); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*ServiceTxResult)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, UpdateServiceTxParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockStore_UpdateServiceTx_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateServiceTx'
+type MockStore_UpdateServiceTx_Call struct {
+	*mock.Call
+}
+
+// UpdateServiceTx is a helper method to define mock.On call
+//   - ctx
+//   - arg
+func (_e *MockStore_Expecter) UpdateServiceTx(ctx interface{}, arg interface{}) *MockStore_UpdateServiceTx_Call {
+	return &MockStore_UpdateServiceTx_Call{Call: _e.mock.On("UpdateServiceTx", ctx, arg)}
+}
+
+func (_c *MockStore_UpdateServiceTx_Call) Run(run func(ctx context.Context, arg UpdateServiceTxParams)) *MockStore_UpdateServiceTx_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(UpdateServiceTxParams))
+	})
+	return _c
+}
+
+func (_c *MockStore_UpdateServiceTx_Call) Return(serviceTxResult *ServiceTxResult, err error) *MockStore_UpdateServiceTx_Call {
+	_c.Call.Return(serviceTxResult, err)
+	return _c
+}
+
+func (_c *MockStore_UpdateServiceTx_Call) RunAndReturn(run func(ctx context.Context, arg UpdateServiceTxParams) (*ServiceTxResult, error)) *MockStore_UpdateServiceTx_Call {
 	_c.Call.Return(run)
 	return _c
 }

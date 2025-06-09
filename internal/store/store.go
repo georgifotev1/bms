@@ -8,7 +8,8 @@ import (
 
 type Store interface {
 	Querier
-	CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (*CreateServiceTxResult, error)
+	CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (*ServiceTxResult, error)
+	UpdateServiceTx(ctx context.Context, arg UpdateServiceTxParams) (*ServiceTxResult, error)
 	ActivateUserTx(ctx context.Context, arg ActivateUserTxParams) error
 	CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, error)
 	CreateGuestTx(ctx context.Context, arg CreateGuestTxParams) (*Customer, bool, error)

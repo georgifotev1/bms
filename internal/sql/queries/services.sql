@@ -68,9 +68,9 @@ INSERT INTO user_services (
     $1, $2
 );
 
--- name: RemoveServiceFromUser :exec
+-- name: RemoveUsersFromService :exec
 DELETE FROM user_services
-WHERE user_id = $1 AND service_id = $2;
+WHERE service_id = $1;
 
 -- name: ListUserServices :many
 SELECT s.*

@@ -275,18 +275,13 @@ func (q *Queries) ListVisibleServices(ctx context.Context, brandID int32) ([]*Se
 	return items, nil
 }
 
-const removeServiceFromUser = `-- name: RemoveServiceFromUser :exec
+const removeUsersFromService = `-- name: RemoveUsersFromService :exec
 DELETE FROM user_services
-WHERE user_id = $1 AND service_id = $2
+WHERE service_id = $1
 `
 
-type RemoveServiceFromUserParams struct {
-	UserID    int64     `json:"userId"`
-	ServiceID uuid.UUID `json:"serviceId"`
-}
-
-func (q *Queries) RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error {
-	_, err := q.db.ExecContext(ctx, removeServiceFromUser, arg.UserID, arg.ServiceID)
+func (q *Queries) RemoveUsersFromService(ctx context.Context, serviceID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, removeUsersFromService, serviceID)
 	return err
 }
 

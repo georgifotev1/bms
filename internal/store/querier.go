@@ -63,7 +63,7 @@ type Querier interface {
 	ListServicesWithProviders(ctx context.Context, brandID int32) ([]*ListServicesWithProvidersRow, error)
 	ListUserServices(ctx context.Context, userID int64) ([]*Service, error)
 	ListVisibleServices(ctx context.Context, brandID int32) ([]*Service, error)
-	RemoveServiceFromUser(ctx context.Context, arg RemoveServiceFromUserParams) error
+	RemoveUsersFromService(ctx context.Context, serviceID uuid.UUID) error
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) (*Brand, error)
 	UpdateBrandPartial(ctx context.Context, arg UpdateBrandPartialParams) (*Brand, error)
 	UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error)
