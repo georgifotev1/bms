@@ -29,30 +29,35 @@ type ServiceResponse struct {
 }
 
 type CreateServicePayload struct {
-	Title       string                `schema:"title" validate:"required,min=3,max=100"`
-	Description string                `schema:"description"`
-	Duration    int32                 `schema:"duration" validate:"required,gt=0"`
-	BufferTime  int32                 `schema:"bufferTime"`
-	Cost        string                `schema:"cost"`
-	IsVisible   bool                  `schema:"isVisible"`
-	Image       *multipart.FileHeader `schema:"-"`
-	UserIDs     []int64               `schema:"userIds"`
+	Title       string  `schema:"title" validate:"required,min=3,max=100"`
+	Description string  `schema:"description"`
+	Duration    int32   `schema:"duration" validate:"required,gt=0"`
+	BufferTime  int32   `schema:"bufferTime"`
+	Cost        string  `schema:"cost"`
+	ImageURL    string  `schema:"imageUrl"`
+	IsVisible   bool    `schema:"isVisible"`
+	UserIDs     []int64 `schema:"userIds"`
 }
 
-//	@Summary		Create a new service
-//	@Description	Creates a new service for a brand and assigns it to specified providers
-//	@Tags			service
-//	@Accept			json
-//	@Produce		json
-//	@Security		ApiKeyAuth
-//	@Param			payload	body		CreateServicePayload	true	"Service creation data"
-//	@Success		201		{object}	ServiceResponse			"Created service"
-//	@Failure		400		{object}	error					"Bad request - Invalid input"
-//	@Failure		401		{object}	error					"Unauthorized - Invalid or missing token"
-//	@Failure		403		{object}	error					"Forbidden - User does not belong to a brand"
-//	@Failure		404		{object}	error					"Not found - One or more providers not found"
-//	@Failure		500		{object}	error					"Internal server error"
-//	@Router			/service [post]
+type ImageInput struct {
+	URL  string
+	File *multipart.FileHeader
+}
+
+// @Summary		Create a new service
+// @Description	Creates a new service for a brand and assigns it to specified providers
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Security		ApiKeyAuth
+// @Param			payload	body		CreateServicePayload	true	"Service creation data"
+// @Success		201		{object}	ServiceResponse			"Created service"
+// @Failure		400		{object}	error					"Bad request - Invalid input"
+// @Failure		401		{object}	error					"Unauthorized - Invalid or missing token"
+// @Failure		403		{object}	error					"Forbidden - User does not belong to a brand"
+// @Failure		404		{object}	error					"Not found - One or more providers not found"
+// @Failure		500		{object}	error					"Internal server error"
+// @Router			/service [post]
 func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctxUser := ctx.Value(userCtx).(*store.User)
@@ -119,21 +124,21 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-//	@Summary		Update a service
-//	@Description	Update a service and the users that can provide it
-//	@Tags			service
-//	@Accept			json
-//	@Produce		json
-//	@Security		ApiKeyAuth
-//	@Param			payload		body		CreateServicePayload	true	"Service update data"
-//	@Param			serviceId	path		uuid.UUID				true	"service ID"
-//	@Success		201			{object}	ServiceResponse			"Updated service"
-//	@Failure		400			{object}	error					"Bad request - Invalid input"
-//	@Failure		401			{object}	error					"Unauthorized - Invalid or missing token"
-//	@Failure		403			{object}	error					"Forbidden - User does not belong to a brand"
-//	@Failure		404			{object}	error					"Not found - One or more providers not found"
-//	@Failure		500			{object}	error					"Internal server error"
-//	@Router			/service/{serviceId} [put]
+// @Summary		Update a service
+// @Description	Update a service and the users that can provide it
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Security		ApiKeyAuth
+// @Param			payload		body		CreateServicePayload	true	"Service update data"
+// @Param			serviceId	path		uuid.UUID				true	"service ID"
+// @Success		201			{object}	ServiceResponse			"Updated service"
+// @Failure		400			{object}	error					"Bad request - Invalid input"
+// @Failure		401			{object}	error					"Unauthorized - Invalid or missing token"
+// @Failure		403			{object}	error					"Forbidden - User does not belong to a brand"
+// @Failure		404			{object}	error					"Not found - One or more providers not found"
+// @Failure		500			{object}	error					"Internal server error"
+// @Router			/service/id/{serviceId} [put]
 func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctxUser := ctx.Value(userCtx).(*store.User)
@@ -168,16 +173,20 @@ func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var imageURL string
-	if file, _, err := r.FormFile("image"); err == nil {
-		defer file.Close()
+	imageInput := &ImageInput{}
 
-		uploadedURL, uploadErr := app.saveImageToCloudinary(file)
-		if uploadErr != nil {
-			app.badRequestResponse(w, r, uploadErr)
-			return
+	if payload.ImageURL != "" {
+		imageInput.URL = payload.ImageURL
+	} else {
+		if _, fileHeader, err := r.FormFile("image"); err == nil {
+			imageInput.File = fileHeader
 		}
-		imageURL = uploadedURL
+	}
+
+	imageURL, err := app.ProcessImage(imageInput)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
 	}
 
 	result, err := app.store.UpdateServiceTx(ctx, store.UpdateServiceTxParams{
@@ -208,17 +217,17 @@ func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-//	@Summary		Get services by brand
-//	@Description	Fetches all services of a brand
-//	@Tags			service
-//	@Accept			json
-//	@Produce		json
-//	@Param			brandId	path		int	true	"BrandId ID"
-//	@Success		200		{object}	[]ServiceResponse
-//	@Failure		400		{object}	error
-//	@Failure		404		{object}	error
-//	@Failure		500		{object}	error
-//	@Router			/service/{brandId} [get]
+// @Summary		Get services by brand
+// @Description	Fetches all services of a brand
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Param			brandId	path		int	true	"BrandId ID"
+// @Success		200		{object}	[]ServiceResponse
+// @Failure		400		{object}	error
+// @Failure		404		{object}	error
+// @Failure		500		{object}	error
+// @Router			/service/{brandId} [get]
 func (app *application) getServicesHandler(w http.ResponseWriter, r *http.Request) {
 	brandIDStr := chi.URLParam(r, "brandId")
 	if brandIDStr == "" {
