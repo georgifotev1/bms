@@ -85,6 +85,11 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	if len(payload.UserIDs) < 1 {
+		app.badRequestResponse(w, r, errors.New("At least one provider must be assigned to this service"))
+		return
+	}
+
 	var imageURL string
 	if file, _, err := r.FormFile("image"); err == nil {
 		defer file.Close()
@@ -170,6 +175,11 @@ func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Requ
 
 	if err := Validate.Struct(payload); err != nil {
 		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if len(payload.UserIDs) < 1 {
+		app.badRequestResponse(w, r, errors.New("At least one provider must be assigned to this service"))
 		return
 	}
 
