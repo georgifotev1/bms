@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"time"
 
-	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/store"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type RegisterUserPayload struct {
+type SignUpUserPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=3,max=72"`
 	Username string `json:"username" validate:"required,min=2,max=100"`
@@ -24,13 +25,13 @@ type RegisterUserPayload struct {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		RegisterUserPayload	true	"User credentials"
-//	@Success		201		{object}	UserWithToken		"User registered"
+//	@Param			payload	body		SignUpUserPayload	true	"User credentials"
+//	@Success		201		{object}	UserResponse		"Register a new user"
 //	@Failure		400		{object}	error
 //	@Failure		500		{object}	error
-//	@Router			/auth/register [post]
-func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
-	var payload RegisterUserPayload
+//	@Router			/auth/signup [post]
+func (app *application) signUpUserHandler(w http.ResponseWriter, r *http.Request) {
+	var payload SignUpUserPayload
 	if err := readJSON(w, r, &payload); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -66,6 +67,15 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	session, err := app.store.CreateUserSession(r.Context(), store.CreateUserSessionParams{
+		UserID:    user.ID,
+		ExpiresAt: time.Now().UTC().Add(time.Hour),
+	})
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
 	vars := struct {
 		Username string
 	}{
@@ -92,46 +102,35 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 	app.logger.Infow("Email sent", "status code", status)
 
-	accessToken, refreshToken, err := app.auth.GenerateTokens(user.ID)
-	if err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	app.SetCookie(w, REFRESH_TOKEN, refreshToken)
+	app.SetCookie(w, SESSION_TOKEN, session.ID.String())
 
 	userResponse := userResponseMapper(user)
 
-	response := UserWithToken{
-		UserResponse: userResponse,
-		Token:        accessToken,
-	}
-
-	if err := writeJSON(w, http.StatusCreated, response); err != nil {
+	if err := writeJSON(w, http.StatusCreated, userResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
 
-type CreateUserTokenPayload struct {
+type SignInUserPayload struct {
 	Email    string `json:"email" validate:"required,email,max=255"`
 	Password string `json:"password" validate:"required,min=3,max=72"`
 }
 
 // createTokenHandler godoc
 //
-//	@Summary		Creates a token
-//	@Description	Creates a token for a user
+//	@Summary		Sign in user
+//	@Description	Sign in user
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		CreateUserTokenPayload	true	"User credentials"
-//	@Success		200		{string}	string					"Token"
+//	@Param			payload	body		SignInUserPayload	true	"User credentials"
+//	@Success		200		{string}	UserResponse		"User data"
 //	@Failure		400		{object}	error
 //	@Failure		401		{object}	error
 //	@Failure		500		{object}	error
-//	@Router			/auth/token [post]
-func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Request) {
-	var payload CreateUserTokenPayload
+//	@Router			/auth/signin [post]
+func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request) {
+	var payload SignInUserPayload
 	if err := readJSON(w, r, &payload); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -142,7 +141,9 @@ func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	user, err := app.store.GetUserByEmail(r.Context(), payload.Email)
+	ctx := r.Context()
+
+	user, err := app.store.GetUserByEmail(ctx, payload.Email)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -159,62 +160,44 @@ func (app *application) createTokenHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	accessToken, refreshToken, err := app.auth.GenerateTokens(user.ID)
+	var token uuid.UUID
+
+	session, err := app.store.GetSessionByUserId(ctx, user.ID)
 	if err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	app.SetCookie(w, REFRESH_TOKEN, refreshToken)
-
-	response := map[string]string{
-		"token": accessToken,
-	}
-
-	if err := writeJSON(w, http.StatusCreated, response); err != nil {
-		app.internalServerError(w, r, err)
-	}
-}
-
-// refreshTokenHandler godoc
-//
-//	@Summary		Refreshes an access token
-//	@Description	Uses a refresh token to generate a new access token
-//	@Tags			auth
-//	@Produce		json
-//	@Success		200	{string}	string	"New access token"
-//	@Failure		401	{object}	error
-//	@Failure		500	{object}	error
-//	@Router			/auth/refresh [get]
-func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie(REFRESH_TOKEN)
-	if err != nil {
-		app.unauthorizedErrorResponse(w, r, errors.New("refresh token not found"))
-		return
-	}
-
-	refreshToken := cookie.Value
-
-	newAccessToken, newRefreshToken, err := app.auth.RefreshTokens(refreshToken)
-	if err != nil {
-		switch err.Error() {
-		case auth.ErrTokenClaims, auth.ErrTokenType, auth.ErrTokenValidation:
-			// if refresh token is invalid remove it
-			app.ClearCookie(w, REFRESH_TOKEN)
-			app.unauthorizedErrorResponse(w, r, err)
+		switch err {
+		case sql.ErrNoRows:
+			newSession, err := app.store.CreateUserSession(r.Context(), store.CreateUserSessionParams{
+				UserID:    user.ID,
+				ExpiresAt: time.Now().UTC().Add(app.config.auth.session.exp),
+			})
+			if err != nil {
+				app.internalServerError(w, r, err)
+				return
+			}
+			token = newSession.ID
 		default:
 			app.internalServerError(w, r, err)
+			return
 		}
-		return
 	}
 
-	app.SetCookie(w, REFRESH_TOKEN, newRefreshToken)
-
-	response := map[string]string{
-		"token": newAccessToken,
+	if session.ID != uuid.Nil {
+		updatedSession, err := app.store.UpdateUserSession(ctx, store.UpdateUserSessionParams{
+			ID:        session.ID,
+			ExpiresAt: time.Now().UTC().Add(time.Hour),
+		})
+		if err != nil {
+			app.internalServerError(w, r, err)
+			return
+		}
+		token = updatedSession.ID
 	}
 
-	if err := writeJSON(w, http.StatusOK, response); err != nil {
+	app.SetCookie(w, SESSION_TOKEN, token.String())
+
+	userResponse := userResponseMapper(user)
+
+	if err := writeJSON(w, http.StatusOK, userResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
@@ -222,14 +205,36 @@ func (app *application) refreshTokenHandler(w http.ResponseWriter, r *http.Reque
 // logoutHandler godoc
 //
 //	@Summary		Logs out a user
-//	@Description	Clears the refresh token cookie to log out the user
+//	@Description	Clears the session cookie to log out the user
 //	@Tags			auth
 //	@Produce		json
 //	@Success		200	{string}	string	"Logged out successfully"
+//	@Failure		401	{object}	error
 //	@Failure		500	{object}	error
 //	@Router			/auth/logout [post]
 func (app *application) logoutHandler(w http.ResponseWriter, r *http.Request) {
-	app.ClearCookie(w, REFRESH_TOKEN)
+	cookie, err := r.Cookie(SESSION_TOKEN)
+	if err != nil {
+		app.unauthorizedErrorResponse(w, r, err)
+		return
+	}
+
+	sessionId, err := uuid.Parse(cookie.Value)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	_, err = app.store.UpdateUserSession(r.Context(), store.UpdateUserSessionParams{
+		ID:        sessionId,
+		ExpiresAt: time.Unix(0, 0),
+	})
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	app.ClearCookie(w, SESSION_TOKEN)
 
 	response := map[string]string{
 		"message": "Logged out successfully",

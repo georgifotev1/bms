@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/cloudinary/cloudinary-go/v2"
-	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/db"
 	"github.com/georgifotev1/bms/internal/env"
 	"github.com/georgifotev1/bms/internal/mailer"
@@ -21,23 +20,21 @@ import (
 
 const version = "1.1.0"
 
-//	@title			Booking System
-//	@description	API for Booking System
-//	@termsOfService	http://swagger.io/terms/
-
-//	@contact.name	API Support
-//	@contact.url	http://www.swagger.io/support
-//	@contact.email	support@swagger.io
-
-//	@license.name	Apache 2.0
-//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
-
+// @title						Event Managing System
+// @description				API for Event Managing System
+// @termsOfService				http://swagger.io/terms/
+// @contact.name				API Support
+// @contact.url				http://www.swagger.io/support
+// @contact.email				support@swagger.io
+// @license.name				Apache 2.0
+// @license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+//
 // @BasePath					/v1
 //
-// @securityDefinitions.apikey	ApiKeyAuth
-// @in							header
-// @name						Authorization
-// @description
+// @securityDefinitions.apikey	CookieAuth
+// @in							cookie
+// @name						session_id
+// @description				Session-based authentication using cookies
 func main() {
 	logger := zap.Must(zap.NewProduction()).Sugar()
 	defer logger.Sync()
@@ -64,10 +61,8 @@ func main() {
 				user: env.GetString("AUTH_BASIC_USER", "admin"),
 				pass: env.GetString("AUTH_BASIC_PASS", "admin"),
 			},
-			token: tokenConfig{
-				secret: env.GetString("AUTH_TOKEN_SECRET", "supersecret"),
-				exp:    time.Hour,
-				iss:    "bms",
+			session: sessionConfig{
+				exp: time.Hour,
 			},
 		},
 		mail: mailConfig{
@@ -119,13 +114,6 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	tokenService := auth.NewTokenService(
-		cfg.auth.token.secret,
-		cfg.auth.token.iss,
-		cfg.auth.token.iss,
-		cfg.auth.token.exp,
-	)
-
 	rateLimiter := ratelimiter.NewFixedWindowLimiter(
 		cfg.rateLimiter.RequestsPerTimeFrame,
 		cfg.rateLimiter.TimeFrame,
@@ -137,14 +125,13 @@ func main() {
 	}
 
 	app := &application{
-		config:      cfg,
-		store:       store,
-		logger:      logger,
-		mailer:      mailtrap,
-		auth:        tokenService,
-		cache:       redisCache,
-		rateLimiter: rateLimiter,
-		cloudinary:  cld,
+		config:       cfg,
+		store:        store,
+		logger:       logger,
+		mailer:       mailtrap,
+		cache:        redisCache,
+		rateLimiter:  rateLimiter,
+		imageService: cld,
 	}
 
 	expvar.NewString("version").Set(version)

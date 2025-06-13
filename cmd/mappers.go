@@ -92,13 +92,12 @@ func serviceResponseMapper(service *store.Service, providers []int64) ServiceRes
 	}
 }
 
-func customerResponseMapper(customer *store.Customer, token string) CustomerResponse {
+func customerResponseMapper(customer *store.Customer) CustomerResponse {
 	return CustomerResponse{
 		ID:          customer.ID,
 		Name:        customer.Name,
 		Email:       customer.Email.String,
 		BrandId:     customer.BrandID,
-		Token:       token,
 		PhoneNumber: customer.PhoneNumber,
 	}
 }

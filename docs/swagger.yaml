@@ -60,8 +60,8 @@ definitions:
         type: string
       duration:
         type: integer
-      image:
-        $ref: '#/definitions/multipart.FileHeader'
+      imageURL:
+        type: string
       isVisible:
         type: boolean
       title:
@@ -76,19 +76,6 @@ definitions:
     - duration
     - title
     type: object
-  main.CreateUserTokenPayload:
-    properties:
-      email:
-        maxLength: 255
-        type: string
-      password:
-        maxLength: 72
-        minLength: 3
-        type: string
-    required:
-    - email
-    - password
-    type: object
   main.CustomerResponse:
     properties:
       brandId:
@@ -102,8 +89,6 @@ definitions:
       name:
         type: string
       phoneNumber:
-        type: string
-      token:
         type: string
       updatedAt:
         type: string
@@ -153,55 +138,6 @@ definitions:
     - email
     - username
     type: object
-  main.LoginCustomerPayload:
-    properties:
-      email:
-        type: string
-      password:
-        maxLength: 72
-        minLength: 3
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  main.RegisterCustomerPayload:
-    properties:
-      email:
-        type: string
-      name:
-        maxLength: 100
-        minLength: 2
-        type: string
-      password:
-        maxLength: 72
-        minLength: 3
-        type: string
-      phoneNumber:
-        type: string
-    required:
-    - email
-    - name
-    - password
-    - phoneNumber
-    type: object
-  main.RegisterUserPayload:
-    properties:
-      email:
-        type: string
-      password:
-        maxLength: 72
-        minLength: 3
-        type: string
-      username:
-        maxLength: 100
-        minLength: 2
-        type: string
-    required:
-    - email
-    - password
-    - username
-    type: object
   main.ServiceResponse:
     properties:
       brandId:
@@ -230,6 +166,68 @@ definitions:
         type: string
       updatedAt:
         type: string
+    type: object
+  main.SignInCustomerPayload:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  main.SignInUserPayload:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  main.SignUpCustomerPayload:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+      phoneNumber:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - phoneNumber
+    type: object
+  main.SignUpUserPayload:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 72
+        minLength: 3
+        type: string
+      username:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - email
+    - password
+    - username
     type: object
   main.UserResponse:
     properties:
@@ -274,15 +272,6 @@ definitions:
         type: string
       verified:
         type: boolean
-    type: object
-  multipart.FileHeader:
-    properties:
-      filename:
-        type: string
-      header:
-        $ref: '#/definitions/textproto.MIMEHeader'
-      size:
-        type: integer
     type: object
   store.BrandResponse:
     properties:
@@ -363,48 +352,26 @@ definitions:
       updatedAt:
         type: string
     type: object
-  textproto.MIMEHeader:
-    additionalProperties:
-      items:
-        type: string
-      type: array
-    type: object
 info:
   contact:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: API for Booking System
+  description: API for Event Managing System
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Booking System
+  title: Event Managing System
 paths:
   /auth/logout:
     post:
-      description: Clears the refresh token cookie to log out the user
+      description: Clears the session cookie to log out the user
       produces:
       - application/json
       responses:
         "200":
           description: Logged out successfully
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: Logs out a user
-      tags:
-      - auth
-  /auth/refresh:
-    get:
-      description: Uses a refresh token to generate a new access token
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: New access token
           schema:
             type: string
         "401":
@@ -413,10 +380,41 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: Refreshes an access token
+      summary: Logs out a user
       tags:
       - auth
-  /auth/register:
+  /auth/signin:
+    post:
+      consumes:
+      - application/json
+      description: Sign in user
+      parameters:
+      - description: User credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.SignInUserPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Sign in user
+      tags:
+      - auth
+  /auth/signup:
     post:
       consumes:
       - application/json
@@ -427,14 +425,14 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/main.RegisterUserPayload'
+          $ref: '#/definitions/main.SignUpUserPayload'
       produces:
       - application/json
       responses:
         "201":
-          description: User registered
+          description: Register a new user
           schema:
-            $ref: '#/definitions/main.UserWithToken'
+            $ref: '#/definitions/main.UserResponse'
         "400":
           description: Bad Request
           schema: {}
@@ -442,37 +440,6 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: Registers a user
-      tags:
-      - auth
-  /auth/token:
-    post:
-      consumes:
-      - application/json
-      description: Creates a token for a user
-      parameters:
-      - description: User credentials
-        in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/main.CreateUserTokenPayload'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Token
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema: {}
-        "401":
-          description: Unauthorized
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: Creates a token
       tags:
       - auth
   /brand:
@@ -510,7 +477,7 @@ paths:
           description: Internal server error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Create a new brand
       tags:
       - brand
@@ -563,11 +530,27 @@ paths:
           description: Internal Server Error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Get customers by brand
       tags:
       - customers
-  /customers/auth/login:
+  /customers/auth/logout:
+    post:
+      description: Clears the refresh token cookie to log out the customer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logged out successfully
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Logs out a customer
+      tags:
+      - customers
+  /customers/auth/signin:
     post:
       consumes:
       - application/json
@@ -578,7 +561,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/main.LoginCustomerPayload'
+          $ref: '#/definitions/main.SignInCustomerPayload'
       - default: "1"
         description: Brand ID header for development. In production this header is
           ignored
@@ -601,42 +584,7 @@ paths:
       summary: Login a customer
       tags:
       - customers
-  /customers/auth/logout:
-    post:
-      description: Clears the refresh token cookie to log out the customer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Logged out successfully
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: Logs out a customer
-      tags:
-      - customers
-  /customers/auth/refresh:
-    get:
-      description: Uses a refresh token to generate a new access token
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: New access token
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: Refreshes the access token of customer
-      tags:
-      - customers
-  /customers/auth/register:
+  /customers/auth/signup:
     post:
       consumes:
       - application/json
@@ -647,7 +595,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/main.RegisterCustomerPayload'
+          $ref: '#/definitions/main.SignUpCustomerPayload'
       - default: "1"
         description: Brand ID header for development. In production this header is
           ignored
@@ -773,7 +721,7 @@ paths:
           description: Internal server error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Update an event
       tags:
       - events
@@ -824,7 +772,7 @@ paths:
           description: Internal server error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: List all events of a brand in a specific week
       tags:
       - events
@@ -876,7 +824,7 @@ paths:
           description: Internal server error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Create a new service
       tags:
       - service
@@ -912,7 +860,7 @@ paths:
       summary: Get services by brand
       tags:
       - service
-  /service/{serviceId}:
+  /service/id/{serviceId}:
     put:
       consumes:
       - application/json
@@ -947,7 +895,7 @@ paths:
           description: Internal server error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Update a service
       tags:
       - service
@@ -975,7 +923,7 @@ paths:
           description: Internal Server Error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Get users by brand
       tags:
       - users
@@ -1007,7 +955,7 @@ paths:
           description: Internal Server Error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Fetches a user profile
       tags:
       - users
@@ -1069,7 +1017,7 @@ paths:
           description: Internal server error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Invite a new user
       tags:
       - users
@@ -1095,13 +1043,14 @@ paths:
           description: Internal Server Error
           schema: {}
       security:
-      - ApiKeyAuth: []
+      - CookieAuth: []
       summary: Get user by token
       tags:
       - users
 securityDefinitions:
-  ApiKeyAuth:
-    in: header
-    name: Authorization
+  CookieAuth:
+    description: Session-based authentication using cookies
+    in: cookie
+    name: session_id
     type: apiKey
 swagger: "2.0"

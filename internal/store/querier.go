@@ -18,11 +18,13 @@ type Querier interface {
 	CheckSpecificTimeslotAvailability(ctx context.Context, arg CheckSpecificTimeslotAvailabilityParams) (interface{}, error)
 	CreateBrand(ctx context.Context, arg CreateBrandParams) (*Brand, error)
 	CreateCustomer(ctx context.Context, arg CreateCustomerParams) (*Customer, error)
+	CreateCustomerSession(ctx context.Context, arg CreateCustomerSessionParams) (*CustomerSession, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (*Event, error)
 	CreateGuestCustomer(ctx context.Context, arg CreateGuestCustomerParams) (*Customer, error)
 	CreateService(ctx context.Context, arg CreateServiceParams) (*Service, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
+	CreateUserSession(ctx context.Context, arg CreateUserSessionParams) (*UserSession, error)
 	DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error
 	DeleteCustomer(ctx context.Context, id int64) error
 	DeleteEvent(ctx context.Context, id int64) error
@@ -46,16 +48,20 @@ type Querier interface {
 	GetCustomerByEmail(ctx context.Context, email sql.NullString) (*Customer, error)
 	GetCustomerById(ctx context.Context, id int64) (*Customer, error)
 	GetCustomerByNameAndPhone(ctx context.Context, arg GetCustomerByNameAndPhoneParams) (*Customer, error)
+	GetCustomerSessionById(ctx context.Context, id uuid.UUID) (*CustomerSession, error)
 	GetCustomersByBrand(ctx context.Context, brandID int32) ([]*Customer, error)
 	GetEventByID(ctx context.Context, id int64) (*Event, error)
 	GetEventsByDay(ctx context.Context, arg GetEventsByDayParams) ([]*Event, error)
 	GetEventsByWeek(ctx context.Context, arg GetEventsByWeekParams) ([]*Event, error)
 	GetService(ctx context.Context, id uuid.UUID) (*Service, error)
+	GetSessionByCustomerId(ctx context.Context, customerID int64) (*CustomerSession, error)
+	GetSessionByUserId(ctx context.Context, userID int64) (*UserSession, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)
 	GetUserEventsByDay(ctx context.Context, arg GetUserEventsByDayParams) ([]*Event, error)
 	GetUserEventsByWeek(ctx context.Context, arg GetUserEventsByWeekParams) ([]*Event, error)
 	GetUserFromInvitation(ctx context.Context, token string) (int64, error)
+	GetUserSessionById(ctx context.Context, id uuid.UUID) (*UserSession, error)
 	GetUsersByBrand(ctx context.Context, brandID sql.NullInt32) ([]*User, error)
 	ListEventsByBrand(ctx context.Context, arg ListEventsByBrandParams) ([]*Event, error)
 	ListEventsByCustomer(ctx context.Context, arg ListEventsByCustomerParams) ([]*Event, error)
@@ -67,8 +73,10 @@ type Querier interface {
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) (*Brand, error)
 	UpdateBrandPartial(ctx context.Context, arg UpdateBrandPartialParams) (*Brand, error)
 	UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error)
+	UpdateCustomerSession(ctx context.Context, arg UpdateCustomerSessionParams) (*CustomerSession, error)
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (*Event, error)
 	UpdateService(ctx context.Context, arg UpdateServiceParams) (*Service, error)
+	UpdateUserSession(ctx context.Context, arg UpdateUserSessionParams) (*UserSession, error)
 	ValidateUsersCount(ctx context.Context, arg ValidateUsersCountParams) (int64, error)
 	VerifyUser(ctx context.Context, id int64) error
 }

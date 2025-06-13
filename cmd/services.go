@@ -49,7 +49,7 @@ type ImageInput struct {
 // @Tags			service
 // @Accept			json
 // @Produce		json
-// @Security		ApiKeyAuth
+// @Security		CookieAuth
 // @Param			payload	body		CreateServicePayload	true	"Service creation data"
 // @Success		201		{object}	ServiceResponse			"Created service"
 // @Failure		400		{object}	error					"Bad request - Invalid input"
@@ -134,7 +134,7 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 // @Tags			service
 // @Accept			json
 // @Produce		json
-// @Security		ApiKeyAuth
+// @Security		CookieAuth
 // @Param			payload		body		CreateServicePayload	true	"Service update data"
 // @Param			serviceId	path		uuid.UUID				true	"service ID"
 // @Success		201			{object}	ServiceResponse			"Updated service"

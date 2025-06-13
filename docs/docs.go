@@ -26,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/auth/logout": {
             "post": {
-                "description": "Clears the refresh token cookie to log out the user",
+                "description": "Clears the session cookie to log out the user",
                 "produces": [
                     "application/json"
                 ],
@@ -37,30 +37,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Logged out successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/auth/refresh": {
-            "get": {
-                "description": "Uses a refresh token to generate a new access token",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Refreshes an access token",
-                "responses": {
-                    "200": {
-                        "description": "New access token",
                         "schema": {
                             "type": "string"
                         }
@@ -76,7 +52,53 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/register": {
+        "/auth/signin": {
+            "post": {
+                "description": "Sign in user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Sign in user",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.SignInUserPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User data",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/auth/signup": {
             "post": {
                 "description": "Registers a user",
                 "consumes": [
@@ -96,65 +118,19 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.RegisterUserPayload"
+                            "$ref": "#/definitions/main.SignUpUserPayload"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "User registered",
+                        "description": "Register a new user",
                         "schema": {
-                            "$ref": "#/definitions/main.UserWithToken"
+                            "$ref": "#/definitions/main.UserResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/auth/token": {
-            "post": {
-                "description": "Creates a token for a user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Creates a token",
-                "parameters": [
-                    {
-                        "description": "User credentials",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.CreateUserTokenPayload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Token",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {}
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "schema": {}
                     },
                     "500": {
@@ -168,7 +144,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "Creates a new brand and associates it with the owner user",
@@ -264,7 +240,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "Fetches all customers of a brand",
@@ -303,7 +279,31 @@ const docTemplate = `{
                 }
             }
         },
-        "/customers/auth/login": {
+        "/customers/auth/logout": {
+            "post": {
+                "description": "Clears the refresh token cookie to log out the customer",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
+                "summary": "Logs out a customer",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/customers/auth/signin": {
             "post": {
                 "description": "Login a customer",
                 "consumes": [
@@ -323,7 +323,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.LoginCustomerPayload"
+                            "$ref": "#/definitions/main.SignInCustomerPayload"
                         }
                     },
                     {
@@ -352,59 +352,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/customers/auth/logout": {
-            "post": {
-                "description": "Clears the refresh token cookie to log out the customer",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "customers"
-                ],
-                "summary": "Logs out a customer",
-                "responses": {
-                    "200": {
-                        "description": "Logged out successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/customers/auth/refresh": {
-            "get": {
-                "description": "Uses a refresh token to generate a new access token",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "customers"
-                ],
-                "summary": "Refreshes the access token of customer",
-                "responses": {
-                    "200": {
-                        "description": "New access token",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/customers/auth/register": {
+        "/customers/auth/signup": {
             "post": {
                 "description": "Registers a customer",
                 "consumes": [
@@ -424,7 +372,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/main.RegisterCustomerPayload"
+                            "$ref": "#/definitions/main.SignUpCustomerPayload"
                         }
                     },
                     {
@@ -558,7 +506,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "List all events of a brand in a specific week and validate the user input",
@@ -631,7 +579,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "Updates an event with validation for timeslot availability",
@@ -709,7 +657,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "Creates a new service for a brand and assigns it to specified providers",
@@ -737,6 +685,65 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Created service",
+                        "schema": {
+                            "$ref": "#/definitions/main.ServiceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid input",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {}
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not belong to a brand",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not found - One or more providers not found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/service/id/{serviceId}": {
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Update a service and the users that can provide it",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "Update a service",
+                "parameters": [
+                    {
+                        "description": "Service update data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.CreateServicePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Updated service",
                         "schema": {
                             "$ref": "#/definitions/main.ServiceResponse"
                         }
@@ -811,70 +818,11 @@ const docTemplate = `{
                 }
             }
         },
-        "/service/{serviceId}": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update a service and the users that can provide it",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "service"
-                ],
-                "summary": "Update a service",
-                "parameters": [
-                    {
-                        "description": "Service update data",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/main.CreateServicePayload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Updated service",
-                        "schema": {
-                            "$ref": "#/definitions/main.ServiceResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - Invalid input",
-                        "schema": {}
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
-                        "schema": {}
-                    },
-                    "403": {
-                        "description": "Forbidden - User does not belong to a brand",
-                        "schema": {}
-                    },
-                    "404": {
-                        "description": "Not found - One or more providers not found",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
         "/users": {
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "Fetches all users of a brand",
@@ -957,7 +905,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "Invites a new user by creating an account and sending an activation email",
@@ -1008,7 +956,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "Fetches a user token",
@@ -1048,7 +996,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "CookieAuth": []
                     }
                 ],
                 "description": "Fetches a user profile by ID",
@@ -1184,8 +1132,8 @@ const docTemplate = `{
                 "duration": {
                     "type": "integer"
                 },
-                "image": {
-                    "$ref": "#/definitions/multipart.FileHeader"
+                "imageURL": {
+                    "type": "string"
                 },
                 "isVisible": {
                     "type": "boolean"
@@ -1200,24 +1148,6 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
-                }
-            }
-        },
-        "main.CreateUserTokenPayload": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 72,
-                    "minLength": 3
                 }
             }
         },
@@ -1240,9 +1170,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phoneNumber": {
-                    "type": "string"
-                },
-                "token": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -1317,73 +1244,6 @@ const docTemplate = `{
                 }
             }
         },
-        "main.LoginCustomerPayload": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 72,
-                    "minLength": 3
-                }
-            }
-        },
-        "main.RegisterCustomerPayload": {
-            "type": "object",
-            "required": [
-                "email",
-                "name",
-                "password",
-                "phoneNumber"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 2
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 72,
-                    "minLength": 3
-                },
-                "phoneNumber": {
-                    "type": "string"
-                }
-            }
-        },
-        "main.RegisterUserPayload": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 72,
-                    "minLength": 3
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 2
-                }
-            }
-        },
         "main.ServiceResponse": {
             "type": "object",
             "properties": {
@@ -1425,6 +1285,91 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "main.SignInCustomerPayload": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 72,
+                    "minLength": 3
+                }
+            }
+        },
+        "main.SignInUserPayload": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 72,
+                    "minLength": 3
+                }
+            }
+        },
+        "main.SignUpCustomerPayload": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password",
+                "phoneNumber"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 72,
+                    "minLength": 3
+                },
+                "phoneNumber": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.SignUpUserPayload": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 72,
+                    "minLength": 3
+                },
+                "username": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
                 }
             }
         },
@@ -1492,20 +1437,6 @@ const docTemplate = `{
                 },
                 "verified": {
                     "type": "boolean"
-                }
-            }
-        },
-        "multipart.FileHeader": {
-            "type": "object",
-            "properties": {
-                "filename": {
-                    "type": "string"
-                },
-                "header": {
-                    "$ref": "#/definitions/textproto.MIMEHeader"
-                },
-                "size": {
-                    "type": "integer"
                 }
             }
         },
@@ -1628,22 +1559,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "textproto.MIMEHeader": {
-            "type": "object",
-            "additionalProperties": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            }
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "CookieAuth": {
+            "description": "Session-based authentication using cookies",
             "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+            "name": "session_id",
+            "in": "cookie"
         }
     }
 }`
@@ -1654,8 +1577,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/v1",
 	Schemes:          []string{},
-	Title:            "Booking System",
-	Description:      "API for Booking System",
+	Title:            "Event Managing System",
+	Description:      "API for Event Managing System",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

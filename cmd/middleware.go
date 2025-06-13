@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 func (app *application) BasicAuthMiddleware() func(http.Handler) http.Handler {
@@ -47,71 +47,70 @@ func (app *application) BasicAuthMiddleware() func(http.Handler) http.Handler {
 	}
 }
 
-type AuthType string
+func (app *application) AuthUserMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(SESSION_TOKEN)
+		if err != nil {
+			app.unauthorizedErrorResponse(w, r, fmt.Errorf("session cookie is missing"))
+			return
+		}
 
-const (
-	UserAuth     AuthType = "user"
-	CustomerAuth AuthType = "customer"
-)
+		sessionId, err := uuid.Parse(cookie.Value)
+		if err != nil {
+			app.internalServerError(w, r, err)
+			return
+		}
 
-func (app *application) authMiddleware(authType AuthType) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" {
-				app.unauthorizedErrorResponse(w, r, fmt.Errorf("authorization header is missing"))
-				return
-			}
+		ctx := r.Context()
 
-			parts := strings.Split(authHeader, " ")
-			if len(parts) != 2 || parts[0] != "Bearer" {
-				app.unauthorizedErrorResponse(w, r, fmt.Errorf("authorization header is malformed"))
-				return
-			}
+		session, err := app.store.GetUserSessionById(ctx, sessionId)
+		if err != nil {
+			app.unauthorizedErrorResponse(w, r, fmt.Errorf("session not found"))
+			return
+		}
 
-			token := parts[1]
-			jwtToken, err := app.auth.ValidateToken(token)
-			if err != nil {
-				app.unauthorizedErrorResponse(w, r, err)
-				return
-			}
+		user, err := app.getUser(ctx, session.UserID)
+		if err != nil {
+			app.unauthorizedErrorResponse(w, r, err)
+			return
+		}
 
-			claims, _ := jwtToken.Claims.(jwt.MapClaims)
-			id, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["sub"]), 10, 64)
-			if err != nil {
-				app.unauthorizedErrorResponse(w, r, err)
-				return
-			}
-
-			ctx := r.Context()
-
-			if authType == UserAuth {
-				user, err := app.getUser(ctx, id)
-				if err != nil {
-					app.unauthorizedErrorResponse(w, r, err)
-					return
-				}
-				ctx = context.WithValue(ctx, userCtx, user)
-			} else {
-				customer, err := app.getCustomer(ctx, id)
-				if err != nil {
-					app.unauthorizedErrorResponse(w, r, err)
-					return
-				}
-				ctx = context.WithValue(ctx, customerIdCtx, customer)
-			}
-
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
+		ctx = context.WithValue(ctx, userCtx, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
-func (app *application) AuthTokenMiddleware(next http.Handler) http.Handler {
-	return app.authMiddleware(UserAuth)(next)
-}
+func (app *application) AuthCustomerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie(CUSTOMER_SESSION_TOKEN)
+		if err != nil {
+			app.unauthorizedErrorResponse(w, r, fmt.Errorf("session cookie is missing"))
+			return
+		}
 
-func (app *application) CustomerAuthTokenMiddleware(next http.Handler) http.Handler {
-	return app.authMiddleware(CustomerAuth)(next)
+		sessionId, err := uuid.Parse(cookie.Value)
+		if err != nil {
+			app.internalServerError(w, r, err)
+			return
+		}
+
+		ctx := r.Context()
+
+		session, err := app.store.GetCustomerSessionById(ctx, sessionId)
+		if err != nil {
+			app.unauthorizedErrorResponse(w, r, fmt.Errorf("session not found"))
+			return
+		}
+
+		customer, err := app.getCustomer(ctx, session.CustomerID)
+		if err != nil {
+			app.unauthorizedErrorResponse(w, r, err)
+			return
+		}
+
+		ctx = context.WithValue(ctx, userCtx, customer)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {

@@ -16,4 +16,4 @@ gen-docs:
 	@swag init -g /main.go -d cmd --parseDependency --parseInternal && swag fmt
 
 queries:
-	sqlc generate && mockery
+	sqlc generate
