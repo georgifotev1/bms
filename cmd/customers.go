@@ -91,7 +91,7 @@ func (app *application) signUpCustomerHandler(w http.ResponseWriter, r *http.Req
 
 	session, err := app.store.CreateCustomerSession(ctx, store.CreateCustomerSessionParams{
 		CustomerID: customer.ID,
-		ExpiresAt:  time.Now().UTC().Add(time.Hour),
+		ExpiresAt:  time.Now().UTC().Add(app.config.auth.session.exp),
 	})
 	if err != nil {
 		app.internalServerError(w, r, err)
@@ -165,7 +165,7 @@ func (app *application) signInCustomerHandler(w http.ResponseWriter, r *http.Req
 		case sql.ErrNoRows:
 			newSession, err := app.store.CreateCustomerSession(ctx, store.CreateCustomerSessionParams{
 				CustomerID: customer.ID,
-				ExpiresAt:  time.Now().UTC().Add(time.Hour),
+				ExpiresAt:  time.Now().UTC().Add(app.config.auth.session.exp),
 			})
 			if err != nil {
 				app.internalServerError(w, r, err)
@@ -181,7 +181,7 @@ func (app *application) signInCustomerHandler(w http.ResponseWriter, r *http.Req
 	if session.ID != uuid.Nil {
 		updatedSession, err := app.store.UpdateCustomerSession(ctx, store.UpdateCustomerSessionParams{
 			ID:        session.ID,
-			ExpiresAt: time.Now().UTC().Add(time.Hour),
+			ExpiresAt: time.Now().UTC().Add(app.config.auth.session.exp),
 		})
 		if err != nil {
 			app.internalServerError(w, r, err)

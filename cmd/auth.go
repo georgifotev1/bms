@@ -69,7 +69,7 @@ func (app *application) signUpUserHandler(w http.ResponseWriter, r *http.Request
 
 	session, err := app.store.CreateUserSession(r.Context(), store.CreateUserSessionParams{
 		UserID:    user.ID,
-		ExpiresAt: time.Now().UTC().Add(time.Hour),
+		ExpiresAt: time.Now().UTC().Add(app.config.auth.session.exp),
 	})
 	if err != nil {
 		app.internalServerError(w, r, err)
@@ -184,7 +184,7 @@ func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request
 	if session.ID != uuid.Nil {
 		updatedSession, err := app.store.UpdateUserSession(ctx, store.UpdateUserSessionParams{
 			ID:        session.ID,
-			ExpiresAt: time.Now().UTC().Add(time.Hour),
+			ExpiresAt: time.Now().UTC().Add(app.config.auth.session.exp),
 		})
 		if err != nil {
 			app.internalServerError(w, r, err)
