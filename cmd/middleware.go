@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -69,6 +70,12 @@ func (app *application) AuthUserMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		if time.Now().After(session.ExpiresAt) {
+			app.ClearCookie(w, SESSION_TOKEN)
+			app.unauthorizedErrorResponse(w, r, fmt.Errorf("session expired"))
+			return
+		}
+
 		user, err := app.getUser(ctx, session.UserID)
 		if err != nil {
 			app.unauthorizedErrorResponse(w, r, err)
@@ -99,6 +106,12 @@ func (app *application) AuthCustomerMiddleware(next http.Handler) http.Handler {
 		session, err := app.store.GetCustomerSessionById(ctx, sessionId)
 		if err != nil {
 			app.unauthorizedErrorResponse(w, r, fmt.Errorf("session not found"))
+			return
+		}
+
+		if time.Now().After(session.ExpiresAt) {
+			app.ClearCookie(w, CUSTOMER_SESSION_TOKEN)
+			app.unauthorizedErrorResponse(w, r, fmt.Errorf("session expired"))
 			return
 		}
 
