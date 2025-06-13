@@ -143,7 +143,7 @@ func (app *application) createEventHandler(w http.ResponseWriter, r *http.Reques
 //	@Tags			events
 //	@Accept			json
 //	@Produce		json
-//	@Security		ApiKeyAuth
+//	@Security		CookieAuth
 //	@Param			payload	body		CreateEventPayload	true	"Event details"
 //	@Param			eventId	path		int					true	"Event ID"
 //	@Success		200		{object}	EventResponse		"Event updated successfully"
@@ -232,7 +232,7 @@ func (app *application) updateEventHandler(w http.ResponseWriter, r *http.Reques
 //	@Tags			events
 //	@Accept			json
 //	@Produce		json
-//	@Security		ApiKeyAuth
+//	@Security		CookieAuth
 //	@Param			startDate	query		string			true	"Start date in YYYY-MM-DD format"	example(2025-05-19)
 //	@Param			endDate		query		string			true	"End date in YYYY-MM-DD format"		example(2025-05-20)
 //	@Param			brandId		query		integer			true	"Brand ID"							minimum(1)	example(1)

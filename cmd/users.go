@@ -54,7 +54,7 @@ type UserWithToken struct {
 // @Failure		400		{object}	error				"Bad request - validation error or user already exists"
 // @Failure		403		{object}	error				"Forbidden - only owner role can invite users"
 // @Failure		500		{object}	error				"Internal server error"
-// @Security		ApiKeyAuth
+// @Security		CookieAuth
 // @Router			/users/invite [post]
 func (app *application) inviteUserHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -225,7 +225,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 //	@Failure		400	{object}	error
 //	@Failure		404	{object}	error
 //	@Failure		500	{object}	error
-//	@Security		ApiKeyAuth
+//	@Security		CookieAuth
 //	@Router			/users/{id} [get]
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
@@ -263,7 +263,7 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	error
 //	@Failure		404	{object}	error
 //	@Failure		500	{object}	error
-//	@Security		ApiKeyAuth
+//	@Security		CookieAuth
 //	@Router			/users/me [get]
 func (app *application) getUserProfile(w http.ResponseWriter, r *http.Request) {
 	ctxUser := r.Context().Value(userCtx).(*store.User)
@@ -282,7 +282,7 @@ func (app *application) getUserProfile(w http.ResponseWriter, r *http.Request) {
 // @Failure		400	{object}	error
 // @Failure		404	{object}	error
 // @Failure		500	{object}	error
-// @Security		ApiKeyAuth
+// @Security		CookieAuth
 // @Router			/users [get]
 func (app *application) getUsersHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

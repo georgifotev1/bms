@@ -27,7 +27,7 @@ type CreateBrandPayload struct {
 // @Tags			brand
 // @Accept			json
 // @Produce		json
-// @Security		ApiKeyAuth
+// @Security		CookieAuth
 // @Param			payload	body		CreateBrandPayload	true	"Brand creation data"
 // @Success		201		{object}	store.BrandResponse	"Created brand"
 // @Failure		400		{object}	error				"Bad request - Invalid input"

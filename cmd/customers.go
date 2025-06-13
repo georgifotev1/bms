@@ -4,12 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/store"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,12 +24,11 @@ type CustomerResponse struct {
 	Email       string    `json:"email"`
 	BrandId     int32     `json:"brandId"`
 	PhoneNumber string    `json:"phoneNumber"`
-	Token       string    `json:"token"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-type RegisterCustomerPayload struct {
+type SignUpCustomerPayload struct {
 	Email       string `json:"email" validate:"required,email"`
 	Password    string `json:"password" validate:"required,min=3,max=72"`
 	Name        string `json:"name" validate:"required,min=2,max=100"`
@@ -44,14 +42,14 @@ type RegisterCustomerPayload struct {
 //	@Tags			customers
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload		body		RegisterCustomerPayload	true	"customer credentials"
+//	@Param			payload		body		SignUpCustomerPayload	true	"customer credentials"
 //	@Param			X-Brand-ID	header		string					false	"Brand ID header for development. In production this header is ignored"	default(1)
 //	@Success		201			{object}	CustomerResponse		"customer registered"
 //	@Failure		400			{object}	error
 //	@Failure		500			{object}	error
-//	@Router			/customers/auth/register [post]
-func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.Request) {
-	var payload RegisterCustomerPayload
+//	@Router			/customers/auth/signup [post]
+func (app *application) signUpCustomerHandler(w http.ResponseWriter, r *http.Request) {
+	var payload SignUpCustomerPayload
 	if err := readJSON(w, r, &payload); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -91,23 +89,24 @@ func (app *application) registerCustomerHandler(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	accessToken, refreshToken, err := app.auth.GenerateTokens(customer.ID)
+	session, err := app.store.CreateCustomerSession(ctx, store.CreateCustomerSessionParams{
+		CustomerID: customer.ID,
+		ExpiresAt:  time.Now().UTC().Add(time.Hour),
+	})
 	if err != nil {
 		app.internalServerError(w, r, err)
 		return
 	}
 
-	if isBrowser(r) {
-		app.SetCookie(w, CUSTOMER_REFRES_TOKEN, refreshToken)
-	}
+	app.SetCookie(w, CUSTOMER_SESSION_TOKEN, session.ID.String())
 
-	customerResponse := customerResponseMapper(customer, accessToken)
+	customerResponse := customerResponseMapper(customer)
 	if err := writeJSON(w, http.StatusCreated, customerResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
 
-type LoginCustomerPayload struct {
+type SignInCustomerPayload struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=3,max=72"`
 }
@@ -119,14 +118,14 @@ type LoginCustomerPayload struct {
 //	@Tags			customers
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload		body		LoginCustomerPayload	true	"customer credentials"
+//	@Param			payload		body		SignInCustomerPayload	true	"customer credentials"
 //	@Param			X-Brand-ID	header		string					false	"Brand ID header for development. In production this header is ignored"	default(1)
 //	@Success		201			{object}	CustomerResponse		"customer logged in"
 //	@Failure		400			{object}	error
 //	@Failure		500			{object}	error
-//	@Router			/customers/auth/login [post]
-func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Request) {
-	var payload LoginCustomerPayload
+//	@Router			/customers/auth/signin [post]
+func (app *application) signInCustomerHandler(w http.ResponseWriter, r *http.Request) {
+	var payload SignInCustomerPayload
 	if err := readJSON(w, r, &payload); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -137,7 +136,9 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	customer, err := app.store.GetCustomerByEmail(r.Context(), sql.NullString{
+	ctx := r.Context()
+
+	customer, err := app.store.GetCustomerByEmail(ctx, sql.NullString{
 		String: payload.Email,
 		Valid:  payload.Email != "",
 	})
@@ -157,61 +158,42 @@ func (app *application) loginCustomerHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	accessToken, refreshToken, err := app.auth.GenerateTokens(customer.ID)
+	var token uuid.UUID
+	session, err := app.store.GetSessionByCustomerId(ctx, customer.ID)
 	if err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	if isBrowser(r) {
-		app.SetCookie(w, CUSTOMER_REFRES_TOKEN, refreshToken)
-	}
-
-	customerResponse := customerResponseMapper(customer, accessToken)
-	if err := writeJSON(w, http.StatusCreated, customerResponse); err != nil {
-		app.internalServerError(w, r, err)
-	}
-}
-
-// refreshCustomerTokenHandler godoc
-//
-//	@Summary		Refreshes the access token of customer
-//	@Description	Uses a refresh token to generate a new access token
-//	@Tags			customers
-//	@Produce		json
-//	@Success		200	{string}	string	"New access token"
-//	@Failure		401	{object}	error
-//	@Failure		500	{object}	error
-//	@Router			/customers/auth/refresh [get]
-func (app *application) refreshCustomerTokenHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie(CUSTOMER_REFRES_TOKEN)
-	if err != nil {
-		app.unauthorizedErrorResponse(w, r, errors.New("refresh token not found"))
-		return
-	}
-
-	refreshToken := cookie.Value
-
-	newAccessToken, newRefreshToken, err := app.auth.RefreshTokens(refreshToken)
-	if err != nil {
-		switch err.Error() {
-		case auth.ErrTokenClaims, auth.ErrTokenType, auth.ErrTokenValidation:
-			// if refresh token is invalid remove it
-			app.ClearCookie(w, CUSTOMER_REFRES_TOKEN)
-			app.unauthorizedErrorResponse(w, r, err)
+		switch err {
+		case sql.ErrNoRows:
+			newSession, err := app.store.CreateCustomerSession(ctx, store.CreateCustomerSessionParams{
+				CustomerID: customer.ID,
+				ExpiresAt:  time.Now().UTC().Add(time.Hour),
+			})
+			if err != nil {
+				app.internalServerError(w, r, err)
+				return
+			}
+			token = newSession.ID
 		default:
 			app.internalServerError(w, r, err)
+			return
 		}
-		return
 	}
 
-	app.SetCookie(w, CUSTOMER_REFRES_TOKEN, newRefreshToken)
-
-	response := map[string]string{
-		"token": newAccessToken,
+	if session.ID != uuid.Nil {
+		updatedSession, err := app.store.UpdateCustomerSession(ctx, store.UpdateCustomerSessionParams{
+			ID:        session.ID,
+			ExpiresAt: time.Now().UTC().Add(time.Hour),
+		})
+		if err != nil {
+			app.internalServerError(w, r, err)
+			return
+		}
+		token = updatedSession.ID
 	}
 
-	if err := writeJSON(w, http.StatusOK, response); err != nil {
+	app.SetCookie(w, CUSTOMER_SESSION_TOKEN, token.String())
+
+	customerResponse := customerResponseMapper(customer)
+	if err := writeJSON(w, http.StatusOK, customerResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
@@ -226,7 +208,28 @@ func (app *application) refreshCustomerTokenHandler(w http.ResponseWriter, r *ht
 //	@Failure		500	{object}	error
 //	@Router			/customers/auth/logout [post]
 func (app *application) logoutCustomerHandler(w http.ResponseWriter, r *http.Request) {
-	app.ClearCookie(w, CUSTOMER_REFRES_TOKEN)
+	cookie, err := r.Cookie(CUSTOMER_SESSION_TOKEN)
+	if err != nil {
+		app.unauthorizedErrorResponse(w, r, err)
+		return
+	}
+
+	sessionId, err := uuid.Parse(cookie.Value)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	_, err = app.store.UpdateCustomerSession(r.Context(), store.UpdateCustomerSessionParams{
+		ID:        sessionId,
+		ExpiresAt: time.Unix(0, 0),
+	})
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	app.ClearCookie(w, CUSTOMER_SESSION_TOKEN)
 
 	response := map[string]string{
 		"message": "Logged out successfully",
@@ -289,7 +292,7 @@ func (app *application) createGuestCustomerHandler(w http.ResponseWriter, r *htt
 		status = http.StatusOK
 	}
 
-	customerResponse := customerResponseMapper(customer, fmt.Sprintf("guest-%d", customer.ID))
+	customerResponse := customerResponseMapper(customer)
 	if err := writeJSON(w, status, customerResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}
@@ -304,7 +307,7 @@ func (app *application) createGuestCustomerHandler(w http.ResponseWriter, r *htt
 // @Failure		400	{object}	error
 // @Failure		404	{object}	error
 // @Failure		500	{object}	error
-// @Security		ApiKeyAuth
+// @Security		CookieAuth
 // @Router			/customers [get]
 func (app *application) getCustomersHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

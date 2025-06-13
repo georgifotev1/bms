@@ -13,7 +13,6 @@ import (
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/georgifotev1/bms/docs"
-	"github.com/georgifotev1/bms/internal/auth"
 	"github.com/georgifotev1/bms/internal/mailer"
 	"github.com/georgifotev1/bms/internal/ratelimiter"
 	"github.com/georgifotev1/bms/internal/store"
@@ -27,14 +26,13 @@ import (
 )
 
 type application struct {
-	config      config
-	store       store.Store
-	cache       cache.Storage
-	logger      *zap.SugaredLogger
-	mailer      mailer.Client
-	auth        auth.Authenticator
-	rateLimiter ratelimiter.Limiter
-	cloudinary  *cloudinary.Cloudinary
+	config       config
+	store        store.Store
+	cache        cache.Storage
+	logger       *zap.SugaredLogger
+	mailer       mailer.Client
+	rateLimiter  ratelimiter.Limiter
+	imageService *cloudinary.Cloudinary
 }
 
 type config struct {
@@ -65,14 +63,12 @@ type redisConfig struct {
 }
 
 type authConfig struct {
-	basic basicConfig
-	token tokenConfig
+	basic   basicConfig
+	session sessionConfig
 }
 
-type tokenConfig struct {
-	secret string
-	exp    time.Duration
-	iss    string
+type sessionConfig struct {
+	exp time.Duration
 }
 
 type basicConfig struct {
@@ -122,7 +118,7 @@ func (app *application) mount() http.Handler {
 			r.Get("/confirm/{token}", app.activateUserHandler)
 
 			r.Route("/", func(r chi.Router) {
-				r.Use(app.AuthTokenMiddleware)
+				r.Use(app.AuthUserMiddleware)
 				r.Get("/", app.getUsersHandler)
 				r.Get("/me", app.getUserProfile)
 				r.Post("/invite", app.inviteUserHandler)
@@ -131,13 +127,13 @@ func (app *application) mount() http.Handler {
 		})
 
 		r.Route("/brand", func(r chi.Router) {
-			r.With(app.AuthTokenMiddleware).Post("/", app.createBrandHandler)
+			r.With(app.AuthUserMiddleware).Post("/", app.createBrandHandler)
 			r.Get("/{id}", app.getBrandHandler)
 		})
 
 		r.Route("/service", func(r chi.Router) {
-			r.With(app.AuthTokenMiddleware).Post("/", app.createServiceHandler)
-			r.With(app.AuthTokenMiddleware).Put("/id/{serviceId}", app.updateServiceHandler)
+			r.With(app.AuthUserMiddleware).Post("/", app.createServiceHandler)
+			r.With(app.AuthUserMiddleware).Put("/id/{serviceId}", app.updateServiceHandler)
 			r.Route("/{brandId}", func(r chi.Router) {
 				r.Get("/", app.getServicesHandler)
 			})
@@ -145,25 +141,23 @@ func (app *application) mount() http.Handler {
 
 		r.Route("/events", func(r chi.Router) {
 			r.Post("/", app.createEventHandler)
-			r.With(app.AuthTokenMiddleware).Get("/timestamp", app.getEventsByTimeStampHandler)
-			r.With(app.AuthTokenMiddleware).Put("/{eventId}", app.updateEventHandler)
+			r.With(app.AuthUserMiddleware).Get("/timestamp", app.getEventsByTimeStampHandler)
+			r.With(app.AuthUserMiddleware).Put("/{eventId}", app.updateEventHandler)
 		})
 
 		r.Route("/auth", func(r chi.Router) {
-			r.Post("/register", app.registerUserHandler)
-			r.Post("/token", app.createTokenHandler)
-			r.Get("/refresh", app.refreshTokenHandler)
+			r.Post("/signup", app.signUpUserHandler)
+			r.Post("/signin", app.signInUserHandler)
 			r.Post("/logout", app.logoutHandler)
 		})
 
 		r.Route("/customers", func(r chi.Router) {
-			r.With(app.AuthTokenMiddleware).Get("/", app.getCustomersHandler)
+			r.With(app.AuthUserMiddleware).Get("/", app.getCustomersHandler)
 			r.Post("/guest", app.createGuestCustomerHandler)
 			r.Route("/auth", func(r chi.Router) {
 				r.Use(app.BrandMiddleware)
-				r.Post("/register", app.registerCustomerHandler)
-				r.Post("/login", app.loginCustomerHandler)
-				r.Get("/refresh", app.refreshCustomerTokenHandler)
+				r.Post("/signup", app.signUpCustomerHandler)
+				r.Post("/signin", app.signInCustomerHandler)
 				r.Post("/logout", app.logoutCustomerHandler)
 			})
 		})

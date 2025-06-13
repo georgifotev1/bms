@@ -62,6 +62,12 @@ type Customer struct {
 	UpdatedAt   time.Time      `json:"updatedAt"`
 }
 
+type CustomerSession struct {
+	ID         uuid.UUID `json:"id"`
+	CustomerID int64     `json:"customerId"`
+	ExpiresAt  time.Time `json:"expiresAt"`
+}
+
 type Event struct {
 	ID           int64          `json:"id"`
 	CustomerID   int64          `json:"customerId"`
@@ -124,4 +130,10 @@ type UserService struct {
 	ServiceID uuid.UUID `json:"serviceId"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type UserSession struct {
+	ID        uuid.UUID `json:"id"`
+	UserID    int64     `json:"userId"`
+	ExpiresAt time.Time `json:"expiresAt"`
 }

@@ -23,8 +23,8 @@ var Validate *validator.Validate
 var Decoder *schema.Decoder
 
 const (
-	REFRESH_TOKEN         string = "refresh_token"
-	CUSTOMER_REFRES_TOKEN string = "customer_refresh_token"
+	SESSION_TOKEN          string = "session_token"
+	CUSTOMER_SESSION_TOKEN string = "customer_session_token"
 
 	ownerRole      string = "owner"
 	adminRole      string = "admin"
@@ -158,7 +158,7 @@ func (app *application) saveImageToCloudinary(file multipart.File) (string, erro
 	ctx := context.Background()
 	publicID := fmt.Sprintf("bms/%d_%s", time.Now().UnixNano(), generateSubstring(8))
 
-	uploadResult, err := app.cloudinary.Upload.Upload(ctx, file, uploader.UploadParams{
+	uploadResult, err := app.imageService.Upload.Upload(ctx, file, uploader.UploadParams{
 		PublicID:       publicID,
 		Folder:         "bms",
 		ResourceType:   "image",
