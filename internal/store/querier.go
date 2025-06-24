@@ -72,11 +72,15 @@ type Querier interface {
 	RemoveUsersFromService(ctx context.Context, serviceID uuid.UUID) error
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) (*Brand, error)
 	UpdateBrandPartial(ctx context.Context, arg UpdateBrandPartialParams) (*Brand, error)
-	UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error)
+	UpdateBrandSocialLink(ctx context.Context, arg UpdateBrandSocialLinkParams) (*BrandSocialLink, error)
 	UpdateCustomerSession(ctx context.Context, arg UpdateCustomerSessionParams) (*CustomerSession, error)
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (*Event, error)
 	UpdateService(ctx context.Context, arg UpdateServiceParams) (*Service, error)
 	UpdateUserSession(ctx context.Context, arg UpdateUserSessionParams) (*UserSession, error)
+	UpsertBrandSocialLink(ctx context.Context, arg UpsertBrandSocialLinkParams) (*BrandSocialLink, error)
+	UpsertBrandWorkingHours(ctx context.Context, arg UpsertBrandWorkingHoursParams) (*BrandWorkingHour, error)
+	UpsertCustomerSession(ctx context.Context, arg UpsertCustomerSessionParams) (*CustomerSession, error)
+	UpsertUserSession(ctx context.Context, arg UpsertUserSessionParams) (*UserSession, error)
 	ValidateUsersCount(ctx context.Context, arg ValidateUsersCountParams) (int64, error)
 	VerifyUser(ctx context.Context, id int64) error
 }

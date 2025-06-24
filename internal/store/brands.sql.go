@@ -439,7 +439,85 @@ func (q *Queries) UpdateBrandPartial(ctx context.Context, arg UpdateBrandPartial
 	return &i, err
 }
 
-const updateBrandWorkingHours = `-- name: UpdateBrandWorkingHours :one
+const updateBrandSocialLink = `-- name: UpdateBrandSocialLink :one
+UPDATE brand_social_link
+SET platform = $1,
+    url = $2,
+    display_name = $3,
+    updated_at = NOW()
+WHERE id = $4 AND brand_id = $5
+RETURNING id, brand_id, platform, url, display_name, created_at, updated_at
+`
+
+type UpdateBrandSocialLinkParams struct {
+	Platform    string         `json:"platform"`
+	Url         string         `json:"url"`
+	DisplayName sql.NullString `json:"displayName"`
+	ID          int32          `json:"id"`
+	BrandID     int32          `json:"brandId"`
+}
+
+func (q *Queries) UpdateBrandSocialLink(ctx context.Context, arg UpdateBrandSocialLinkParams) (*BrandSocialLink, error) {
+	row := q.db.QueryRowContext(ctx, updateBrandSocialLink,
+		arg.Platform,
+		arg.Url,
+		arg.DisplayName,
+		arg.ID,
+		arg.BrandID,
+	)
+	var i BrandSocialLink
+	err := row.Scan(
+		&i.ID,
+		&i.BrandID,
+		&i.Platform,
+		&i.Url,
+		&i.DisplayName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const upsertBrandSocialLink = `-- name: UpsertBrandSocialLink :one
+INSERT INTO brand_social_link (
+    brand_id, platform, url, display_name
+) VALUES (
+    $1, $2, $3, $4
+) ON CONFLICT (brand_id, platform) DO UPDATE
+SET url = EXCLUDED.url,
+    display_name = EXCLUDED.display_name,
+    updated_at = NOW()
+RETURNING id, brand_id, platform, url, display_name, created_at, updated_at
+`
+
+type UpsertBrandSocialLinkParams struct {
+	BrandID     int32          `json:"brandId"`
+	Platform    string         `json:"platform"`
+	Url         string         `json:"url"`
+	DisplayName sql.NullString `json:"displayName"`
+}
+
+func (q *Queries) UpsertBrandSocialLink(ctx context.Context, arg UpsertBrandSocialLinkParams) (*BrandSocialLink, error) {
+	row := q.db.QueryRowContext(ctx, upsertBrandSocialLink,
+		arg.BrandID,
+		arg.Platform,
+		arg.Url,
+		arg.DisplayName,
+	)
+	var i BrandSocialLink
+	err := row.Scan(
+		&i.ID,
+		&i.BrandID,
+		&i.Platform,
+		&i.Url,
+		&i.DisplayName,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const upsertBrandWorkingHours = `-- name: UpsertBrandWorkingHours :one
 INSERT INTO brand_working_hours (
     brand_id, day_of_week, open_time, close_time, is_closed
 ) VALUES (
@@ -452,7 +530,7 @@ SET open_time = EXCLUDED.open_time,
 RETURNING id, brand_id, day_of_week, open_time, close_time, is_closed, created_at, updated_at
 `
 
-type UpdateBrandWorkingHoursParams struct {
+type UpsertBrandWorkingHoursParams struct {
 	BrandID   int32        `json:"brandId"`
 	DayOfWeek int32        `json:"dayOfWeek"`
 	OpenTime  sql.NullTime `json:"openTime"`
@@ -460,8 +538,8 @@ type UpdateBrandWorkingHoursParams struct {
 	IsClosed  sql.NullBool `json:"isClosed"`
 }
 
-func (q *Queries) UpdateBrandWorkingHours(ctx context.Context, arg UpdateBrandWorkingHoursParams) (*BrandWorkingHour, error) {
-	row := q.db.QueryRowContext(ctx, updateBrandWorkingHours,
+func (q *Queries) UpsertBrandWorkingHours(ctx context.Context, arg UpsertBrandWorkingHoursParams) (*BrandWorkingHour, error) {
+	row := q.db.QueryRowContext(ctx, upsertBrandWorkingHours,
 		arg.BrandID,
 		arg.DayOfWeek,
 		arg.OpenTime,

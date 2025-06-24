@@ -129,3 +129,45 @@ func (q *Queries) UpdateUserSession(ctx context.Context, arg UpdateUserSessionPa
 	err := row.Scan(&i.ID, &i.UserID, &i.ExpiresAt)
 	return &i, err
 }
+
+const upsertCustomerSession = `-- name: UpsertCustomerSession :one
+INSERT INTO customer_sessions (customer_id, expires_at)
+VALUES ($1, $2)
+ON CONFLICT (customer_id)
+DO UPDATE SET
+    expires_at = EXCLUDED.expires_at
+RETURNING id, customer_id, expires_at
+`
+
+type UpsertCustomerSessionParams struct {
+	CustomerID int64     `json:"customerId"`
+	ExpiresAt  time.Time `json:"expiresAt"`
+}
+
+func (q *Queries) UpsertCustomerSession(ctx context.Context, arg UpsertCustomerSessionParams) (*CustomerSession, error) {
+	row := q.db.QueryRowContext(ctx, upsertCustomerSession, arg.CustomerID, arg.ExpiresAt)
+	var i CustomerSession
+	err := row.Scan(&i.ID, &i.CustomerID, &i.ExpiresAt)
+	return &i, err
+}
+
+const upsertUserSession = `-- name: UpsertUserSession :one
+INSERT INTO user_sessions (user_id, expires_at)
+VALUES ($1, $2)
+ON CONFLICT (user_id)
+DO UPDATE SET
+    expires_at = EXCLUDED.expires_at
+RETURNING id, user_id, expires_at
+`
+
+type UpsertUserSessionParams struct {
+	UserID    int64     `json:"userId"`
+	ExpiresAt time.Time `json:"expiresAt"`
+}
+
+func (q *Queries) UpsertUserSession(ctx context.Context, arg UpsertUserSessionParams) (*UserSession, error) {
+	row := q.db.QueryRowContext(ctx, upsertUserSession, arg.UserID, arg.ExpiresAt)
+	var i UserSession
+	err := row.Scan(&i.ID, &i.UserID, &i.ExpiresAt)
+	return &i, err
+}

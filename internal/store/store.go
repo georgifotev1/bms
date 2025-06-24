@@ -14,6 +14,7 @@ type Store interface {
 	CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, error)
 	CreateGuestTx(ctx context.Context, arg CreateGuestTxParams) (*Customer, bool, error)
 	GetBrandProfileTx(ctx context.Context, brandID int32) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error)
+	UpdateBrandProfileTx(ctx context.Context, params UpdateBrandParams, workingHoursParams []UpsertBrandWorkingHoursParams, socialLinkParams []UpsertBrandSocialLinkParams) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error)
 }
 
 type SQLStore struct {

@@ -29,10 +29,20 @@ INSERT INTO brand_social_link (
     $1, $2, $3, $4
 ) RETURNING *;
 
+-- name: UpdateBrandSocialLink :one
+UPDATE brand_social_link
+SET platform = $1,
+    url = $2,
+    display_name = $3,
+    updated_at = NOW()
+WHERE id = $4 AND brand_id = $5
+RETURNING *;
+
+
 -- name: DeleteBrandSocialLink :exec
 DELETE FROM brand_social_link WHERE id = $1 AND brand_id = $2;
 
--- name: UpdateBrandWorkingHours :one
+-- name: UpsertBrandWorkingHours :one
 INSERT INTO brand_working_hours (
     brand_id, day_of_week, open_time, close_time, is_closed
 ) VALUES (
@@ -41,6 +51,17 @@ INSERT INTO brand_working_hours (
 SET open_time = EXCLUDED.open_time,
     close_time = EXCLUDED.close_time,
     is_closed = EXCLUDED.is_closed,
+    updated_at = NOW()
+RETURNING *;
+
+-- name: UpsertBrandSocialLink :one
+INSERT INTO brand_social_link (
+    brand_id, platform, url, display_name
+) VALUES (
+    $1, $2, $3, $4
+) ON CONFLICT (brand_id, platform) DO UPDATE
+SET url = EXCLUDED.url,
+    display_name = EXCLUDED.display_name,
     updated_at = NOW()
 RETURNING *;
 

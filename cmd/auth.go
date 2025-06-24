@@ -160,40 +160,16 @@ func (app *application) signInUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var token uuid.UUID
-
-	session, err := app.store.GetSessionByUserId(ctx, user.ID)
+	session, err := app.store.UpsertUserSession(ctx, store.UpsertUserSessionParams{
+		UserID:    user.ID,
+		ExpiresAt: time.Now().UTC().Add(app.config.auth.session.exp),
+	})
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			newSession, err := app.store.CreateUserSession(r.Context(), store.CreateUserSessionParams{
-				UserID:    user.ID,
-				ExpiresAt: time.Now().UTC().Add(app.config.auth.session.exp),
-			})
-			if err != nil {
-				app.internalServerError(w, r, err)
-				return
-			}
-			token = newSession.ID
-		default:
-			app.internalServerError(w, r, err)
-			return
-		}
+		app.internalServerError(w, r, err)
+		return
 	}
 
-	if session.ID != uuid.Nil {
-		updatedSession, err := app.store.UpdateUserSession(ctx, store.UpdateUserSessionParams{
-			ID:        session.ID,
-			ExpiresAt: time.Now().UTC().Add(app.config.auth.session.exp),
-		})
-		if err != nil {
-			app.internalServerError(w, r, err)
-			return
-		}
-		token = updatedSession.ID
-	}
-
-	app.SetCookie(w, SESSION_TOKEN, token.String())
+	app.SetCookie(w, SESSION_TOKEN, session.ID.String())
 
 	userResponse := userResponseMapper(user)
 

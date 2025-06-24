@@ -19,8 +19,12 @@
         "/auth/logout": {
             "post": {
                 "description": "Clears the session cookie to log out the user",
-                "produces": ["application/json"],
-                "tags": ["auth"],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
                 "summary": "Logs out a user",
                 "responses": {
                     "200": {
@@ -43,9 +47,15 @@
         "/auth/signin": {
             "post": {
                 "description": "Sign in user",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["auth"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
                 "summary": "Sign in user",
                 "parameters": [
                     {
@@ -83,9 +93,15 @@
         "/auth/signup": {
             "post": {
                 "description": "Registers a user",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["auth"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
                 "summary": "Registers a user",
                 "parameters": [
                     {
@@ -124,9 +140,15 @@
                     }
                 ],
                 "description": "Creates a new brand and associates it with the owner user",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["brand"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
                 "summary": "Create a new brand",
                 "parameters": [
                     {
@@ -172,8 +194,12 @@
         "/brand/{id}": {
             "get": {
                 "description": "Retrieves a brand's details by its unique ID",
-                "produces": ["application/json"],
-                "tags": ["brand"],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
                 "summary": "Get brand by ID",
                 "parameters": [
                     {
@@ -200,6 +226,62 @@
                         "schema": {}
                     }
                 }
+            },
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Update the brand profile, working hours and social links",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
+                "summary": "Update brand",
+                "parameters": [
+                    {
+                        "description": "Brand data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateBrandPayload"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Updated brand",
+                        "schema": {
+                            "$ref": "#/definitions/store.BrandResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid input",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
             }
         },
         "/customers": {
@@ -210,9 +292,15 @@
                     }
                 ],
                 "description": "Fetches all customers of a brand",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["customers"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
                 "summary": "Get customers by brand",
                 "responses": {
                     "200": {
@@ -242,8 +330,12 @@
         "/customers/auth/logout": {
             "post": {
                 "description": "Clears the refresh token cookie to log out the customer",
-                "produces": ["application/json"],
-                "tags": ["customers"],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
                 "summary": "Logs out a customer",
                 "responses": {
                     "200": {
@@ -262,9 +354,15 @@
         "/customers/auth/signin": {
             "post": {
                 "description": "Login a customer",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["customers"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
                 "summary": "Login a customer",
                 "parameters": [
                     {
@@ -305,9 +403,15 @@
         "/customers/auth/signup": {
             "post": {
                 "description": "Registers a customer",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["customers"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
                 "summary": "Registers a customer",
                 "parameters": [
                     {
@@ -348,9 +452,15 @@
         "/customers/guest": {
             "post": {
                 "description": "Create or get a guest",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["customers"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customers"
+                ],
                 "summary": "Create or get a guest (customer without session)",
                 "parameters": [
                     {
@@ -397,9 +507,15 @@
         "/events": {
             "post": {
                 "description": "Creates a new event with validation for timeslot availability",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["events"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
                 "summary": "Create a new event",
                 "parameters": [
                     {
@@ -442,9 +558,15 @@
                     }
                 ],
                 "description": "List all events of a brand in a specific week and validate the user input",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["events"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
                 "summary": "List all events of a brand in a specific week",
                 "parameters": [
                     {
@@ -509,9 +631,15 @@
                     }
                 ],
                 "description": "Updates an event with validation for timeslot availability",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["events"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
                 "summary": "Update an event",
                 "parameters": [
                     {
@@ -556,8 +684,12 @@
         "/health": {
             "get": {
                 "description": "Healthcheck endpoint",
-                "produces": ["application/json"],
-                "tags": ["ops"],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ops"
+                ],
                 "summary": "Healthcheck",
                 "responses": {
                     "200": {
@@ -577,9 +709,15 @@
                     }
                 ],
                 "description": "Creates a new service for a brand and assigns it to specified providers",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["service"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
                 "summary": "Create a new service",
                 "parameters": [
                     {
@@ -630,9 +768,15 @@
                     }
                 ],
                 "description": "Update a service and the users that can provide it",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["service"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
                 "summary": "Update a service",
                 "parameters": [
                     {
@@ -678,9 +822,15 @@
         "/service/{brandId}": {
             "get": {
                 "description": "Fetches all services of a brand",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["service"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
                 "summary": "Get services by brand",
                 "parameters": [
                     {
@@ -724,9 +874,15 @@
                     }
                 ],
                 "description": "Fetches all users of a brand",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["users"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
                 "summary": "Get users by brand",
                 "responses": {
                     "200": {
@@ -756,9 +912,15 @@
         "/users/confirm/{token}": {
             "get": {
                 "description": "Activates a user account using the token sent in the activation email",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["users"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
                 "summary": "Activate a user account",
                 "parameters": [
                     {
@@ -795,9 +957,15 @@
                     }
                 ],
                 "description": "Invites a new user by creating an account and sending an activation email",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["users"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
                 "summary": "Invite a new user",
                 "parameters": [
                     {
@@ -840,9 +1008,15 @@
                     }
                 ],
                 "description": "Fetches a user token",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["users"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
                 "summary": "Get user by token",
                 "responses": {
                     "200": {
@@ -874,9 +1048,15 @@
                     }
                 ],
                 "description": "Fetches a user profile by ID",
-                "consumes": ["application/json"],
-                "produces": ["application/json"],
-                "tags": ["users"],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
                 "summary": "Fetches a user profile",
                 "parameters": [
                     {
@@ -913,7 +1093,9 @@
     "definitions": {
         "main.CreateBrandPayload": {
             "type": "object",
-            "required": ["name"],
+            "required": [
+                "name"
+            ],
             "properties": {
                 "name": {
                     "type": "string",
@@ -961,7 +1143,10 @@
         },
         "main.CreateGuestCustomerPayload": {
             "type": "object",
-            "required": ["name", "phoneNumber"],
+            "required": [
+                "name",
+                "phoneNumber"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -978,7 +1163,10 @@
         },
         "main.CreateServicePayload": {
             "type": "object",
-            "required": ["duration", "title"],
+            "required": [
+                "duration",
+                "title"
+            ],
             "properties": {
                 "bufferTime": {
                     "type": "integer"
@@ -1089,7 +1277,10 @@
         },
         "main.InviteUserPayload": {
             "type": "object",
-            "required": ["email", "username"],
+            "required": [
+                "email",
+                "username"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -1147,7 +1338,10 @@
         },
         "main.SignInCustomerPayload": {
             "type": "object",
-            "required": ["email", "password"],
+            "required": [
+                "email",
+                "password"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -1161,7 +1355,10 @@
         },
         "main.SignInUserPayload": {
             "type": "object",
-            "required": ["email", "password"],
+            "required": [
+                "email",
+                "password"
+            ],
             "properties": {
                 "email": {
                     "type": "string",
@@ -1176,7 +1373,12 @@
         },
         "main.SignUpCustomerPayload": {
             "type": "object",
-            "required": ["email", "name", "password", "phoneNumber"],
+            "required": [
+                "email",
+                "name",
+                "password",
+                "phoneNumber"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -1198,7 +1400,11 @@
         },
         "main.SignUpUserPayload": {
             "type": "object",
-            "required": ["email", "password", "username"],
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -1212,6 +1418,105 @@
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 2
+                }
+            }
+        },
+        "main.UpdateBrandPayload": {
+            "type": "object",
+            "required": [
+                "name",
+                "pageUrl"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "pageUrl": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "socialLinks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.UpdateBrandSocialLink"
+                    }
+                },
+                "state": {
+                    "type": "string"
+                },
+                "workingHours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.UpdateBrandWorkingHours"
+                    }
+                },
+                "zipCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.UpdateBrandSocialLink": {
+            "type": "object",
+            "required": [
+                "platform",
+                "url"
+            ],
+            "properties": {
+                "platform": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.UpdateBrandWorkingHours": {
+            "type": "object",
+            "required": [
+                "dayOfWeek"
+            ],
+            "properties": {
+                "closeTime": {
+                    "type": "string"
+                },
+                "dayOfWeek": {
+                    "type": "integer",
+                    "maximum": 6,
+                    "minimum": 0
+                },
+                "isClosed": {
+                    "type": "boolean"
+                },
+                "openTime": {
+                    "type": "string"
                 }
             }
         },

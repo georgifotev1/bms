@@ -234,6 +234,62 @@ const docTemplate = `{
                         "schema": {}
                     }
                 }
+            },
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Update the brand profile, working hours and social links",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
+                "summary": "Update brand",
+                "parameters": [
+                    {
+                        "description": "Brand data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateBrandPayload"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Updated brand",
+                        "schema": {
+                            "$ref": "#/definitions/store.BrandResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid input",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
             }
         },
         "/customers": {
@@ -1370,6 +1426,105 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 100,
                     "minLength": 2
+                }
+            }
+        },
+        "main.UpdateBrandPayload": {
+            "type": "object",
+            "required": [
+                "name",
+                "pageUrl"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "bannerUrl": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 3
+                },
+                "pageUrl": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "socialLinks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.UpdateBrandSocialLink"
+                    }
+                },
+                "state": {
+                    "type": "string"
+                },
+                "workingHours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.UpdateBrandWorkingHours"
+                    }
+                },
+                "zipCode": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.UpdateBrandSocialLink": {
+            "type": "object",
+            "required": [
+                "platform",
+                "url"
+            ],
+            "properties": {
+                "platform": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.UpdateBrandWorkingHours": {
+            "type": "object",
+            "required": [
+                "dayOfWeek"
+            ],
+            "properties": {
+                "closeTime": {
+                    "type": "string"
+                },
+                "dayOfWeek": {
+                    "type": "integer",
+                    "maximum": 6,
+                    "minimum": 0
+                },
+                "isClosed": {
+                    "type": "boolean"
+                },
+                "openTime": {
+                    "type": "string"
                 }
             }
         },

@@ -158,39 +158,16 @@ func (app *application) signInCustomerHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var token uuid.UUID
-	session, err := app.store.GetSessionByCustomerId(ctx, customer.ID)
+	session, err := app.store.UpsertCustomerSession(ctx, store.UpsertCustomerSessionParams{
+		CustomerID: customer.ID,
+		ExpiresAt:  time.Now().UTC().Add(app.config.auth.session.exp),
+	})
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			newSession, err := app.store.CreateCustomerSession(ctx, store.CreateCustomerSessionParams{
-				CustomerID: customer.ID,
-				ExpiresAt:  time.Now().UTC().Add(app.config.auth.session.exp),
-			})
-			if err != nil {
-				app.internalServerError(w, r, err)
-				return
-			}
-			token = newSession.ID
-		default:
-			app.internalServerError(w, r, err)
-			return
-		}
+		app.internalServerError(w, r, err)
+		return
 	}
 
-	if session.ID != uuid.Nil {
-		updatedSession, err := app.store.UpdateCustomerSession(ctx, store.UpdateCustomerSessionParams{
-			ID:        session.ID,
-			ExpiresAt: time.Now().UTC().Add(app.config.auth.session.exp),
-		})
-		if err != nil {
-			app.internalServerError(w, r, err)
-			return
-		}
-		token = updatedSession.ID
-	}
-
-	app.SetCookie(w, CUSTOMER_SESSION_TOKEN, token.String())
+	app.SetCookie(w, CUSTOMER_SESSION_TOKEN, session.ID.String())
 
 	customerResponse := customerResponseMapper(customer)
 	if err := writeJSON(w, http.StatusOK, customerResponse); err != nil {

@@ -83,6 +83,7 @@ func (s *SQLStore) CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (
 
 	return &result, err
 }
+
 func (s *SQLStore) GetBrandProfileTx(ctx context.Context, brandID int32) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error) {
 	var brand *Brand
 	var socialLinks []*BrandSocialLink
@@ -109,4 +110,41 @@ func (s *SQLStore) GetBrandProfileTx(ctx context.Context, brandID int32) (*Brand
 	})
 
 	return brand, socialLinks, workingHours, err
+}
+func (s *SQLStore) UpdateBrandProfileTx(ctx context.Context, params UpdateBrandParams, workingHoursParams []UpsertBrandWorkingHoursParams, socialLinkParams []UpsertBrandSocialLinkParams) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error) {
+	var updatedBrand *Brand
+	var socialLinks []*BrandSocialLink
+	var workingHours []*BrandWorkingHour
+
+	err := s.execTx(ctx, func(q Querier) error {
+		var err error
+
+		// Update the brand
+		updatedBrand, err = q.UpdateBrand(ctx, params)
+		if err != nil {
+			return err
+		}
+
+		// Update working hours
+		for _, wh := range workingHoursParams {
+			if updatedWH, err := q.UpsertBrandWorkingHours(ctx, wh); err != nil {
+				return err
+			} else {
+				workingHours = append(workingHours, updatedWH)
+			}
+		}
+
+		// Update social links
+		for _, sl := range socialLinkParams {
+			if updatedSL, err := q.UpsertBrandSocialLink(ctx, sl); err != nil {
+				return err
+			} else {
+				socialLinks = append(socialLinks, updatedSL)
+			}
+		}
+
+		return nil
+	})
+
+	return updatedBrand, socialLinks, workingHours, err
 }

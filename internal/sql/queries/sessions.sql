@@ -31,3 +31,19 @@ UPDATE customer_sessions
 SET expires_at = $2
 WHERE id = $1
 RETURNING *;
+
+-- name: UpsertUserSession :one
+INSERT INTO user_sessions (user_id, expires_at)
+VALUES ($1, $2)
+ON CONFLICT (user_id)
+DO UPDATE SET
+    expires_at = EXCLUDED.expires_at
+RETURNING *;
+
+-- name: UpsertCustomerSession :one
+INSERT INTO customer_sessions (customer_id, expires_at)
+VALUES ($1, $2)
+ON CONFLICT (customer_id)
+DO UPDATE SET
+    expires_at = EXCLUDED.expires_at
+RETURNING *;

@@ -229,6 +229,73 @@ definitions:
     - password
     - username
     type: object
+  main.UpdateBrandPayload:
+    properties:
+      address:
+        type: string
+      bannerUrl:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      logoUrl:
+        type: string
+      name:
+        maxLength: 100
+        minLength: 3
+        type: string
+      pageUrl:
+        type: string
+      phone:
+        type: string
+      socialLinks:
+        items:
+          $ref: '#/definitions/main.UpdateBrandSocialLink'
+        type: array
+      state:
+        type: string
+      workingHours:
+        items:
+          $ref: '#/definitions/main.UpdateBrandWorkingHours'
+        type: array
+      zipCode:
+        type: string
+    required:
+    - name
+    - pageUrl
+    type: object
+  main.UpdateBrandSocialLink:
+    properties:
+      platform:
+        type: string
+      url:
+        type: string
+    required:
+    - platform
+    - url
+    type: object
+  main.UpdateBrandWorkingHours:
+    properties:
+      closeTime:
+        type: string
+      dayOfWeek:
+        maximum: 6
+        minimum: 0
+        type: integer
+      isClosed:
+        type: boolean
+      openTime:
+        type: string
+    required:
+    - dayOfWeek
+    type: object
   main.UserResponse:
     properties:
       avatar:
@@ -504,6 +571,43 @@ paths:
           description: Internal server error
           schema: {}
       summary: Get brand by ID
+      tags:
+      - brand
+    put:
+      consumes:
+      - application/json
+      description: Update the brand profile, working hours and social links
+      parameters:
+      - description: Brand data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateBrandPayload'
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Updated brand
+          schema:
+            $ref: '#/definitions/store.BrandResponse'
+        "400":
+          description: Bad request - Invalid input
+          schema: {}
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - CookieAuth: []
+      summary: Update brand
       tags:
       - brand
   /customers:
