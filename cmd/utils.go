@@ -6,15 +6,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"math/big"
-	"mime/multipart"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
-	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/schema"
 )
@@ -152,43 +148,4 @@ func (app *application) ClearCookie(w http.ResponseWriter, name string) {
 func getBrandIDFromCtx(ctx context.Context) int32 {
 	ctxValue := ctx.Value(brandIDCtx)
 	return ctxValue.(int32)
-}
-
-func (app *application) saveImageToCloudinary(file multipart.File) (string, error) {
-	ctx := context.Background()
-	publicID := fmt.Sprintf("bms/%d_%s", time.Now().UnixNano(), generateSubstring(8))
-
-	uploadResult, err := app.imageService.Upload.Upload(ctx, file, uploader.UploadParams{
-		PublicID:       publicID,
-		Folder:         "bms",
-		ResourceType:   "image",
-		Transformation: "q_auto,f_auto",
-	})
-	if err != nil {
-		return "", fmt.Errorf("failed to upload image to Cloudinary: %w", err)
-	}
-
-	return uploadResult.SecureURL, nil
-}
-func (app *application) ProcessImage(img *ImageInput) (string, error) {
-	if img.URL != "" {
-		// Validate URL
-		if _, err := url.Parse(img.URL); err != nil {
-			return "", fmt.Errorf("invalid image URL: %v", err)
-		}
-		return img.URL, nil
-	}
-
-	if img.File != nil {
-		// Upload file
-		file, err := img.File.Open()
-		if err != nil {
-			return "", err
-		}
-		defer file.Close()
-
-		return app.saveImageToCloudinary(file)
-	}
-
-	return "", nil // No image provided
 }

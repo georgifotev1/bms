@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"mime/multipart"
 	"net/http"
 	"strconv"
 	"time"
@@ -37,11 +36,6 @@ type CreateServicePayload struct {
 	ImageURL    string  `schema:"imageUrl"`
 	IsVisible   bool    `schema:"isVisible"`
 	UserIDs     []int64 `schema:"userIds"`
-}
-
-type ImageInput struct {
-	URL  string
-	File *multipart.FileHeader
 }
 
 // @Summary		Create a new service
@@ -183,15 +177,7 @@ func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	imageInput := &ImageInput{}
-
-	if payload.ImageURL != "" {
-		imageInput.URL = payload.ImageURL
-	} else {
-		if _, fileHeader, err := r.FormFile("image"); err == nil {
-			imageInput.File = fileHeader
-		}
-	}
+	imageInput := getImageInput(r, "image", payload.ImageURL)
 
 	imageURL, err := app.ProcessImage(imageInput)
 	if err != nil {
