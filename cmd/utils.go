@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"math/big"
@@ -148,4 +149,25 @@ func (app *application) ClearCookie(w http.ResponseWriter, name string) {
 func getBrandIDFromCtx(ctx context.Context) int32 {
 	ctxValue := ctx.Value(brandIDCtx)
 	return ctxValue.(int32)
+}
+
+func toNullString(s string) sql.NullString {
+	return sql.NullString{
+		Valid:  s != "",
+		String: s,
+	}
+}
+
+func toNullBool(b bool) sql.NullBool {
+	return sql.NullBool{
+		Valid: b,
+		Bool:  b,
+	}
+}
+
+func toNullTime(t time.Time) sql.NullTime {
+	return sql.NullTime{
+		Valid: t != time.Time{},
+		Time:  t,
+	}
 }

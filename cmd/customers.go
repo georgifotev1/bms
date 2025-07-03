@@ -70,11 +70,8 @@ func (app *application) signUpCustomerHandler(w http.ResponseWriter, r *http.Req
 	ctxBrandID := getBrandIDFromCtx(ctx)
 
 	customer, err := app.store.CreateCustomer(ctx, store.CreateCustomerParams{
-		Name: payload.Name,
-		Email: sql.NullString{
-			String: payload.Email,
-			Valid:  payload.Email != "",
-		},
+		Name:        payload.Name,
+		Email:       toNullString(payload.Email),
 		Password:    hashedPass,
 		BrandID:     ctxBrandID,
 		PhoneNumber: payload.PhoneNumber,
@@ -138,10 +135,7 @@ func (app *application) signInCustomerHandler(w http.ResponseWriter, r *http.Req
 
 	ctx := r.Context()
 
-	customer, err := app.store.GetCustomerByEmail(ctx, sql.NullString{
-		String: payload.Email,
-		Valid:  payload.Email != "",
-	})
+	customer, err := app.store.GetCustomerByEmail(ctx, toNullString(payload.Email))
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
