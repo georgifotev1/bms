@@ -11,6 +11,7 @@ import (
 
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/go-chi/chi/v5"
+	"golang.org/x/sync/errgroup"
 )
 
 type brandKey string
@@ -177,6 +178,46 @@ func (app *application) updateBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	err = r.ParseMultipartForm(20 << 20)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	var payload UpdateBrandPayload
+	if err := Decoder.Decode(&payload, r.PostForm); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := Validate.Struct(payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	logoInput := getImageInput(r, "logoUrl", payload.LogoUrl)
+	bannerInput := getImageInput(r, "bannerUrl", payload.BannerUrl)
+
+	var logoURL, bannerURL string
+	var g errgroup.Group
+
+	g.Go(func() error {
+		var err error
+		logoURL, err = app.ProcessImage(logoInput)
+		return err
+	})
+
+	g.Go(func() error {
+		var err error
+		bannerURL, err = app.ProcessImage(bannerInput)
+		return err
+	})
+
+	if err := g.Wait(); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
 	brand, err := app.getBrand(ctx, int32(brandId))
 	if err != nil {
 		switch err {
@@ -185,17 +226,6 @@ func (app *application) updateBrandHandler(w http.ResponseWriter, r *http.Reques
 		default:
 			app.internalServerError(w, r, err)
 		}
-		return
-	}
-
-	var payload UpdateBrandPayload
-	if err := readJSON(w, r, &payload); err != nil {
-		app.badRequestResponse(w, r, err)
-		return
-	}
-
-	if err := Validate.Struct(payload); err != nil {
-		app.badRequestResponse(w, r, err)
 		return
 	}
 
@@ -242,12 +272,12 @@ func (app *application) updateBrandHandler(w http.ResponseWriter, r *http.Reques
 			String: payload.Address,
 		},
 		LogoUrl: sql.NullString{
-			Valid:  payload.LogoUrl != "",
-			String: payload.LogoUrl,
+			Valid:  logoURL != "",
+			String: logoURL,
 		},
 		BannerUrl: sql.NullString{
-			Valid:  payload.BannerUrl != "",
-			String: payload.BannerUrl,
+			Valid:  bannerURL != "",
+			String: bannerURL,
 		},
 		Currency: sql.NullString{
 			Valid:  payload.Currency != "",
