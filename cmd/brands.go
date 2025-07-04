@@ -58,7 +58,7 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	brand, err := app.store.CreateBrandTx(ctx, store.CreateBrandTxParams{
+	brand, wh, err := app.store.CreateBrandTx(ctx, store.CreateBrandTxParams{
 		Name:    payload.Name,
 		PageUrl: pageUrl,
 		UserID:  ctxUser.ID,
@@ -74,7 +74,7 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	brandResponse := brandResponseMapper(brand, nil, nil)
+	brandResponse := brandResponseMapper(brand, nil, wh)
 	if err := writeJSON(w, http.StatusCreated, brandResponse); err != nil {
 		app.internalServerError(w, r, err)
 	}

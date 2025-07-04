@@ -11,7 +11,7 @@ type Store interface {
 	CreateServiceTx(ctx context.Context, arg CreateServiceTxParams) (*ServiceTxResult, error)
 	UpdateServiceTx(ctx context.Context, arg UpdateServiceTxParams) (*ServiceTxResult, error)
 	ActivateUserTx(ctx context.Context, arg ActivateUserTxParams) error
-	CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, error)
+	CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, []*BrandWorkingHour, error)
 	CreateGuestTx(ctx context.Context, arg CreateGuestTxParams) (*Customer, bool, error)
 	GetBrandProfileTx(ctx context.Context, brandID int32) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error)
 	UpdateBrandProfileTx(ctx context.Context, params UpdateBrandParams, workingHoursParams []UpsertBrandWorkingHoursParams, socialLinkParams []UpsertBrandSocialLinkParams) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error)

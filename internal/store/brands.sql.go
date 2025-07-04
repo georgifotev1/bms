@@ -535,7 +535,7 @@ type UpsertBrandWorkingHoursParams struct {
 	DayOfWeek int32        `json:"dayOfWeek"`
 	OpenTime  sql.NullTime `json:"openTime"`
 	CloseTime sql.NullTime `json:"closeTime"`
-	IsClosed  sql.NullBool `json:"isClosed"`
+	IsClosed  bool `json:"isClosed"`
 }
 
 func (q *Queries) UpsertBrandWorkingHours(ctx context.Context, arg UpsertBrandWorkingHoursParams) (*BrandWorkingHour, error) {

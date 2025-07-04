@@ -54,7 +54,7 @@ func (p *UpdateBrandPayload) ToWorkingHoursParams(brandID int32) []store.UpsertB
 			DayOfWeek: wh.DayOfWeek,
 			OpenTime:  toNullTime(wh.OpenTime),
 			CloseTime: toNullTime(wh.CloseTime),
-			IsClosed:  toNullBool(wh.IsClosed),
+			IsClosed:  wh.IsClosed,
 		}
 	}
 	return params

@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -54,15 +55,18 @@ type CreateBrandTxParams struct {
 	UserID  int64
 }
 
-func (s *SQLStore) CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, error) {
-	var result Brand
+func (s *SQLStore) CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (*Brand, []*BrandWorkingHour, error) {
+	var brand *Brand
+	var workingHours []*BrandWorkingHour
 
 	err := s.execTx(ctx, func(q Querier) error {
-		brand, err := q.CreateBrand(ctx, CreateBrandParams{
+		var err error
+		brand, err = q.CreateBrand(ctx, CreateBrandParams{
 			Name:    arg.Name,
 			PageUrl: arg.PageUrl,
 		})
 		if err != nil {
+			fmt.Println("ERRROROROR ISSSS ", err)
 			return err
 		}
 
@@ -77,11 +81,31 @@ func (s *SQLStore) CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (
 			return err
 		}
 
-		result = *brand
+		openTime, _ := time.Parse("15:04", "09:00")
+		closeTime, _ := time.Parse("15:04", "17:00")
+
+		defaultWorkingHours := []UpsertBrandWorkingHoursParams{
+			{BrandID: brand.ID, DayOfWeek: 1, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 2, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 3, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 4, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 5, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 6, OpenTime: sql.NullTime{Time: openTime, Valid: false}, CloseTime: sql.NullTime{Time: closeTime, Valid: false}, IsClosed: true},
+			{BrandID: brand.ID, DayOfWeek: 0, OpenTime: sql.NullTime{Time: openTime, Valid: false}, CloseTime: sql.NullTime{Time: closeTime, Valid: false}, IsClosed: true},
+		}
+
+		for _, wh := range defaultWorkingHours {
+			if newWh, err := q.UpsertBrandWorkingHours(ctx, wh); err != nil {
+				return err
+			} else {
+				workingHours = append(workingHours, newWh)
+			}
+		}
+
 		return nil
 	})
 
-	return &result, err
+	return brand, workingHours, err
 }
 
 func (s *SQLStore) GetBrandProfileTx(ctx context.Context, brandID int32) (*Brand, []*BrandSocialLink, []*BrandWorkingHour, error) {
