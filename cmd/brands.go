@@ -102,11 +102,12 @@ func (app *application) updateBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = r.ParseMultipartForm(20 << 20)
-	if err != nil {
+	r.Body = http.MaxBytesReader(w, r.Body, 10<<20)
+	if err = r.ParseMultipartForm(10 << 20); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
+	defer r.MultipartForm.RemoveAll()
 
 	var payload UpdateBrandPayload
 	if err := Decoder.Decode(&payload, r.PostForm); err != nil {
