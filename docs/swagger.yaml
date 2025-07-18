@@ -255,16 +255,8 @@ definitions:
         type: string
       phone:
         type: string
-      socialLinks:
-        items:
-          $ref: '#/definitions/main.UpdateBrandSocialLink'
-        type: array
       state:
         type: string
-      workingHours:
-        items:
-          $ref: '#/definitions/main.UpdateBrandWorkingHours'
-        type: array
       zipCode:
         type: string
     required:
@@ -281,6 +273,13 @@ definitions:
     - platform
     - url
     type: object
+  main.UpdateBrandSocialLinksPayload:
+    properties:
+      socialLinks:
+        items:
+          $ref: '#/definitions/main.UpdateBrandSocialLink'
+        type: array
+    type: object
   main.UpdateBrandWorkingHours:
     properties:
       closeTime:
@@ -295,6 +294,13 @@ definitions:
         type: string
     required:
     - dayOfWeek
+    type: object
+  main.UpdateBrandWorkingHoursPayload:
+    properties:
+      workingHours:
+        items:
+          $ref: '#/definitions/main.UpdateBrandWorkingHours'
+        type: array
     type: object
   main.UserResponse:
     properties:
@@ -608,6 +614,82 @@ paths:
       security:
       - CookieAuth: []
       summary: Update brand
+      tags:
+      - brand
+  /brand/{id}/social-links:
+    put:
+      consumes:
+      - application/json
+      description: Update the social media links for a brand
+      parameters:
+      - description: Social links data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateBrandSocialLinksPayload'
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated brand with social links
+          schema:
+            $ref: '#/definitions/store.BrandResponse'
+        "400":
+          description: Bad request - Invalid input
+          schema: {}
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - CookieAuth: []
+      summary: Update brand social links
+      tags:
+      - brand
+  /brand/{id}/working-hours:
+    put:
+      consumes:
+      - application/json
+      description: Update the working hours for a brand
+      parameters:
+      - description: Working hours data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateBrandWorkingHoursPayload'
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated brand with working hours
+          schema:
+            $ref: '#/definitions/store.BrandResponse'
+        "400":
+          description: Bad request - Invalid input
+          schema: {}
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - CookieAuth: []
+      summary: Update brand working hours
       tags:
       - brand
   /customers:

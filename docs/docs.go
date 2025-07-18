@@ -292,6 +292,122 @@ const docTemplate = `{
                 }
             }
         },
+        "/brand/{id}/social-links": {
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Update the social media links for a brand",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
+                "summary": "Update brand social links",
+                "parameters": [
+                    {
+                        "description": "Social links data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateBrandSocialLinksPayload"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated brand with social links",
+                        "schema": {
+                            "$ref": "#/definitions/store.BrandResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid input",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/brand/{id}/working-hours": {
+            "put": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Update the working hours for a brand",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
+                "summary": "Update brand working hours",
+                "parameters": [
+                    {
+                        "description": "Working hours data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.UpdateBrandWorkingHoursPayload"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated brand with working hours",
+                        "schema": {
+                            "$ref": "#/definitions/store.BrandResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid input",
+                        "schema": {}
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing token",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/customers": {
             "get": {
                 "security": [
@@ -1471,20 +1587,8 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
-                "socialLinks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/main.UpdateBrandSocialLink"
-                    }
-                },
                 "state": {
                     "type": "string"
-                },
-                "workingHours": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/main.UpdateBrandWorkingHours"
-                    }
                 },
                 "zipCode": {
                     "type": "string"
@@ -1503,6 +1607,17 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "main.UpdateBrandSocialLinksPayload": {
+            "type": "object",
+            "properties": {
+                "socialLinks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.UpdateBrandSocialLink"
+                    }
                 }
             }
         },
@@ -1525,6 +1640,17 @@ const docTemplate = `{
                 },
                 "openTime": {
                     "type": "string"
+                }
+            }
+        },
+        "main.UpdateBrandWorkingHoursPayload": {
+            "type": "object",
+            "properties": {
+                "workingHours": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.UpdateBrandWorkingHours"
+                    }
                 }
             }
         },

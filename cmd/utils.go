@@ -165,9 +165,15 @@ func toNullBool(b bool) sql.NullBool {
 	}
 }
 
-func toNullTime(t time.Time) sql.NullTime {
-	return sql.NullTime{
-		Valid: t != time.Time{},
-		Time:  t,
+func parseTimeString(timeStr string) sql.NullTime {
+	if timeStr == "" {
+		return sql.NullTime{Valid: false}
 	}
+
+	t, err := time.Parse("15:04", timeStr)
+	if err != nil {
+		return sql.NullTime{Valid: false}
+	}
+
+	return sql.NullTime{Time: t, Valid: true}
 }
