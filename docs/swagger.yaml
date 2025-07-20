@@ -654,6 +654,46 @@ paths:
       summary: Update brand social links
       tags:
       - brand
+  /brand/{id}/social-links/{linkId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific social media link for a brand
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Social Link ID
+        in: path
+        name: linkId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Social link deleted successfully
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad request - Invalid input
+          schema: {}
+        "401":
+          description: Unauthorized - Invalid or missing token
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      security:
+      - CookieAuth: []
+      summary: Delete brand social link
+      tags:
+      - brand
   /brand/{id}/working-hours:
     put:
       consumes:
