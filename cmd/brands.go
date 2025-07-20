@@ -120,8 +120,8 @@ func (app *application) updateBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	logoInput := getImageInput(r, "logoUrl", payload.LogoUrl)
-	bannerInput := getImageInput(r, "bannerUrl", payload.BannerUrl)
+	logoInput := getImageInput(r, "logo", payload.LogoUrl)
+	bannerInput := getImageInput(r, "banner", payload.BannerUrl)
 
 	var logoURL, bannerURL string
 	var g errgroup.Group
