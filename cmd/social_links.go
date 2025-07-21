@@ -8,19 +8,19 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-//	@Summary		Update brand social links
-//	@Description	Update the social media links for a brand
-//	@Tags			brand
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			payload	body		UpdateBrandSocialLinksPayload	true	"Social links data"
-//	@Param			id		path		int								true	"Brand ID"
-//	@Success		200		{object}	store.BrandResponse				"Updated brand with social links"
-//	@Failure		400		{object}	error							"Bad request - Invalid input"
-//	@Failure		401		{object}	error							"Unauthorized - Invalid or missing token"
-//	@Failure		500		{object}	error							"Internal server error"
-//	@Router			/brand/{id}/social-links [put]
+// @Summary		Update brand social links
+// @Description	Update the social media links for a brand
+// @Tags			brand
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			payload	body		UpdateBrandSocialLinksPayload	true	"Social links data"
+// @Param			id		path		int								true	"Brand ID"
+// @Success		200		{object}	store.BrandResponse				"Updated brand with social links"
+// @Failure		400		{object}	error							"Bad request - Invalid input"
+// @Failure		401		{object}	error							"Unauthorized - Invalid or missing token"
+// @Failure		500		{object}	error							"Internal server error"
+// @Router			/brand/{id}/social-links [put]
 func (app *application) updateBrandSocialLinksHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	brandId, err := strconv.Atoi(chi.URLParam(r, "id"))
@@ -72,48 +72,4 @@ func (app *application) updateBrandSocialLinksHandler(w http.ResponseWriter, r *
 	if err := writeJSON(w, http.StatusOK, br); err != nil {
 		app.internalServerError(w, r, err)
 	}
-}
-
-//	@Summary		Delete brand social link
-//	@Description	Delete a specific social media link for a brand
-//	@Tags			brand
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			id		path		int						true	"Brand ID"
-//	@Param			linkId	path		int						true	"Social Link ID"
-//	@Success		202		{object}	object{message=string}	"Social link deleted successfully"
-//	@Failure		400		{object}	error					"Bad request - Invalid input"
-//	@Failure		401		{object}	error					"Unauthorized - Invalid or missing token"
-//	@Failure		500		{object}	error					"Internal server error"
-//	@Router			/brand/{id}/social-links/{linkId} [delete]
-func (app *application) deleteBrandSocialLinksHandler(w http.ResponseWriter, r *http.Request) {
-	brandId, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		app.badRequestResponse(w, r, err)
-		return
-	}
-
-	linkId, err := strconv.Atoi(chi.URLParam(r, "linkId"))
-	if err != nil {
-		app.badRequestResponse(w, r, err)
-		return
-	}
-
-	err = app.store.DeleteBrandSocialLink(r.Context(), store.DeleteBrandSocialLinkParams{
-		ID:      int32(linkId),
-		BrandID: int32(brandId),
-	})
-	if err != nil {
-		app.internalServerError(w, r, err)
-		return
-	}
-
-	type DeleteResponse struct {
-		Message string `json:"message"`
-	}
-
-	writeJSON(w, http.StatusAccepted, DeleteResponse{
-		Message: "Success",
-	})
 }

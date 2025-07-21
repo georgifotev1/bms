@@ -25,7 +25,6 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) (*User, error)
 	CreateUserInvitation(ctx context.Context, arg CreateUserInvitationParams) error
 	CreateUserSession(ctx context.Context, arg CreateUserSessionParams) (*UserSession, error)
-	DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error
 	DeleteCustomer(ctx context.Context, id int64) error
 	DeleteEvent(ctx context.Context, id int64) error
 	DeleteService(ctx context.Context, id uuid.UUID) error

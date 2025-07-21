@@ -131,7 +131,6 @@ func (app *application) mount() http.Handler {
 			r.With(app.AuthUserMiddleware).Put("/{id}", app.updateBrandHandler)
 			r.With(app.AuthUserMiddleware).Put("/{id}/working-hours", app.updateBrandWorkingHoursHandler)
 			r.With(app.AuthUserMiddleware).Put("/{id}/social-links", app.updateBrandSocialLinksHandler)
-			r.With(app.AuthUserMiddleware).Delete("/{id}/social-links/{linkId}", app.deleteBrandSocialLinksHandler)
 			r.Get("/{id}", app.getBrandHandler)
 		})
 

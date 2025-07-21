@@ -38,10 +38,6 @@ SET platform = $1,
 WHERE id = $4 AND brand_id = $5
 RETURNING *;
 
-
--- name: DeleteBrandSocialLink :exec
-DELETE FROM brand_social_link WHERE id = $1 AND brand_id = $2;
-
 -- name: UpsertBrandWorkingHours :one
 INSERT INTO brand_working_hours (
     brand_id, day_of_week, open_time, close_time, is_closed

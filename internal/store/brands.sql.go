@@ -93,20 +93,6 @@ func (q *Queries) CreateBrand(ctx context.Context, arg CreateBrandParams) (*Bran
 	return &i, err
 }
 
-const deleteBrandSocialLink = `-- name: DeleteBrandSocialLink :exec
-DELETE FROM brand_social_link WHERE id = $1 AND brand_id = $2
-`
-
-type DeleteBrandSocialLinkParams struct {
-	ID      int32 `json:"id"`
-	BrandID int32 `json:"brandId"`
-}
-
-func (q *Queries) DeleteBrandSocialLink(ctx context.Context, arg DeleteBrandSocialLinkParams) error {
-	_, err := q.db.ExecContext(ctx, deleteBrandSocialLink, arg.ID, arg.BrandID)
-	return err
-}
-
 const getBrand = `-- name: GetBrand :one
 SELECT id, name, page_url, description, email, phone, country, state, zip_code, city, address, logo_url, banner_url, currency, created_at, updated_at FROM brand WHERE id = $1
 `
