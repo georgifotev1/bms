@@ -50,6 +50,10 @@ func (app *application) updateBrandSocialLinksHandler(w http.ResponseWriter, r *
 		return
 	}
 
+	if err := app.store.DeleteBrandSocialLinks(ctx, brand.ID); err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
 	var socialLinks []*store.BrandSocialLink
 	socialLinkParams := payload.ToSocialLinkParams(brand.ID)
 

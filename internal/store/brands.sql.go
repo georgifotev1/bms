@@ -93,6 +93,15 @@ func (q *Queries) CreateBrand(ctx context.Context, arg CreateBrandParams) (*Bran
 	return &i, err
 }
 
+const deleteBrandSocialLinks = `-- name: DeleteBrandSocialLinks :exec
+DELETE FROM brand_social_link WHERE brand_id = $1
+`
+
+func (q *Queries) DeleteBrandSocialLinks(ctx context.Context, brandID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteBrandSocialLinks, brandID)
+	return err
+}
+
 const getBrand = `-- name: GetBrand :one
 SELECT id, name, page_url, description, email, phone, country, state, zip_code, city, address, logo_url, banner_url, currency, created_at, updated_at FROM brand WHERE id = $1
 `
