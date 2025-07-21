@@ -31,7 +31,6 @@ type Brand struct {
 }
 
 type BrandSocialLink struct {
-	ID          int32          `json:"id"`
 	BrandID     int32          `json:"brandId"`
 	Platform    string         `json:"platform"`
 	Url         string         `json:"url"`
@@ -46,7 +45,7 @@ type BrandWorkingHour struct {
 	DayOfWeek int32        `json:"dayOfWeek"`
 	OpenTime  sql.NullTime `json:"openTime"`
 	CloseTime sql.NullTime `json:"closeTime"`
-	IsClosed  sql.NullBool `json:"isClosed"`
+	IsClosed  bool         `json:"isClosed"`
 	CreatedAt time.Time    `json:"createdAt"`
 	UpdatedAt time.Time    `json:"updatedAt"`
 }

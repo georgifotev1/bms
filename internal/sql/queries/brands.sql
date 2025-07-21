@@ -35,7 +35,7 @@ SET platform = $1,
     url = $2,
     display_name = $3,
     updated_at = NOW()
-WHERE id = $4 AND brand_id = $5
+WHERE brand_id = $4
 RETURNING *;
 
 

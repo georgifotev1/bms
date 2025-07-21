@@ -29,7 +29,6 @@ type BrandResponse struct {
 }
 
 type SocialLink struct {
-	ID          int32     `json:"id"`
 	BrandID     int32     `json:"brandId"`
 	Platform    string    `json:"platform"`
 	Url         string    `json:"url"`

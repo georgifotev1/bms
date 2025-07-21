@@ -23,7 +23,6 @@ func brandResponseMapper(brand *store.Brand, links []*store.BrandSocialLink, hou
 	if links != nil {
 		for _, link := range links {
 			socialLinks = append(socialLinks, store.SocialLink{
-				ID:          link.ID,
 				BrandID:     link.BrandID,
 				Platform:    link.Platform,
 				Url:         link.Url,
@@ -45,7 +44,7 @@ func brandResponseMapper(brand *store.Brand, links []*store.BrandSocialLink, hou
 				DayOfWeek: hour.DayOfWeek,
 				OpenTime:  openTime,
 				CloseTime: closeTime,
-				IsClosed:  hour.IsClosed.Bool,
+				IsClosed:  hour.IsClosed,
 				CreatedAt: hour.CreatedAt,
 				UpdatedAt: hour.UpdatedAt,
 			}

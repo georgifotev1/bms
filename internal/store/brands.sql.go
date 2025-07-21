@@ -15,7 +15,7 @@ INSERT INTO brand_social_link (
     brand_id, platform, url, display_name
 ) VALUES (
     $1, $2, $3, $4
-) RETURNING id, brand_id, platform, url, display_name, created_at, updated_at
+) RETURNING brand_id, platform, url, display_name, created_at, updated_at
 `
 
 type AddBrandSocialLinkParams struct {
@@ -34,7 +34,6 @@ func (q *Queries) AddBrandSocialLink(ctx context.Context, arg AddBrandSocialLink
 	)
 	var i BrandSocialLink
 	err := row.Scan(
-		&i.ID,
 		&i.BrandID,
 		&i.Platform,
 		&i.Url,
@@ -170,7 +169,7 @@ func (q *Queries) GetBrandByUrl(ctx context.Context, pageUrl string) (int32, err
 }
 
 const getBrandSocialLinks = `-- name: GetBrandSocialLinks :many
-SELECT id, brand_id, platform, url, display_name, created_at, updated_at FROM brand_social_link
+SELECT brand_id, platform, url, display_name, created_at, updated_at FROM brand_social_link
 WHERE brand_id = $1
 `
 
@@ -184,7 +183,6 @@ func (q *Queries) GetBrandSocialLinks(ctx context.Context, brandID int32) ([]*Br
 	for rows.Next() {
 		var i BrandSocialLink
 		if err := rows.Scan(
-			&i.ID,
 			&i.BrandID,
 			&i.Platform,
 			&i.Url,
@@ -440,15 +438,14 @@ SET platform = $1,
     url = $2,
     display_name = $3,
     updated_at = NOW()
-WHERE id = $4 AND brand_id = $5
-RETURNING id, brand_id, platform, url, display_name, created_at, updated_at
+WHERE brand_id = $4
+RETURNING brand_id, platform, url, display_name, created_at, updated_at
 `
 
 type UpdateBrandSocialLinkParams struct {
 	Platform    string         `json:"platform"`
 	Url         string         `json:"url"`
 	DisplayName sql.NullString `json:"displayName"`
-	ID          int32          `json:"id"`
 	BrandID     int32          `json:"brandId"`
 }
 
@@ -457,12 +454,10 @@ func (q *Queries) UpdateBrandSocialLink(ctx context.Context, arg UpdateBrandSoci
 		arg.Platform,
 		arg.Url,
 		arg.DisplayName,
-		arg.ID,
 		arg.BrandID,
 	)
 	var i BrandSocialLink
 	err := row.Scan(
-		&i.ID,
 		&i.BrandID,
 		&i.Platform,
 		&i.Url,
@@ -482,7 +477,7 @@ INSERT INTO brand_social_link (
 SET url = EXCLUDED.url,
     display_name = EXCLUDED.display_name,
     updated_at = NOW()
-RETURNING id, brand_id, platform, url, display_name, created_at, updated_at
+RETURNING brand_id, platform, url, display_name, created_at, updated_at
 `
 
 type UpsertBrandSocialLinkParams struct {
@@ -501,7 +496,6 @@ func (q *Queries) UpsertBrandSocialLink(ctx context.Context, arg UpsertBrandSoci
 	)
 	var i BrandSocialLink
 	err := row.Scan(
-		&i.ID,
 		&i.BrandID,
 		&i.Platform,
 		&i.Url,
@@ -530,7 +524,7 @@ type UpsertBrandWorkingHoursParams struct {
 	DayOfWeek int32        `json:"dayOfWeek"`
 	OpenTime  sql.NullTime `json:"openTime"`
 	CloseTime sql.NullTime `json:"closeTime"`
-	IsClosed  bool `json:"isClosed"`
+	IsClosed  bool         `json:"isClosed"`
 }
 
 func (q *Queries) UpsertBrandWorkingHours(ctx context.Context, arg UpsertBrandWorkingHoursParams) (*BrandWorkingHour, error) {
