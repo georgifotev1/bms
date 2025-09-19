@@ -11,7 +11,6 @@ import (
 
 	"github.com/georgifotev1/bms/internal/store"
 	"github.com/go-chi/chi/v5"
-	"golang.org/x/sync/errgroup"
 )
 
 // @Summary		Create a new brand
@@ -121,29 +120,6 @@ func (app *application) updateBrandHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	logoInput := getImageInput(r, "logo", payload.LogoUrl)
-	bannerInput := getImageInput(r, "banner", payload.BannerUrl)
-
-	var logoURL, bannerURL string
-	var g errgroup.Group
-
-	g.Go(func() error {
-		var err error
-		logoURL, err = app.ProcessImage(logoInput)
-		return err
-	})
-
-	g.Go(func() error {
-		var err error
-		bannerURL, err = app.ProcessImage(bannerInput)
-		return err
-	})
-
-	if err := g.Wait(); err != nil {
-		app.badRequestResponse(w, r, err)
-		return
-	}
-
 	brand, err := app.store.GetBrandById(ctx, int32(brandId))
 	if err != nil {
 		switch err {
@@ -173,8 +149,8 @@ func (app *application) updateBrandHandler(w http.ResponseWriter, r *http.Reques
 		ZipCode:     toNullString(payload.ZipCode),
 		City:        toNullString(payload.City),
 		Address:     toNullString(payload.Address),
-		LogoUrl:     toNullString(logoURL),
-		BannerUrl:   toNullString(bannerURL),
+		LogoUrl:     toNullString(payload.LogoUrl),
+		BannerUrl:   toNullString(payload.BannerUrl),
 		Currency:    toNullString(payload.Currency),
 	}
 

@@ -84,18 +84,6 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var imageURL string
-	if file, _, err := r.FormFile("image"); err == nil {
-		defer file.Close()
-
-		uploadedURL, uploadErr := app.saveImageToCloudinary(file)
-		if uploadErr != nil {
-			app.badRequestResponse(w, r, uploadErr)
-			return
-		}
-		imageURL = uploadedURL
-	}
-
 	result, err := app.store.CreateServiceTx(ctx, store.CreateServiceTxParams{
 		Title:       payload.Title,
 		Description: payload.Description,
@@ -103,7 +91,7 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 		BufferTime:  payload.BufferTime,
 		Cost:        payload.Cost,
 		IsVisible:   payload.IsVisible,
-		ImageURL:    imageURL,
+		ImageURL:    payload.ImageURL,
 		BrandID:     ctxUserBrandId,
 		UserIDs:     payload.UserIDs,
 	})
@@ -178,14 +166,6 @@ func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	imageInput := getImageInput(r, "image", payload.ImageURL)
-
-	imageURL, err := app.ProcessImage(imageInput)
-	if err != nil {
-		app.badRequestResponse(w, r, err)
-		return
-	}
-
 	result, err := app.store.UpdateServiceTx(ctx, store.UpdateServiceTxParams{
 		ID:          serviceId,
 		Title:       payload.Title,
@@ -194,7 +174,7 @@ func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Requ
 		BufferTime:  payload.BufferTime,
 		Cost:        payload.Cost,
 		IsVisible:   payload.IsVisible,
-		ImageURL:    imageURL,
+		ImageURL:    payload.ImageURL,
 		BrandID:     ctxUserBrandId,
 		UserIDs:     payload.UserIDs,
 	})
