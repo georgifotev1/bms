@@ -24,6 +24,37 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/images": {
+            "get": {
+                "description": "Retrieves a brand's stored images.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get the images of the brand from bucket",
+                "responses": {
+                    "200": {
+                        "description": "Brand images",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid brand ID",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/auth/logout": {
             "post": {
                 "description": "Clears the session cookie to log out the user",
@@ -199,6 +230,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/brand/public": {
+            "get": {
+                "description": "Retrieves a brand's details by its unique ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
+                "summary": "Get brand by url",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Brand ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Brand details",
+                        "schema": {
+                            "$ref": "#/definitions/store.BrandResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid brand ID",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/brand/{id}": {
             "get": {
                 "description": "Retrieves a brand's details by its unique ID",
@@ -333,67 +401,6 @@ const docTemplate = `{
                         "description": "Updated brand with social links",
                         "schema": {
                             "$ref": "#/definitions/store.BrandResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - Invalid input",
-                        "schema": {}
-                    },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
-        "/brand/{id}/social-links/{linkId}": {
-            "delete": {
-                "security": [
-                    {
-                        "CookieAuth": []
-                    }
-                ],
-                "description": "Delete a specific social media link for a brand",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "brand"
-                ],
-                "summary": "Delete brand social link",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Brand ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Social Link ID",
-                        "name": "linkId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Social link deleted successfully",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
                         }
                     },
                     "400": {
@@ -1858,9 +1865,6 @@ const docTemplate = `{
                 },
                 "displayName": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "platform": {
                     "type": "string"

@@ -9,9 +9,9 @@ import (
 	"encoding/json"
 	"math/big"
 	"net/http"
-	"strings"
 	"time"
 
+	"github.com/georgifotev1/bms/internal/store"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/schema"
 )
@@ -64,21 +64,6 @@ func writeJSONError(w http.ResponseWriter, status int, message string) error {
 func hashToken(token string) string {
 	hash := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(hash[:])
-}
-
-func isBrowser(r *http.Request) bool {
-	userAgent := r.Header.Get("User-Agent")
-	// Check for common browser identifiers
-	browserIdentifiers := []string{
-		"Mozilla", "Chrome", "Safari", "Firefox", "Edge", "Opera",
-		"MSIE", "Trident", "Gecko", "WebKit"}
-
-	for _, browser := range browserIdentifiers {
-		if strings.Contains(userAgent, browser) {
-			return true
-		}
-	}
-	return false
 }
 
 func generateRandomPassword() (string, error) {
@@ -149,6 +134,12 @@ func (app *application) ClearCookie(w http.ResponseWriter, name string) {
 func getBrandIDFromCtx(ctx context.Context) int32 {
 	ctxValue := ctx.Value(brandIDCtx)
 	return ctxValue.(int32)
+}
+
+func getUserFromCtx(ctx context.Context) *store.User {
+	ctxValue := ctx.Value(userCtx)
+	return ctxValue.(*store.User)
+
 }
 
 func toNullString(s string) sql.NullString {

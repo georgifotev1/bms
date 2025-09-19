@@ -17,7 +17,6 @@ require (
 	github.com/swaggo/swag v1.16.4
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.36.0
-	golang.org/x/sync v0.12.0
 	gopkg.in/mail.v2 v2.3.1
 )
 

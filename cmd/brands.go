@@ -29,7 +29,7 @@ import (
 // @Router			/brand [post]
 func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	ctxUser := ctx.Value(userCtx).(*store.User)
+	ctxUser := getUserFromCtx(ctx)
 
 	if ctxUser.Role != ownerRole {
 		app.forbiddenResponse(w, r, ErrAccessDenied)

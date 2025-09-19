@@ -171,6 +171,11 @@ func (app *application) mount() http.Handler {
 				r.Post("/logout", app.logoutCustomerHandler)
 			})
 		})
+
+		r.Route("/admin", func(r chi.Router) {
+			r.Use(app.AuthUserMiddleware)
+			r.Get("/images", app.getImagesHandler)
+		})
 	})
 
 	return r

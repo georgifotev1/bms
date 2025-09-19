@@ -1,6 +1,9 @@
 package main
 
-import "github.com/georgifotev1/bms/internal/store"
+import (
+	"github.com/cloudinary/cloudinary-go/v2/api/admin"
+	"github.com/georgifotev1/bms/internal/store"
+)
 
 // Mappers
 func userResponseMapper(user *store.User) UserResponse {
@@ -129,4 +132,12 @@ func eventResponseMapper(event *store.Event) EventResponse {
 		CreatedAt:    event.CreatedAt,
 		UpdatedAt:    event.UpdatedAt,
 	}
+}
+
+func brandImagesResponseMapper(i *admin.AssetsResult) []string {
+	var response []string
+	for _, img := range i.Assets {
+		response = append(response, img.URL)
+	}
+	return response
 }

@@ -397,8 +397,6 @@ definitions:
         type: string
       displayName:
         type: string
-      id:
-        type: integer
       platform:
         type: string
       updatedAt:
@@ -437,6 +435,27 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Event Managing System
 paths:
+  /admin/images:
+    get:
+      description: Retrieves a brand's stored images.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Brand images
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad request - Invalid brand ID
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      summary: Get the images of the brand from bucket
+      tags:
+      - admin
   /auth/logout:
     post:
       description: Clears the session cookie to log out the user
@@ -654,46 +673,6 @@ paths:
       summary: Update brand social links
       tags:
       - brand
-  /brand/{id}/social-links/{linkId}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a specific social media link for a brand
-      parameters:
-      - description: Brand ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Social Link ID
-        in: path
-        name: linkId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "202":
-          description: Social link deleted successfully
-          schema:
-            properties:
-              message:
-                type: string
-            type: object
-        "400":
-          description: Bad request - Invalid input
-          schema: {}
-        "401":
-          description: Unauthorized - Invalid or missing token
-          schema: {}
-        "500":
-          description: Internal server error
-          schema: {}
-      security:
-      - CookieAuth: []
-      summary: Delete brand social link
-      tags:
-      - brand
   /brand/{id}/working-hours:
     put:
       consumes:
@@ -730,6 +709,31 @@ paths:
       security:
       - CookieAuth: []
       summary: Update brand working hours
+      tags:
+      - brand
+  /brand/public:
+    get:
+      description: Retrieves a brand's details by its unique ID
+      parameters:
+      - description: Brand ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Brand details
+          schema:
+            $ref: '#/definitions/store.BrandResponse'
+        "400":
+          description: Bad request - Invalid brand ID
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      summary: Get brand by url
       tags:
       - brand
   /customers:
