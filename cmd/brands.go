@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -212,6 +213,35 @@ func (app *application) getBrandHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	brandResponse, err := app.getBrand(r.Context(), int32(brandId))
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			app.badRequestResponse(w, r, errors.New("brand does not exist"))
+		default:
+			app.internalServerError(w, r, err)
+		}
+		return
+	}
+
+	if err := writeJSON(w, http.StatusOK, brandResponse); err != nil {
+		app.internalServerError(w, r, err)
+	}
+}
+
+// @Summary		Get brand by url
+// @Description	Retrieves a brand's details by its unique ID
+// @Tags			brand
+// @Produce		json
+// @Param			id	path		int					true	"Brand ID"
+// @Success		200	{object}	store.BrandResponse	"Brand details"
+// @Failure		400	{object}	error				"Bad request - Invalid brand ID"
+// @Failure		500	{object}	error				"Internal server error"
+// @Router			/brand/public [get]
+func (app *application) getBrandPublicHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	brandId := getBrandIDFromCtx(ctx)
+	fmt.Println("brand ID --- ", brandId)
+	brandResponse, err := app.getBrand(ctx, brandId)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

@@ -132,6 +132,10 @@ func (app *application) mount() http.Handler {
 			r.With(app.AuthUserMiddleware).Put("/{id}/working-hours", app.updateBrandWorkingHoursHandler)
 			r.With(app.AuthUserMiddleware).Put("/{id}/social-links", app.updateBrandSocialLinksHandler)
 			r.Get("/{id}", app.getBrandHandler)
+			r.Route("/public", func(r chi.Router) {
+				r.Use(app.BrandMiddleware)
+				r.Get("/", app.getBrandPublicHandler)
+			})
 		})
 
 		r.Route("/service", func(r chi.Router) {
@@ -139,6 +143,9 @@ func (app *application) mount() http.Handler {
 			r.With(app.AuthUserMiddleware).Put("/id/{serviceId}", app.updateServiceHandler)
 			r.Route("/{brandId}", func(r chi.Router) {
 				r.Get("/", app.getServicesHandler)
+			})
+			r.Route("/public", func(r chi.Router) {
+				r.Use(app.BrandMiddleware)
 			})
 		})
 

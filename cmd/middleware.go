@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -141,10 +143,25 @@ func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {
 
 func (app *application) BrandMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		host := r.Host
-		parts := strings.Split(host, ".")
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			app.badRequestResponse(w, r, errors.New("missing origin header"))
+			return
+		}
 
-		// Handle development scenarios where swagger does not have the brand in the subdomain
+		parsedURL, err := url.Parse(origin)
+		if err != nil {
+			app.badRequestResponse(w, r, err)
+			return
+		}
+
+		hostname := parsedURL.Hostname() // "mybrand.localhost"
+		parts := strings.Split(hostname, ".")
+		if len(parts) == 0 {
+			app.badRequestResponse(w, r, errors.New("invalid hostname"))
+			return
+		}
+
 		if app.config.env == "development" {
 			brandIDHeader := r.Header.Get("X-Brand-ID")
 			if brandIDHeader != "" {
