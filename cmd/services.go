@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/georgifotev1/bms/internal/store"
@@ -194,33 +193,15 @@ func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// @Summary		Get services by brand
-// @Description	Fetches all services of a brand
-// @Tags			service
-// @Accept			json
-// @Produce		json
-// @Param			brandId	path		int	true	"BrandId ID"
-// @Success		200		{object}	[]ServiceResponse
-// @Failure		400		{object}	error
-// @Failure		404		{object}	error
-// @Failure		500		{object}	error
-// @Router			/service/{brandId} [get]
-func (app *application) getServicesHandler(w http.ResponseWriter, r *http.Request) {
-	brandIDStr := chi.URLParam(r, "brandId")
-	if brandIDStr == "" {
-		app.badRequestResponse(w, r, errors.New("brand ID is required"))
-		return
-	}
+func (app *application) handleServicesRetrieval(w http.ResponseWriter, r *http.Request, brandID int32) {
+	ctx := r.Context()
 
-	brandId, err := strconv.Atoi(brandIDStr)
-	if err != nil || brandId <= 0 {
+	if brandID <= 0 {
 		app.badRequestResponse(w, r, errors.New("invalid brand ID format"))
 		return
 	}
 
-	ctx := r.Context()
-
-	servicesWithProviders, err := app.store.ListServicesWithProviders(ctx, int32(brandId))
+	servicesWithProviders, err := app.store.ListServicesWithProviders(ctx, brandID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -234,10 +215,8 @@ func (app *application) getServicesHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	serviceMap := make(map[uuid.UUID]*ServiceResponse)
-
 	for _, row := range servicesWithProviders {
 		serviceID := row.ID
-
 		if _, exists := serviceMap[serviceID]; !exists {
 			serviceMap[serviceID] = &ServiceResponse{
 				ID:          row.ID,
@@ -254,7 +233,6 @@ func (app *application) getServicesHandler(w http.ResponseWriter, r *http.Reques
 				Providers:   []int64{},
 			}
 		}
-
 		if row.ProviderID.Valid {
 			serviceMap[serviceID].Providers = append(serviceMap[serviceID].Providers, row.ProviderID.Int64)
 		}
@@ -268,4 +246,36 @@ func (app *application) getServicesHandler(w http.ResponseWriter, r *http.Reques
 	if err := writeJSON(w, http.StatusOK, result); err != nil {
 		app.internalServerError(w, r, err)
 	}
+}
+
+// @Summary		Get services by brand
+// @Description	Fetches all services of a brand
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Success		200		{object}	[]ServiceResponse
+// @Failure		400		{object}	error
+// @Failure		404		{object}	error
+// @Failure		500		{object}	error
+// @Router			/service [get]
+func (app *application) getServicesHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	user := getUserFromCtx(ctx)
+	app.handleServicesRetrieval(w, r, user.BrandID.Int32)
+}
+
+// @Summary		Get services by brand (public)
+// @Description	Fetches all services of a brand for public access
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Success		200		{object}	[]ServiceResponse
+// @Failure		400		{object}	error
+// @Failure		404		{object}	error
+// @Failure		500		{object}	error
+// @Router			/service/public [get]
+func (app *application) getServicesPublicHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	brandID := getBrandIDFromCtx(ctx)
+	app.handleServicesRetrieval(w, r, brandID)
 }

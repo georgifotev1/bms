@@ -225,25 +225,10 @@ func (app *application) updateEventHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-// getEventsByWeekHandler List all events of a brand in a specific week
-//
-//	@Summary		List all events of a brand in a specific week
-//	@Description	List all events of a brand in a specific week and validate the user input
-//	@Tags			events
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			startDate	query		string			true	"Start date in YYYY-MM-DD format"	example(2025-05-19)
-//	@Param			endDate		query		string			true	"End date in YYYY-MM-DD format"		example(2025-05-20)
-//	@Param			brandId		query		integer			true	"Brand ID"							minimum(1)	example(1)
-//	@Success		200			{array}		[]EventResponse	"List of brands"
-//	@Failure		400			{object}	error			"Bad request - invalid input"
-//	@Failure		409			{object}	error			"Conflict - timeslot already booked"
-//	@Failure		500			{object}	error			"Internal server error"
-//	@Router			/events/week [get]
-func (app *application) getEventsByTimeStampHandler(w http.ResponseWriter, r *http.Request) {
+// Helper function to handle common events retrieval logic
+func (app *application) handleEventsByTimeStampRetrieval(w http.ResponseWriter, r *http.Request, brandID int32) {
 	ctx := r.Context()
-	ctxUser := ctx.Value(userCtx).(*store.User)
+
 	startDate := r.URL.Query().Get("startDate")
 	endDate := r.URL.Query().Get("endDate")
 
@@ -259,10 +244,10 @@ func (app *application) getEventsByTimeStampHandler(w http.ResponseWriter, r *ht
 		return
 	}
 
-	events, err := app.store.GetEventsByWeek(r.Context(), store.GetEventsByWeekParams{
+	events, err := app.store.GetEventsByWeek(ctx, store.GetEventsByWeekParams{
 		StartDate: startDateTime,
 		EndDate:   endDateTime,
-		BrandID:   ctxUser.BrandID.Int32,
+		BrandID:   brandID,
 	})
 	if err != nil {
 		app.internalServerError(w, r, err)
@@ -273,7 +258,6 @@ func (app *application) getEventsByTimeStampHandler(w http.ResponseWriter, r *ht
 	for _, v := range events {
 		result = append(result, eventResponseMapper(v))
 	}
-
 	if len(result) == 0 {
 		result = []EventResponse{}
 	}
@@ -281,6 +265,48 @@ func (app *application) getEventsByTimeStampHandler(w http.ResponseWriter, r *ht
 	if err = writeJSON(w, http.StatusOK, result); err != nil {
 		app.internalServerError(w, r, err)
 	}
+}
+
+// getEventsByWeekHandler List all events of a brand in a specific timestamp
+//
+//	@Summary		List all events of a brand in a specific timestamp
+//	@Description	List all events of a brand in a specific timestamp and validate the user input
+//	@Tags			events
+//	@Accept			json
+//	@Produce		json
+//	@Security		CookieAuth
+//	@Param			startDate	query		string			true	"Start date in YYYY-MM-DD format"	example(2025-05-19)
+//	@Param			endDate		query		string			true	"End date in YYYY-MM-DD format"		example(2025-05-20)
+//	@Param			brandId		query		integer			true	"Brand ID"							minimum(1)	example(1)
+//	@Success		200			{array}		[]EventResponse	"List of brands"
+//	@Failure		400			{object}	error			"Bad request - invalid input"
+//	@Failure		409			{object}	error			"Conflict - timeslot already booked"
+//	@Failure		500			{object}	error			"Internal server error"
+//	@Router			/events/timestamp [get]
+func (app *application) getEventsByTimeStampHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	ctxUser := ctx.Value(userCtx).(*store.User)
+	app.handleEventsByTimeStampRetrieval(w, r, ctxUser.BrandID.Int32)
+}
+
+// getEventsByWeekPublicHandler List all events of a brand in a specific timestamp (public)
+//
+//	@Summary		List all events of a brand in a specific timestamp (public)
+//	@Description	List all events of a brand in a specific timestamp and validate the user input for public access
+//	@Tags			events
+//	@Accept			json
+//	@Produce		json
+//	@Param			startDate	query		string			true	"Start date in YYYY-MM-DD format"	example(2025-05-19)
+//	@Param			endDate		query		string			true	"End date in YYYY-MM-DD format"		example(2025-05-20)
+//	@Success		200			{array}		[]EventResponse	"List of brands"
+//	@Failure		400			{object}	error			"Bad request - invalid input"
+//	@Failure		409			{object}	error			"Conflict - timeslot already booked"
+//	@Failure		500			{object}	error			"Internal server error"
+//	@Router			/events/timestamp/public [get]
+func (app *application) getEventsByTimeStampPublicHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	brandID := getBrandIDFromCtx(ctx)
+	app.handleEventsByTimeStampRetrieval(w, r, brandID)
 }
 
 func (app *application) validateEventEntities(ctx context.Context, params EventValidationParams) (*EventEntities, error) {

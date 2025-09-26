@@ -127,11 +127,12 @@ func (app *application) mount() http.Handler {
 		})
 
 		r.Route("/brand", func(r chi.Router) {
-			r.With(app.AuthUserMiddleware).Post("/", app.createBrandHandler)
-			r.With(app.AuthUserMiddleware).Put("/{id}", app.updateBrandHandler)
-			r.With(app.AuthUserMiddleware).Put("/{id}/working-hours", app.updateBrandWorkingHoursHandler)
-			r.With(app.AuthUserMiddleware).Put("/{id}/social-links", app.updateBrandSocialLinksHandler)
-			r.Get("/{id}", app.getBrandHandler)
+			r.Use(app.AuthUserMiddleware)
+			r.Post("/", app.createBrandHandler)
+			r.Put("/{id}", app.updateBrandHandler)
+			r.Put("/{id}/working-hours", app.updateBrandWorkingHoursHandler)
+			r.Put("/{id}/social-links", app.updateBrandSocialLinksHandler)
+			r.Get("/", app.getBrandHandler)
 			r.Route("/public", func(r chi.Router) {
 				r.Use(app.BrandMiddleware)
 				r.Get("/", app.getBrandPublicHandler)
@@ -139,20 +140,25 @@ func (app *application) mount() http.Handler {
 		})
 
 		r.Route("/service", func(r chi.Router) {
-			r.With(app.AuthUserMiddleware).Post("/", app.createServiceHandler)
-			r.With(app.AuthUserMiddleware).Put("/id/{serviceId}", app.updateServiceHandler)
-			r.Route("/{brandId}", func(r chi.Router) {
-				r.Get("/", app.getServicesHandler)
-			})
+			r.Use(app.AuthUserMiddleware)
+			r.Post("/", app.createServiceHandler)
+			r.Put("/id/{serviceId}", app.updateServiceHandler)
+			r.Get("/", app.getServicesHandler)
 			r.Route("/public", func(r chi.Router) {
 				r.Use(app.BrandMiddleware)
+				r.Get("/", app.getServicesPublicHandler)
 			})
 		})
 
 		r.Route("/events", func(r chi.Router) {
+			r.Use(app.AuthUserMiddleware)
 			r.Post("/", app.createEventHandler)
-			r.With(app.AuthUserMiddleware).Get("/timestamp", app.getEventsByTimeStampHandler)
-			r.With(app.AuthUserMiddleware).Put("/{eventId}", app.updateEventHandler)
+			r.Get("/timestamp", app.getEventsByTimeStampHandler)
+			r.Put("/{eventId}", app.updateEventHandler)
+			r.Route("/public", func(r chi.Router) {
+				r.Use(app.BrandMiddleware)
+				r.Get("/timestamp", app.getEventsByTimeStampPublicHandler)
+			})
 		})
 
 		r.Route("/auth", func(r chi.Router) {
