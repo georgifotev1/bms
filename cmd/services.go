@@ -119,7 +119,7 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 // @Security		CookieAuth
 // @Param			payload		body		CreateServicePayload	true	"Service update data"
 // @Param			serviceId	path		uuid.UUID				true	"service ID"
-// @Success		201			{object}	ServiceResponse			"Updated service"
+// @Success		200			{object}	ServiceResponse			"Updated service"
 // @Failure		400			{object}	error					"Bad request - Invalid input"
 // @Failure		401			{object}	error					"Unauthorized - Invalid or missing token"
 // @Failure		403			{object}	error					"Forbidden - User does not belong to a brand"
@@ -189,7 +189,7 @@ func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	response := serviceResponseMapper(result.Service, result.Providers)
-	if err := writeJSON(w, http.StatusCreated, response); err != nil {
+	if err := writeJSON(w, http.StatusOK, response); err != nil {
 		app.internalServerError(w, r, err)
 	}
 }
