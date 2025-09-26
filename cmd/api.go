@@ -160,7 +160,6 @@ func (app *application) mount() http.Handler {
 			r.Put("/{eventId}", app.updateEventHandler)
 			r.Route("/public", func(r chi.Router) {
 				r.Use(app.BrandMiddleware)
-				r.Get("/timestamp", app.getEventsByTimeStampPublicHandler)
 			})
 		})
 
