@@ -172,6 +172,32 @@ const docTemplate = `{
             }
         },
         "/brand": {
+            "get": {
+                "description": "Retrieves a brand's details by its unique ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "brand"
+                ],
+                "summary": "Get brand by ID",
+                "responses": {
+                    "200": {
+                        "description": "Brand details",
+                        "schema": {
+                            "$ref": "#/definitions/store.BrandResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid brand ID",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -268,41 +294,6 @@ const docTemplate = `{
             }
         },
         "/brand/{id}": {
-            "get": {
-                "description": "Retrieves a brand's details by its unique ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "brand"
-                ],
-                "summary": "Get brand by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Brand ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Brand details",
-                        "schema": {
-                            "$ref": "#/definitions/store.BrandResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - Invalid brand ID",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {}
-                    }
-                }
-            },
             "put": {
                 "security": [
                     {
@@ -742,14 +733,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/events/week": {
+        "/events/timestamp": {
             "get": {
                 "security": [
                     {
                         "CookieAuth": []
                     }
                 ],
-                "description": "List all events of a brand in a specific week and validate the user input",
+                "description": "List all events of a brand in a specific timestamp and validate the user input",
                 "consumes": [
                     "application/json"
                 ],
@@ -759,7 +750,7 @@ const docTemplate = `{
                 "tags": [
                     "events"
                 ],
-                "summary": "List all events of a brand in a specific week",
+                "summary": "List all events of a brand in a specific timestamp",
                 "parameters": [
                     {
                         "type": "string",
@@ -783,6 +774,65 @@ const docTemplate = `{
                         "example": 1,
                         "description": "Brand ID",
                         "name": "brandId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of brands",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/main.EventResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid input",
+                        "schema": {}
+                    },
+                    "409": {
+                        "description": "Conflict - timeslot already booked",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/events/timestamp/public": {
+            "get": {
+                "description": "List all events of a brand in a specific timestamp and validate the user input for public access",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "List all events of a brand in a specific timestamp (public)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "2025-05-19",
+                        "description": "Start date in YYYY-MM-DD format",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "2025-05-20",
+                        "description": "End date in YYYY-MM-DD format",
+                        "name": "endDate",
                         "in": "query",
                         "required": true
                     }
@@ -894,6 +944,42 @@ const docTemplate = `{
             }
         },
         "/service": {
+            "get": {
+                "description": "Fetches all services of a brand",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "Get services by brand",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.ServiceResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -982,7 +1068,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
+                    "200": {
                         "description": "Updated service",
                         "schema": {
                             "$ref": "#/definitions/main.ServiceResponse"
@@ -1011,9 +1097,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/service/{brandId}": {
+        "/service/public": {
             "get": {
-                "description": "Fetches all services of a brand",
+                "description": "Fetches all services of a brand for public access",
                 "consumes": [
                     "application/json"
                 ],
@@ -1023,16 +1109,7 @@ const docTemplate = `{
                 "tags": [
                     "service"
                 ],
-                "summary": "Get services by brand",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "BrandId ID",
-                        "name": "brandId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
+                "summary": "Get services by brand (public)",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1215,6 +1292,44 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/users/public": {
+            "get": {
+                "description": "Fetches all users of a brand for public access",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get users by brand (public)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.UserResponse"
+                            }
                         }
                     },
                     "400": {

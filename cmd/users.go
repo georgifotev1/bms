@@ -273,28 +273,18 @@ func (app *application) getUserProfile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// @Summary		Get users by brand
-// @Description	Fetches all users of a brand
-// @Tags			users
-// @Accept			json
-// @Produce		json
-// @Success		200	{object}	[]UserResponse
-// @Failure		400	{object}	error
-// @Failure		404	{object}	error
-// @Failure		500	{object}	error
-// @Security		CookieAuth
-// @Router			/users [get]
-func (app *application) getUsersHandler(w http.ResponseWriter, r *http.Request) {
+// Helper function to handle common users retrieval logic
+func (app *application) handleUsersRetrieval(w http.ResponseWriter, r *http.Request, brandID int32) {
 	ctx := r.Context()
-	ctxUser := ctx.Value(userCtx).(*store.User)
-	if ctxUser.BrandID.Int32 == 0 || !ctxUser.BrandID.Valid {
+
+	if brandID == 0 {
 		app.forbiddenResponse(w, r, errors.New("access denied"))
 		return
 	}
 
 	users, err := app.store.GetUsersByBrand(ctx, sql.NullInt32{
 		Valid: true,
-		Int32: ctxUser.BrandID.Int32,
+		Int32: brandID,
 	})
 	if err != nil {
 		app.internalServerError(w, r, err)
@@ -309,6 +299,45 @@ func (app *application) getUsersHandler(w http.ResponseWriter, r *http.Request) 
 	if err = writeJSON(w, http.StatusOK, result); err != nil {
 		app.internalServerError(w, r, err)
 	}
+}
+
+// @Summary		Get users by brand
+// @Description	Fetches all users of a brand
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	[]UserResponse
+// @Failure		400	{object}	error
+// @Failure		404	{object}	error
+// @Failure		500	{object}	error
+// @Security		CookieAuth
+// @Router			/users [get]
+func (app *application) getUsersHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	ctxUser := ctx.Value(userCtx).(*store.User)
+
+	if !ctxUser.BrandID.Valid {
+		app.forbiddenResponse(w, r, errors.New("access denied"))
+		return
+	}
+
+	app.handleUsersRetrieval(w, r, ctxUser.BrandID.Int32)
+}
+
+// @Summary		Get users by brand (public)
+// @Description	Fetches all users of a brand for public access
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	[]UserResponse
+// @Failure		400	{object}	error
+// @Failure		404	{object}	error
+// @Failure		500	{object}	error
+// @Router			/users/public [get]
+func (app *application) getUsersPublicHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	brandID := getBrandIDFromCtx(ctx)
+	app.handleUsersRetrieval(w, r, brandID)
 }
 
 func (app *application) getUser(ctx context.Context, userID int64) (*store.User, error) {

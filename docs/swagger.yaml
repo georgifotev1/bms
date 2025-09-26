@@ -535,6 +535,24 @@ paths:
       tags:
       - auth
   /brand:
+    get:
+      description: Retrieves a brand's details by its unique ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Brand details
+          schema:
+            $ref: '#/definitions/store.BrandResponse'
+        "400":
+          description: Bad request - Invalid brand ID
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      summary: Get brand by ID
+      tags:
+      - brand
     post:
       consumes:
       - application/json
@@ -574,30 +592,6 @@ paths:
       tags:
       - brand
   /brand/{id}:
-    get:
-      description: Retrieves a brand's details by its unique ID
-      parameters:
-      - description: Brand ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Brand details
-          schema:
-            $ref: '#/definitions/store.BrandResponse'
-        "400":
-          description: Bad request - Invalid brand ID
-          schema: {}
-        "500":
-          description: Internal server error
-          schema: {}
-      summary: Get brand by ID
-      tags:
-      - brand
     put:
       consumes:
       - application/json
@@ -955,12 +949,12 @@ paths:
       summary: Update an event
       tags:
       - events
-  /events/week:
+  /events/timestamp:
     get:
       consumes:
       - application/json
-      description: List all events of a brand in a specific week and validate the
-        user input
+      description: List all events of a brand in a specific timestamp and validate
+        the user input
       parameters:
       - description: Start date in YYYY-MM-DD format
         example: "2025-05-19"
@@ -1003,7 +997,49 @@ paths:
           schema: {}
       security:
       - CookieAuth: []
-      summary: List all events of a brand in a specific week
+      summary: List all events of a brand in a specific timestamp
+      tags:
+      - events
+  /events/timestamp/public:
+    get:
+      consumes:
+      - application/json
+      description: List all events of a brand in a specific timestamp and validate
+        the user input for public access
+      parameters:
+      - description: Start date in YYYY-MM-DD format
+        example: "2025-05-19"
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: End date in YYYY-MM-DD format
+        example: "2025-05-20"
+        in: query
+        name: endDate
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of brands
+          schema:
+            items:
+              items:
+                $ref: '#/definitions/main.EventResponse'
+              type: array
+            type: array
+        "400":
+          description: Bad request - invalid input
+          schema: {}
+        "409":
+          description: Conflict - timeslot already booked
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      summary: List all events of a brand in a specific timestamp (public)
       tags:
       - events
   /health:
@@ -1020,6 +1056,31 @@ paths:
       tags:
       - ops
   /service:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all services of a brand
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.ServiceResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get services by brand
+      tags:
+      - service
     post:
       consumes:
       - application/json
@@ -1058,38 +1119,6 @@ paths:
       summary: Create a new service
       tags:
       - service
-  /service/{brandId}:
-    get:
-      consumes:
-      - application/json
-      description: Fetches all services of a brand
-      parameters:
-      - description: BrandId ID
-        in: path
-        name: brandId
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/main.ServiceResponse'
-            type: array
-        "400":
-          description: Bad Request
-          schema: {}
-        "404":
-          description: Not Found
-          schema: {}
-        "500":
-          description: Internal Server Error
-          schema: {}
-      summary: Get services by brand
-      tags:
-      - service
   /service/id/{serviceId}:
     put:
       consumes:
@@ -1105,7 +1134,7 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
+        "200":
           description: Updated service
           schema:
             $ref: '#/definitions/main.ServiceResponse'
@@ -1127,6 +1156,32 @@ paths:
       security:
       - CookieAuth: []
       summary: Update a service
+      tags:
+      - service
+  /service/public:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all services of a brand for public access
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.ServiceResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get services by brand (public)
       tags:
       - service
   /users:
@@ -1275,6 +1330,32 @@ paths:
       security:
       - CookieAuth: []
       summary: Get user by token
+      tags:
+      - users
+  /users/public:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all users of a brand for public access
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.UserResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get users by brand (public)
       tags:
       - users
 securityDefinitions:
