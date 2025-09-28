@@ -7,17 +7,20 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api/admin"
 )
 
-//	@Summary		Get the images of the brand from bucket
-//	@Description	Retrieves a brand's stored images.
-//	@Tags			admin
-//	@Produce		json
-//	@Success		200	{object}	[]string	"Brand images"
-//	@Failure		400	{object}	error		"Bad request - Invalid brand ID"
-//	@Failure		500	{object}	error		"Internal server error"
-//	@Router			/admin/images [get]
+// @Summary		Get the images of the brand from bucket
+// @Description	Retrieves a brand's stored images.
+// @Tags			admin
+// @Produce		json
+// @Success		200	{object}	[]string	"Brand images"
+// @Failure		400	{object}	error		"Bad request - Invalid brand ID"
+// @Failure		500	{object}	error		"Internal server error"
+// @Router			/admin/images [get]
 func (app *application) getImagesHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	ctxUser := getUserFromCtx(ctx)
+	ctxUser, err := getUserFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
 
 	images, err := app.imageService.Admin.AssetsByAssetFolder(ctx, admin.AssetsByAssetFolderParams{
 		AssetFolder: fmt.Sprintf("brand-%d", ctxUser.BrandID.Int32),

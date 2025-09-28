@@ -1000,48 +1000,6 @@ paths:
       summary: List all events of a brand in a specific timestamp
       tags:
       - events
-  /events/timestamp/public:
-    get:
-      consumes:
-      - application/json
-      description: List all events of a brand in a specific timestamp and validate
-        the user input for public access
-      parameters:
-      - description: Start date in YYYY-MM-DD format
-        example: "2025-05-19"
-        in: query
-        name: startDate
-        required: true
-        type: string
-      - description: End date in YYYY-MM-DD format
-        example: "2025-05-20"
-        in: query
-        name: endDate
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of brands
-          schema:
-            items:
-              items:
-                $ref: '#/definitions/main.EventResponse'
-              type: array
-            type: array
-        "400":
-          description: Bad request - invalid input
-          schema: {}
-        "409":
-          description: Conflict - timeslot already booked
-          schema: {}
-        "500":
-          description: Internal server error
-          schema: {}
-      summary: List all events of a brand in a specific timestamp (public)
-      tags:
-      - events
   /health:
     get:
       description: Healthcheck endpoint
@@ -1184,6 +1142,59 @@ paths:
       summary: Get services by brand (public)
       tags:
       - service
+  /timeslots:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves available time slots for a specific service on a given
+        date for a selected staff member. This endpoint is public and requires brand
+        context from middleware.
+      parameters:
+      - description: Date in YYYY-MM-DD format
+        example: "2025-01-15"
+        in: query
+        name: date
+        required: true
+        type: string
+      - description: Service ID (UUID)
+        example: 123e4567-e89b-12d3-a456-426614174000
+        in: query
+        name: serviceId
+        required: true
+        type: string
+      - description: Staff member ID (UUID)
+        example: 987f6543-e21c-34d5-b678-123456789abc
+        in: query
+        name: userId
+        required: true
+        type: string
+      - default: "1"
+        description: Brand ID header for development. In production this header is
+          ignored
+        in: header
+        name: X-Brand-ID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of available timeslots
+          schema:
+            items:
+              items:
+                type: string
+              type: array
+            type: array
+        "400":
+          description: Bad request - Invalid date format, invalid service ID, or invalid
+            user ID
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      summary: Get available timeslots for a service on a specific date
+      tags:
+      - timeslots
   /users:
     get:
       consumes:

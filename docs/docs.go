@@ -806,65 +806,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/events/timestamp/public": {
-            "get": {
-                "description": "List all events of a brand in a specific timestamp and validate the user input for public access",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "events"
-                ],
-                "summary": "List all events of a brand in a specific timestamp (public)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "2025-05-19",
-                        "description": "Start date in YYYY-MM-DD format",
-                        "name": "startDate",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "example": "2025-05-20",
-                        "description": "End date in YYYY-MM-DD format",
-                        "name": "endDate",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of brands",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/main.EventResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - invalid input",
-                        "schema": {}
-                    },
-                    "409": {
-                        "description": "Conflict - timeslot already booked",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {}
-                    }
-                }
-            }
-        },
         "/events/{eventId}": {
             "put": {
                 "security": [
@@ -1130,6 +1071,76 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/timeslots": {
+            "get": {
+                "description": "Retrieves available time slots for a specific service on a given date for a selected staff member. This endpoint is public and requires brand context from middleware.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "timeslots"
+                ],
+                "summary": "Get available timeslots for a service on a specific date",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "2025-01-15",
+                        "description": "Date in YYYY-MM-DD format",
+                        "name": "date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
+                        "description": "Service ID (UUID)",
+                        "name": "serviceId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "example": "987f6543-e21c-34d5-b678-123456789abc",
+                        "description": "Staff member ID (UUID)",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "1",
+                        "description": "Brand ID header for development. In production this header is ignored",
+                        "name": "X-Brand-ID",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of available timeslots",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid date format, invalid service ID, or invalid user ID",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {}
                     }
                 }

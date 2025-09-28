@@ -28,7 +28,10 @@ import (
 // @Router			/brand [post]
 func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	ctxUser := getUserFromCtx(ctx)
+	ctxUser, err := getUserFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
 
 	if ctxUser.Role != ownerRole {
 		app.forbiddenResponse(w, r, ErrAccessDenied)
@@ -56,7 +59,6 @@ func (app *application) createBrandHandler(w http.ResponseWriter, r *http.Reques
 		app.internalServerError(w, r, err)
 		return
 	}
-
 	brand, wh, err := app.store.CreateBrandTx(ctx, store.CreateBrandTxParams{
 		Name:    payload.Name,
 		PageUrl: pageUrl,
@@ -199,7 +201,11 @@ func (app *application) handleBrandRetrieval(w http.ResponseWriter, r *http.Requ
 // @Router			/brand [get]
 func (app *application) getBrandHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := getUserFromCtx(ctx)
+	user, err := getUserFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
+
 	app.handleBrandRetrieval(w, r, user.BrandID.Int32)
 }
 
@@ -214,7 +220,11 @@ func (app *application) getBrandHandler(w http.ResponseWriter, r *http.Request) 
 // @Router			/brand/public [get]
 func (app *application) getBrandPublicHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	brandID := getBrandIDFromCtx(ctx)
+	brandID, err := getBrandIDFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
+
 	app.handleBrandRetrieval(w, r, brandID)
 }
 

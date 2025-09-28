@@ -143,6 +143,18 @@ func (app *application) RateLimiterMiddleware(next http.Handler) http.Handler {
 
 func (app *application) BrandMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if app.config.env == "development" {
+			brandIDHeader := r.Header.Get("X-Brand-ID")
+			if brandIDHeader != "" {
+				id, err := strconv.ParseInt(brandIDHeader, 10, 32)
+				if err == nil {
+					ctx := context.WithValue(r.Context(), brandIDCtx, int32(id))
+					next.ServeHTTP(w, r.WithContext(ctx))
+					return
+				}
+			}
+		}
+
 		origin := r.Header.Get("Origin")
 		if origin == "" {
 			app.badRequestResponse(w, r, errors.New("missing origin header"))
@@ -160,18 +172,6 @@ func (app *application) BrandMiddleware(next http.Handler) http.Handler {
 		if len(parts) == 0 {
 			app.badRequestResponse(w, r, errors.New("invalid hostname"))
 			return
-		}
-
-		if app.config.env == "development" {
-			brandIDHeader := r.Header.Get("X-Brand-ID")
-			if brandIDHeader != "" {
-				id, err := strconv.ParseInt(brandIDHeader, 10, 32)
-				if err == nil {
-					ctx := context.WithValue(r.Context(), brandIDCtx, int32(id))
-					next.ServeHTTP(w, r.WithContext(ctx))
-					return
-				}
-			}
 		}
 
 		brand := parts[0]

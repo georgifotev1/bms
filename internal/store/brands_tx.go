@@ -80,17 +80,25 @@ func (s *SQLStore) CreateBrandTx(ctx context.Context, arg CreateBrandTxParams) (
 			return err
 		}
 
-		openTime, _ := time.Parse("15:04", "09:00")
-		closeTime, _ := time.Parse("15:04", "17:00")
+		location, err := time.LoadLocation("Europe/Sofia")
+		if err != nil {
+			return err
+		}
+
+		openTime, _ := time.ParseInLocation("15:04", "09:00", location)
+		closeTime, err := time.ParseInLocation("15:04", "17:00", location)
+
+		openTimeUTC := openTime.UTC()
+		closeTimeUTC := closeTime.UTC()
 
 		defaultWorkingHours := []UpsertBrandWorkingHoursParams{
-			{BrandID: brand.ID, DayOfWeek: 1, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
-			{BrandID: brand.ID, DayOfWeek: 2, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
-			{BrandID: brand.ID, DayOfWeek: 3, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
-			{BrandID: brand.ID, DayOfWeek: 4, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
-			{BrandID: brand.ID, DayOfWeek: 5, OpenTime: sql.NullTime{Time: openTime, Valid: true}, CloseTime: sql.NullTime{Time: closeTime, Valid: true}, IsClosed: false},
-			{BrandID: brand.ID, DayOfWeek: 6, OpenTime: sql.NullTime{Time: openTime, Valid: false}, CloseTime: sql.NullTime{Time: closeTime, Valid: false}, IsClosed: true},
-			{BrandID: brand.ID, DayOfWeek: 0, OpenTime: sql.NullTime{Time: openTime, Valid: false}, CloseTime: sql.NullTime{Time: closeTime, Valid: false}, IsClosed: true},
+			{BrandID: brand.ID, DayOfWeek: 1, OpenTime: sql.NullTime{Time: openTimeUTC, Valid: true}, CloseTime: sql.NullTime{Time: closeTimeUTC, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 2, OpenTime: sql.NullTime{Time: openTimeUTC, Valid: true}, CloseTime: sql.NullTime{Time: closeTimeUTC, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 3, OpenTime: sql.NullTime{Time: openTimeUTC, Valid: true}, CloseTime: sql.NullTime{Time: closeTimeUTC, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 4, OpenTime: sql.NullTime{Time: openTimeUTC, Valid: true}, CloseTime: sql.NullTime{Time: closeTimeUTC, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 5, OpenTime: sql.NullTime{Time: openTimeUTC, Valid: true}, CloseTime: sql.NullTime{Time: closeTimeUTC, Valid: true}, IsClosed: false},
+			{BrandID: brand.ID, DayOfWeek: 6, OpenTime: sql.NullTime{Time: openTimeUTC, Valid: false}, CloseTime: sql.NullTime{Time: closeTimeUTC, Valid: false}, IsClosed: true},
+			{BrandID: brand.ID, DayOfWeek: 0, OpenTime: sql.NullTime{Time: openTimeUTC, Valid: false}, CloseTime: sql.NullTime{Time: closeTimeUTC, Valid: false}, IsClosed: true},
 		}
 
 		for _, wh := range defaultWorkingHours {

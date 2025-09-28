@@ -11,5 +11,9 @@ sql:
               overrides:
                   - column: "users.password"
                     go_struct_tag: 'json:"-"'
+                  - db_type: "timestamp"
+                    go_type: "time.Time"
+                  - db_type: "timestamptz"
+                    go_type: "time.Time"
               emit_interface: true
               emit_result_struct_pointers: true

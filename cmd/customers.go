@@ -67,7 +67,10 @@ func (app *application) signUpCustomerHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	ctx := r.Context()
-	ctxBrandID := getBrandIDFromCtx(ctx)
+	ctxBrandID, err := getBrandIDFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
 
 	customer, err := app.store.CreateCustomer(ctx, store.CreateCustomerParams{
 		Name:        payload.Name,
@@ -245,7 +248,10 @@ func (app *application) createGuestCustomerHandler(w http.ResponseWriter, r *htt
 	}
 
 	ctx := r.Context()
-	ctxBrandID := getBrandIDFromCtx(ctx)
+	ctxBrandID, err := getBrandIDFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
 
 	customer, exist, err := app.store.CreateGuestTx(ctx, store.CreateGuestTxParams{
 		Name:        payload.Name,

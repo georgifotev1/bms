@@ -53,11 +53,14 @@ type UpdateBrandSocialLink struct {
 func (p *UpdateBrandWorkingHoursPayload) ToWorkingHoursParams(brandID int32) []store.UpsertBrandWorkingHoursParams {
 	params := make([]store.UpsertBrandWorkingHoursParams, len(p.WorkingHours))
 	for i, wh := range p.WorkingHours {
+		openTime := parseTimeStringFromUserLoacation("Europe/Sofia", wh.OpenTime)
+		closeTime := parseTimeStringFromUserLoacation("Europe/Sofia", wh.CloseTime)
+
 		params[i] = store.UpsertBrandWorkingHoursParams{
 			BrandID:   brandID,
 			DayOfWeek: wh.DayOfWeek,
-			OpenTime:  parseTimeString(wh.OpenTime),
-			CloseTime: parseTimeString(wh.CloseTime),
+			OpenTime:  parseTimeString(openTime.Format("15:04")),
+			CloseTime: parseTimeString(closeTime.Format("15:04")),
 			IsClosed:  wh.IsClosed,
 		}
 	}

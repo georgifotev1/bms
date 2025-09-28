@@ -37,20 +37,20 @@ type CreateServicePayload struct {
 	UserIDs     []int64 `schema:"userIds"`
 }
 
-//	@Summary		Create a new service
-//	@Description	Creates a new service for a brand and assigns it to specified providers
-//	@Tags			service
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			payload	body		CreateServicePayload	true	"Service creation data"
-//	@Success		201		{object}	ServiceResponse			"Created service"
-//	@Failure		400		{object}	error					"Bad request - Invalid input"
-//	@Failure		401		{object}	error					"Unauthorized - Invalid or missing token"
-//	@Failure		403		{object}	error					"Forbidden - User does not belong to a brand"
-//	@Failure		404		{object}	error					"Not found - One or more providers not found"
-//	@Failure		500		{object}	error					"Internal server error"
-//	@Router			/service [post]
+// @Summary		Create a new service
+// @Description	Creates a new service for a brand and assigns it to specified providers
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			payload	body		CreateServicePayload	true	"Service creation data"
+// @Success		201		{object}	ServiceResponse			"Created service"
+// @Failure		400		{object}	error					"Bad request - Invalid input"
+// @Failure		401		{object}	error					"Unauthorized - Invalid or missing token"
+// @Failure		403		{object}	error					"Forbidden - User does not belong to a brand"
+// @Failure		404		{object}	error					"Not found - One or more providers not found"
+// @Failure		500		{object}	error					"Internal server error"
+// @Router			/service [post]
 func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctxUser := ctx.Value(userCtx).(*store.User)
@@ -110,21 +110,21 @@ func (app *application) createServiceHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-//	@Summary		Update a service
-//	@Description	Update a service and the users that can provide it
-//	@Tags			service
-//	@Accept			json
-//	@Produce		json
-//	@Security		CookieAuth
-//	@Param			payload		body		CreateServicePayload	true	"Service update data"
-//	@Param			serviceId	path		uuid.UUID				true	"service ID"
-//	@Success		200			{object}	ServiceResponse			"Updated service"
-//	@Failure		400			{object}	error					"Bad request - Invalid input"
-//	@Failure		401			{object}	error					"Unauthorized - Invalid or missing token"
-//	@Failure		403			{object}	error					"Forbidden - User does not belong to a brand"
-//	@Failure		404			{object}	error					"Not found - One or more providers not found"
-//	@Failure		500			{object}	error					"Internal server error"
-//	@Router			/service/id/{serviceId} [put]
+// @Summary		Update a service
+// @Description	Update a service and the users that can provide it
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Security		CookieAuth
+// @Param			payload		body		CreateServicePayload	true	"Service update data"
+// @Param			serviceId	path		uuid.UUID				true	"service ID"
+// @Success		200			{object}	ServiceResponse			"Updated service"
+// @Failure		400			{object}	error					"Bad request - Invalid input"
+// @Failure		401			{object}	error					"Unauthorized - Invalid or missing token"
+// @Failure		403			{object}	error					"Forbidden - User does not belong to a brand"
+// @Failure		404			{object}	error					"Not found - One or more providers not found"
+// @Failure		500			{object}	error					"Internal server error"
+// @Router			/service/id/{serviceId} [put]
 func (app *application) updateServiceHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctxUser := ctx.Value(userCtx).(*store.User)
@@ -248,34 +248,41 @@ func (app *application) handleServicesRetrieval(w http.ResponseWriter, r *http.R
 	}
 }
 
-//	@Summary		Get services by brand
-//	@Description	Fetches all services of a brand
-//	@Tags			service
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	[]ServiceResponse
-//	@Failure		400	{object}	error
-//	@Failure		404	{object}	error
-//	@Failure		500	{object}	error
-//	@Router			/service [get]
+// @Summary		Get services by brand
+// @Description	Fetches all services of a brand
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	[]ServiceResponse
+// @Failure		400	{object}	error
+// @Failure		404	{object}	error
+// @Failure		500	{object}	error
+// @Router			/service [get]
 func (app *application) getServicesHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	user := getUserFromCtx(ctx)
+	user, err := getUserFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
+
 	app.handleServicesRetrieval(w, r, user.BrandID.Int32)
 }
 
-//	@Summary		Get services by brand (public)
-//	@Description	Fetches all services of a brand for public access
-//	@Tags			service
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	[]ServiceResponse
-//	@Failure		400	{object}	error
-//	@Failure		404	{object}	error
-//	@Failure		500	{object}	error
-//	@Router			/service/public [get]
+// @Summary		Get services by brand (public)
+// @Description	Fetches all services of a brand for public access
+// @Tags			service
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	[]ServiceResponse
+// @Failure		400	{object}	error
+// @Failure		404	{object}	error
+// @Failure		500	{object}	error
+// @Router			/service/public [get]
 func (app *application) getServicesPublicHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	brandID := getBrandIDFromCtx(ctx)
+	brandID, err := getBrandIDFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
 	app.handleServicesRetrieval(w, r, brandID)
 }

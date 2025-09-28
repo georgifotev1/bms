@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"math/big"
 	"net/http"
 	"time"
@@ -131,14 +132,20 @@ func (app *application) ClearCookie(w http.ResponseWriter, name string) {
 	})
 }
 
-func getBrandIDFromCtx(ctx context.Context) int32 {
+func getBrandIDFromCtx(ctx context.Context) (int32, error) {
 	ctxValue := ctx.Value(brandIDCtx)
-	return ctxValue.(int32)
+	if ctxValue == nil {
+		return 0, errors.New("Context is missing")
+	}
+	return ctxValue.(int32), nil
 }
 
-func getUserFromCtx(ctx context.Context) *store.User {
+func getUserFromCtx(ctx context.Context) (*store.User, error) {
 	ctxValue := ctx.Value(userCtx)
-	return ctxValue.(*store.User)
+	if ctxValue == nil {
+		return nil, errors.New("Context is missing")
+	}
+	return ctxValue.(*store.User), nil
 
 }
 
@@ -149,11 +156,15 @@ func toNullString(s string) sql.NullString {
 	}
 }
 
-func toNullBool(b bool) sql.NullBool {
-	return sql.NullBool{
-		Valid: b,
-		Bool:  b,
-	}
+var LOCATION_FORMAT = "Europe/Sofia"
+
+func parseTimeStringFromUserLoacation(format, timeString string) time.Time {
+	location, _ := time.LoadLocation(format)
+
+	today := time.Now().Format("2006-01-02 ")
+	parsedTime, _ := time.ParseInLocation("2006-01-02 15:04", today+timeString, location)
+
+	return parsedTime.UTC()
 }
 
 func parseTimeString(timeStr string) sql.NullTime {

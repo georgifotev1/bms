@@ -336,7 +336,10 @@ func (app *application) getUsersHandler(w http.ResponseWriter, r *http.Request) 
 // @Router			/users/public [get]
 func (app *application) getUsersPublicHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	brandID := getBrandIDFromCtx(ctx)
+	brandID, err := getBrandIDFromCtx(ctx)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
 	app.handleUsersRetrieval(w, r, brandID)
 }
 

@@ -31,14 +31,6 @@ type Querier interface {
 	DeleteService(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id int64) error
 	DeleteUserInvitation(ctx context.Context, userID int64) error
-	// Parameters: brand_id, date, service_id
-	// Get all events for the given date and brand
-	// Get all users (staff) for the brand
-	// Generate time slots for the day (e.g., every 15 min from 9am to 5pm)
-	// Apply service duration to get slot end times
-	// Check availability for each staff member and time slot
-	// Final available time slots with at least one available staff
-	GetAvailableTimeslots(ctx context.Context, arg GetAvailableTimeslotsParams) ([]*GetAvailableTimeslotsRow, error)
 	GetBrand(ctx context.Context, id int32) (*Brand, error)
 	GetBrandById(ctx context.Context, id int32) (*Brand, error)
 	GetBrandByUrl(ctx context.Context, pageUrl string) (int32, error)

@@ -147,10 +147,11 @@ func (app *application) mount() http.Handler {
 			r.Post("/", app.createServiceHandler)
 			r.Put("/id/{serviceId}", app.updateServiceHandler)
 			r.Get("/", app.getServicesHandler)
-			r.Route("/public", func(r chi.Router) {
-				r.Use(app.BrandMiddleware)
-				r.Get("/", app.getServicesPublicHandler)
-			})
+		})
+
+		r.Route("/service/public", func(r chi.Router) {
+			r.Use(app.BrandMiddleware)
+			r.Get("/", app.getServicesPublicHandler)
 		})
 
 		r.Route("/events", func(r chi.Router) {
@@ -158,9 +159,11 @@ func (app *application) mount() http.Handler {
 			r.Post("/", app.createEventHandler)
 			r.Get("/timestamp", app.getEventsByTimeStampHandler)
 			r.Put("/{eventId}", app.updateEventHandler)
-			r.Route("/public", func(r chi.Router) {
-				r.Use(app.BrandMiddleware)
-			})
+		})
+
+		r.Route("/timeslots", func(r chi.Router) {
+			r.Use(app.BrandMiddleware)
+			r.Get("/", app.getAvailableTimeslotsHandler)
 		})
 
 		r.Route("/auth", func(r chi.Router) {
