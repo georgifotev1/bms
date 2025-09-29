@@ -100,10 +100,17 @@ WITH service_info AS (
     SELECT s.duration, s.buffer_time
     FROM services s
     WHERE s.id = sqlc.arg(service_id)
+),
+user_can_provide AS (
+    SELECT 1
+    FROM user_services us
+    WHERE us.user_id = sqlc.arg(user_id)
+      AND us.service_id = sqlc.arg(service_id)
 )
 SELECT
     COALESCE(
-        NOT EXISTS (
+        EXISTS (SELECT 1 FROM user_can_provide)
+        AND NOT EXISTS (
             SELECT 1
             FROM events b
             WHERE b.user_id = sqlc.arg(user_id)

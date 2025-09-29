@@ -294,7 +294,6 @@ func (app *application) validateEventEntities(ctx context.Context, params EventV
 
 	isAvailable, err := app.store.CheckSpecificTimeslotAvailability(ctx, availabilityParams)
 	if err != nil {
-		fmt.Println("HERE IS THE ERROR!")
 		return nil, fmt.Errorf("checking timeslot availability: %w", err)
 	}
 	if isAvailable == false {
