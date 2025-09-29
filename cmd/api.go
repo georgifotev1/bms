@@ -123,10 +123,11 @@ func (app *application) mount() http.Handler {
 				r.Post("/invite", app.inviteUserHandler)
 				r.Get("/{id}", app.getUserHandler)
 			})
-			r.Route("/public", func(r chi.Router) {
-				r.Use(app.BrandMiddleware)
-				r.Get("/", app.getUsersPublicHandler)
-			})
+		})
+
+		r.Route("/users/public", func(r chi.Router) {
+			r.Use(app.BrandMiddleware)
+			r.Get("/", app.getUsersPublicHandler)
 		})
 
 		r.Route("/brand", func(r chi.Router) {
@@ -136,10 +137,11 @@ func (app *application) mount() http.Handler {
 			r.Put("/{id}/working-hours", app.updateBrandWorkingHoursHandler)
 			r.Put("/{id}/social-links", app.updateBrandSocialLinksHandler)
 			r.Get("/", app.getBrandHandler)
-			r.Route("/public", func(r chi.Router) {
-				r.Use(app.BrandMiddleware)
-				r.Get("/", app.getBrandPublicHandler)
-			})
+		})
+
+		r.Route("/brand/public", func(r chi.Router) {
+			r.Use(app.BrandMiddleware)
+			r.Get("/", app.getBrandPublicHandler)
 		})
 
 		r.Route("/service", func(r chi.Router) {
